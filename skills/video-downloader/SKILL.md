@@ -1,209 +1,189 @@
 ---
 name: video-downloader
-description: 使用 video_downloader 工具下载 Bilibili（B站）、抖音（Douyin）、TikTok 视频和图集。当用户提到"帮我下载这个视频"、"把这个B站/抖音/TikTok链接下载下来"、"下载视频到本地"、"批量下载"时触发此技能。即使用户只是粘贴了一个 bilibili.com、douyin.com 或 tiktok.com 链接并表达了下载意图，也应该使用此技能。
+description: 下载 Bilibili（B站）、抖音（Douyin）、TikTok 视频或图集。当用户提到"帮我下载这个视频""下载这个 B 站/抖音/TikTok 链接""批量下载视频""查看视频信息不下载"时触发。核心实现已 vendored 在 vendor/video-downloader/，开箱即用；也可通过 --project-root 或环境变量指向外部安装。
 compatibility:
   tools: [bash, python]
   requires:
     - Python >= 3.8
-    - 已安装 video_downloader（pip install -r requirements.txt）
-    - Playwright 浏览器（playwright install chromium，抖音/TikTok 必须）
+    - 依赖见 vendor/video-downloader/requirements.txt
+    - Playwright 浏览器（仅当底层实现对抖音/TikTok 需要浏览器自动化时）
 ---
 
 # Video Downloader Skill
 
-帮助用户通过命令行或 Python API 下载 B站、抖音、TikTok 的视频和图集。
+这个 skill 包含完整的下载器实现（vendored 在 `vendor/video-downloader/`），可以开箱即用。
 
-**技能根目录**：`E:\code\codex\project-y`（以下路径均相对于此目录）
+入口脚本：
 
----
+- `scripts/video_downloader_bridge.py`
 
-## 快速判断
+解析顺序：
 
-收到用户请求后，先判断场景：
+1. `--project-root <path>` 指定的本地项目目录
+2. 环境变量 `VIDEO_DOWNLOADER_PROJECT`
+3. `vendor/video-downloader/`（已内置，默认命中）
+4. 当前 Python 环境里可导入的 `video_downloader` 模块
 
-- **单个 URL** → 用命令行，简单快速
-- **批量多个 URL** → 命令行批量或从文件读取
-- **需要编程控制**（进度回调、自定义逻辑）→ Python API
-- **只想查看视频信息不下载** → 加 `--metadata-only`
-- **需要高清/4K** → 需要 Cookie + `-q` 参数
+如果四者都没有，它会明确报错。
 
----
+## 安装依赖
 
-## 命令行使用（推荐入门）
+首次使用前，安装 vendor 内项目的 Python 依赖：
 
 ```bash
-# 切换到项目目录
-cd E:\code\codex\project-y
-
-# 下载单个视频（最简单）
-python -m video_downloader [URL]
-
-# 常用参数组合
-python -m video_downloader \
-  -o ./downloads \          # 指定保存目录（默认 ./downloads）
-  -q 1080P \               # 画质：4K / 1080P60 / 1080P / 720P60 / 720P / 480P / 360P
-  -f "{author}_{title}" \  # 文件名模板
-  -c cookies.txt \         # Cookie 文件（获取高清或会员内容必须）
-  [URL]
-
-# 批量下载（多个 URL）
-python -m video_downloader URL1 URL2 URL3
-
-# 从文件批量下载（每行一个 URL）
-python -m video_downloader --url-file urls.txt
-
-# 只查看视频信息（不下载）
-python -m video_downloader --metadata-only [URL]
-
-# 查看支持的平台
-python -m video_downloader --list-platforms
+pip install -r skills/video-downloader/vendor/video-downloader/requirements.txt
 ```
 
-**文件名模板变量**：`{title}` 标题 / `{author}` 作者 / `{id}` 视频ID / `{date}` 日期 / `{platform}` 平台
+抖音/TikTok 平台还需要 Playwright 浏览器：
 
----
-
-## 平台说明
-
-| 平台 | 视频 | 图集 | 画质选择 | Cookie | 反爬状态 |
-|------|------|------|---------|--------|---------|
-| Bilibili | ✅ | ❌ | ✅ 完整支持 | ✅ | 稳定 |
-| 抖音 | ✅ | ✅ | ❌ | ✅ | 测试中，需浏览器自动化 |
-| TikTok | ✅ | ❌ | ❌ | ✅ | 测试中，需浏览器自动化 |
-
-**重要**：抖音和 TikTok 需要 X-Bogus/A-Bogus 签名，当前实现通过 Playwright 浏览器自动化绕过，速度较慢但稳定。
-
----
-
-## Python API 使用
-
-需要 Python 控制时（如进度显示、错误处理、集成到其他脚本）：
-
-```python
-import asyncio
-from video_downloader import VideoDownloader
-from video_downloader.models import DownloadOptions
-from video_downloader.config import DownloaderConfig
-
-async def main():
-    # 基础下载
-    downloader = VideoDownloader()
-    result = await downloader.download(
-        "https://www.bilibili.com/video/BV1xx411c7mD",
-        DownloadOptions(output_dir="./downloads", quality="1080P")
-    )
-    print(f"{'成功' if result.success else '失败'}: {result.file_path or result.error_message}")
-
-    # 批量下载
-    batch = await downloader.batch_download(["url1", "url2"], DownloadOptions())
-    print(f"成功 {batch.successful} / 共 {batch.total}")
-
-    # 只提取元数据
-    meta = await downloader.extract_metadata("https://www.bilibili.com/video/BV1xx411c7mD")
-    print(f"{meta.title} | {meta.author} | {meta.duration}秒 | 可用画质: {meta.available_qualities}")
-
-asyncio.run(main())
-```
-
-**自定义配置**（代理、反检测、超时等）：
-
-```python
-config = DownloaderConfig(
-    output_dir="./downloads",
-    cookie_file="./cookies.txt",    # Netscape 格式 Cookie
-    filename_template="{author}_{title}",
-    timeout=60,
-    max_retries=3,
-    headless=True,                  # False = 显示浏览器窗口（调试用）
-    enable_stealth=True,            # 启用浏览器指纹伪装
-    proxy="http://127.0.0.1:7890", # HTTP 或 socks5:// 代理
-    user_agent="自定义UA",
-)
-downloader = VideoDownloader(config)
-```
-
----
-
-## 常见问题处理
-
-### 403 / 反爬虫被拦截
-```bash
-# 方案1：提供 Cookie（推荐）
-python -m video_downloader -c cookies.txt [URL]
-
-# 方案2：使用代理
-python -m video_downloader --proxy http://127.0.0.1:7890 [URL]
-```
-
-**获取 Cookie**：浏览器安装 "Get cookies.txt" 插件 → 登录目标网站 → 导出 Netscape 格式 → 保存为 cookies.txt
-
-### Playwright 浏览器未安装
 ```bash
 playwright install chromium
 ```
 
-### Windows 运行报错
-- 确认已安装 Visual C++ Redistributable
-- 链接：https://aka.ms/vs/17/release/vc_redist.x64.exe
+## 先做什么
 
-### 超时错误
-```bash
-python -m video_downloader --timeout 120 [URL]
-```
-
-### 视频找不到
-- 确认视频未被删除或设为私密
-- 会员内容需要提供对应账号的 Cookie
-
----
-
-## 添加新平台
-
-如需扩展支持新平台，在 `video_downloader/extractors/` 创建新文件，继承 `PlatformExtractor` 基类：
-
-```python
-from .base import PlatformExtractor
-from ..models import VideoMetadata, DownloadOptions
-
-class NewPlatformExtractor(PlatformExtractor):
-    @property
-    def platform_name(self) -> str:
-        return "new-platform"
-
-    @property
-    def url_patterns(self) -> list[str]:
-        return [r"https?://(?:www\.)?newplatform\.com/video/[\w-]+"]
-
-    async def extract_metadata(self, url: str) -> VideoMetadata:
-        # 实现元数据提取
-        pass
-
-    async def get_download_url(self, url: str, options: DownloadOptions) -> str:
-        # 实现下载链接获取
-        pass
-```
-
-然后在 `video_downloader/extractors/__init__.py` 中注册。
-
----
-
-## MCP Server 模式
-
-如需通过 MCP 协议被 Claude Desktop 或其他 AI 工具调用：
+第一次使用，先跑体检：
 
 ```bash
-# 启动 MCP Server（stdio 模式）
-python mcp_server.py
+python scripts/video_downloader_bridge.py doctor
 ```
 
-提供的工具：`download_video` / `batch_download` / `get_video_info` / `list_supported_platforms`
+如果你已经有另一个本地实现目录：
 
-详见 `mcp_server.py`。
+```bash
+python scripts/video_downloader_bridge.py doctor --project-root /path/to/video-downloader
+```
 
----
+或者设置环境变量：
 
-## 参考文档
-- 完整使用示例 → `USAGE.md`
-- 快速入口脚本 → `quick_start.py`
-- 架构设计文档 → `.kiro/specs/video-downloader-skill/design.md`
-- 需求文档 → `.kiro/specs/video-downloader-skill/requirements.md`
+```bash
+# PowerShell
+$env:VIDEO_DOWNLOADER_PROJECT="/path/to/video-downloader"
+
+# bash
+export VIDEO_DOWNLOADER_PROJECT=/path/to/video-downloader
+```
+
+## 典型用法
+
+### 1. 下载单个视频
+
+```bash
+python scripts/video_downloader_bridge.py run -- [URL]
+```
+
+### 2. 指定输出目录、画质、Cookie
+
+```bash
+python scripts/video_downloader_bridge.py run -- \
+  -o ./downloads \
+  -q 1080P \
+  -c cookies.txt \
+  [URL]
+```
+
+### 3. 批量下载
+
+```bash
+python scripts/video_downloader_bridge.py run -- URL1 URL2 URL3
+```
+
+### 4. 只看元数据，不下载
+
+```bash
+python scripts/video_downloader_bridge.py run -- --metadata-only [URL]
+```
+
+### 5. 启动 MCP Server
+
+```bash
+python scripts/video_downloader_bridge.py mcp
+```
+
+如果只解析到 site-packages 里的模块（而非 vendor 或 project-root），包装层无法猜测 MCP 入口，会退回显示模块帮助信息。
+
+## 使用策略
+
+收到下载请求后，按这个顺序处理：
+
+- 先判断用户是要"下载"、还是"只看信息"
+- 先跑 `doctor`，确认运行时来源
+- 如果没找到运行时，提示用户安装依赖或检查 vendor 目录
+- 如果找到运行时，再用 `run` 透传参数
+- 需要 MCP 时，优先要求明确的 `--project-root`
+
+## 什么时候需要指定本地项目目录
+
+以下情况优先让用户提供 `--project-root` 或 `VIDEO_DOWNLOADER_PROJECT`：
+
+- 需要启动 `mcp_server.py`（vendor 内已包含，一般不需要额外指定）
+- 用户明确说他有一个本地 checkout，想覆盖 vendor 版本
+- 你需要确认底层实现版本，而不是使用 vendor 或已安装模块
+
+## 常见问题
+
+### 找不到运行时
+
+先跑：
+
+```bash
+python scripts/video_downloader_bridge.py doctor
+```
+
+如果输出里：
+
+- `module_importable` 是 `False`
+- `project_root` 没设置且 vendor 目录不存在
+
+那就说明依赖缺失。你需要：
+
+- 检查 `vendor/video-downloader/` 是否存在，或
+- 安装可导入的 `video_downloader` 模块，或
+- 用 `--project-root` 提供一个本地项目目录
+
+### 抖音 / TikTok 需要浏览器自动化
+
+这取决于底层实现，不是包装层本身决定的。通常要额外准备：
+
+```bash
+playwright install chromium
+```
+
+### 403 / 反爬被拦
+
+包装层只负责转发参数。优先尝试把 Cookie、代理、超时等参数直接透传给底层实现：
+
+```bash
+python scripts/video_downloader_bridge.py run -- \
+  -c cookies.txt \
+  --proxy http://127.0.0.1:7890 \
+  --timeout 120 \
+  [URL]
+```
+
+## 当前仓库内文件结构
+
+```text
+video-downloader/
+├── SKILL.md
+├── scripts/
+│   └── video_downloader_bridge.py    ← 入口/包装脚本
+└── vendor/
+    └── video-downloader/             ← 核心实现（已 vendored）
+        ├── video_downloader/          ← Python 包
+        ├── mcp_server.py
+        ├── quick_start.py
+        ├── setup.py
+        ├── requirements.txt
+        ├── USAGE.md
+        └── ...（完整项目，不含 __pycache__/downloads 等输出目录）
+```
+
+## 更新与同步
+
+vendor 目录里的代码是从外部 video-downloader 项目手动拷入的。如果上游有更新：
+
+1. 用新版本覆盖 `vendor/video-downloader/` 内容（排除 `__pycache__/`、`downloads/`、`.pytest_cache/` 等）
+2. 运行 `doctor` 确认解析正常
+
+如果以后希望自动化同步，可以改用 git subtree 或 git submodule。
