@@ -4,11 +4,13 @@
   "active_list": "default",
   "lists": {
     "default": [
-      "weibo",
+      "1",
+      "2",
+      "3",
       "47",
-      "toutiao",
-      "zhihu",
-      "douban"
+      "58",
+      "79",
+      "98"
     ]
   }
 }

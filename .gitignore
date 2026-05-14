@@ -12,3 +12,6 @@ evals/runs/
 # 编辑器
 .vscode/
 .idea/
+
+# 摸摸鱼登录凭证（敏感信息）
+skills/mmy/scripts/mmy_credentials.json

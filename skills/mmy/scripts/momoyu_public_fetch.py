@@ -15,8 +15,9 @@ from pathlib import Path
 
 BASE_URL = "https://momoyu.cc"
 API_BASE = f"{BASE_URL}/api"
-USER_AGENT = "momoyu-public-fetch/1.0 (+anonymous; no-login)"
+USER_AGENT = "momoyu-public-fetch/1.0"
 CONFIG_FILE = Path(__file__).parent / "mmy_config.json"
+CREDENTIALS_FILE = Path(__file__).parent / "mmy_credentials.json"
 HISTORY_FILE = Path(__file__).parent / "mmy_history.json"
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -25,16 +26,119 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 # ==========================================
-# 核心网络请求
+# 凭证与认证
 # ==========================================
-def fetch_text(url: str) -> str:
-    request = urllib.request.Request(
-        url,
+def load_credentials() -> dict:
+    if not CREDENTIALS_FILE.exists():
+        return {}
+    try:
+        with open(CREDENTIALS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def save_credentials(creds: dict) -> None:
+    with open(CREDENTIALS_FILE, "w", encoding="utf-8") as f:
+        json.dump(creds, f, indent=2, ensure_ascii=False)
+
+_SESSION_CACHE: dict | None = None
+
+def _get_session_cookies() -> tuple[str, str]:
+    global _SESSION_CACHE
+    if _SESSION_CACHE is not None:
+        return _SESSION_CACHE["token"], _SESSION_CACHE["connect_sid"]
+    creds = load_credentials()
+    _SESSION_CACHE = {
+        "token": creds.get("token", ""),
+        "connect_sid": creds.get("connect_sid", ""),
+    }
+    return _SESSION_CACHE["token"], _SESSION_CACHE["connect_sid"]
+
+def _build_auth_headers() -> dict:
+    token, connect_sid = _get_session_cookies()
+    cookie_parts = []
+    if token:
+        cookie_parts.append(f"token={token}")
+    if connect_sid:
+        cookie_parts.append(f"connect.sid={connect_sid}")
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "application/json, text/plain, */*",
+    }
+    if cookie_parts:
+        headers["Cookie"] = "; ".join(cookie_parts)
+    return headers
+
+def _is_session_valid() -> bool:
+    token, connect_sid = _get_session_cookies()
+    if not token or not connect_sid:
+        return False
+    try:
+        url = f"{API_BASE}/hot/list?type=0"
+        req = urllib.request.Request(url, headers=_build_auth_headers())
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            raw = resp.read().decode("utf-8")
+            payload = json.loads(raw)
+            groups = payload.get("data", [])
+            return bool(groups) and len(groups) <= 15
+    except Exception:
+        return False
+
+def login_and_save_session(email: str, password: str) -> dict | None:
+    global _SESSION_CACHE
+    login_url = f"{API_BASE}/user/login"
+    body = json.dumps({"email": email, "password": password}).encode()
+    req = urllib.request.Request(
+        login_url,
+        data=body,
         headers={
+            "Content-Type": "application/json",
             "User-Agent": USER_AGENT,
             "Accept": "application/json, text/plain, */*",
         },
     )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            raw = resp.read().decode("utf-8")
+            payload = json.loads(raw)
+            if payload.get("status") != 100000:
+                print(f"登录失败: {payload.get('message', '未知错误')}", file=sys.stderr)
+                return None
+    except urllib.error.HTTPError as e:
+        print(f"登录请求失败: HTTP {e.code}", file=sys.stderr)
+        return None
+
+    set_cookie_headers = resp.headers.get_all("Set-Cookie") or []
+    token_val = ""
+    connect_sid_val = ""
+    for cookie_str in set_cookie_headers:
+        for part in cookie_str.split(","):
+            part = part.strip()
+            if part.startswith("token="):
+                token_val = part.split("=", 1)[1].split(";")[0]
+            elif part.startswith("connect.sid="):
+                connect_sid_val = part.split("=", 1)[1].split(";")[0]
+
+    if not token_val or not connect_sid_val:
+        return None
+
+    creds = load_credentials() or {}
+    creds["token"] = token_val
+    creds["connect_sid"] = connect_sid_val
+    creds["login_time"] = datetime.now().strftime("%Y-%m-%d")
+    save_credentials(creds)
+    _SESSION_CACHE = {
+        "token": token_val,
+        "connect_sid": connect_sid_val,
+    }
+    return creds
+
+# ==========================================
+# 核心网络请求
+# ==========================================
+def fetch_text(url: str) -> str:
+    headers = _build_auth_headers()
+    request = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(request, timeout=20) as response:
         return response.read().decode("utf-8")
 
@@ -56,7 +160,16 @@ def build_rss_url(ids: list[int]) -> str:
 # 数据处理
 # ==========================================
 def get_source_groups() -> list[dict]:
-    return fetch_json("/hot/list?type=0")
+    data = fetch_json("/hot/list?type=0")
+    if data and len(data) <= 15:
+        return data
+    creds = load_credentials()
+    has_session = bool(creds.get("token")) and bool(creds.get("connect_sid"))
+    if not has_session:
+        return data
+    print("提示: 登录会话可能已过期，返回的是公开源而非订阅源。", file=sys.stderr)
+    print("请运行: python commands/login.py open 重新登录", file=sys.stderr)
+    return data
 
 def flatten_items(groups: list[dict]) -> list[dict]:
     items = []
@@ -398,6 +511,8 @@ SOURCE_ICONS = {
     "netease": "\U0001f3a8",
     "ithome": "\U0001f4f1",
     "weixin": "\U0001f4f2",
+    "youmin_steam": "\U0001f3ae",
+    "nga": "\U0001f418",
 }
 
 SOURCE_LABELS = {
@@ -421,6 +536,8 @@ SOURCE_LABELS = {
     "netease": "网易新闻",
     "ithome": "IT之家",
     "weixin": "微信热议",
+    "youmin_steam": "游民娱乐榜",
+    "nga": "NGA",
 }
 
 

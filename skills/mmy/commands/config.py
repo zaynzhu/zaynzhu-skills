@@ -32,7 +32,8 @@ def main() -> int:
     config = load_config()
 
     if args.action == "show" or args.action is None:
-        print(json.dumps(config, ensure_ascii=False, indent=2))
+        safe_config = {k: v for k, v in config.items() if k not in ("token", "connect_sid")}
+        print(json.dumps(safe_config, ensure_ascii=False, indent=2))
 
     elif args.action == "sources":
         list_name = args.list_name or config.get("active_list", "default")
