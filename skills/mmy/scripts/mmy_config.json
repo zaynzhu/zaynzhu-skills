@@ -3,14 +3,6 @@
   "deduplicate": false,
   "active_list": "default",
   "lists": {
-    "default": [
-      "1",
-      "2",
-      "3",
-      "47",
-      "58",
-      "79",
-      "98"
-    ]
+    "default": ["zhihu", "weibo", "hupu", "47"]
   }
 }
