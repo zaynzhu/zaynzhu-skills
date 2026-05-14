@@ -537,7 +537,8 @@ SOURCE_LABELS = {
     "ithome": "IT之家",
     "weixin": "微信热议",
     "youmin_steam": "游民娱乐榜",
-    "nga": "NGA",
+    "nga_98": "NGA晴风村",
+    "nga_79": "NGA杂谈",
 }
 
 
@@ -545,7 +546,11 @@ def _icon_for(key: str) -> str:
     return SOURCE_ICONS.get(key, "\U0001f4ca")
 
 
-def _label_for(key: str, name: str) -> str:
+def _label_for(key: str, name: str, source_id: int | None = None) -> str:
+    if source_id is not None:
+        id_key = f"{key}_{source_id}"
+        if id_key in SOURCE_LABELS:
+            return SOURCE_LABELS[id_key]
     return SOURCE_LABELS.get(key, name)
 
 
@@ -567,7 +572,8 @@ def render_markdown(groups: list[dict], fetched_at: str, limit_per_source: int) 
     global_idx = 0
     for group in groups:
         source_key = group.get("source_key", "")
-        label = _label_for(source_key, group["name"])
+        source_id = group.get("id")
+        label = _label_for(source_key, group["name"], source_id)
 
         items = group.get("data", [])[:limit_per_source]
         if not items:
