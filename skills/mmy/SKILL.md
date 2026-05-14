@@ -1,5 +1,5 @@
 ---
-name: momoyu-fetch
+name: mmy
 description: 摸摸鱼公开热榜抓取器，支持在对话中读取、配置平台、去重历史、生成 Markdown 日报和一键打开浏览器功能。触发词包含 /mmy 系列命令。
 compatibility:
   tools: [bash, python]

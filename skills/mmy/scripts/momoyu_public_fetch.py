@@ -377,30 +377,110 @@ def render_html(groups: list[dict], fetched_at: str, limit_per_source: int) -> s
 </html>
 """
 
+SOURCE_ICONS = {
+    "zhihu": "\U0001f9e0",
+    "weibo": "\U0001f525",
+    "hupu": "\U0001f3c0",
+    "douyin": "\U0001f3b5",
+    "bilibili": "\U0001f3ac",
+    "tieba": "\U0001f4ac",
+    "toutiao": "\U0001f4f0",
+    "36kr": "\U0001f680",
+    "zhihu_daily": "\U0001f4c5",
+    "sina": "\U0001f4fa",
+    "github": "\U0001f4bb",
+    "v2ex": "\U0001f517",
+    "csdn": "\U0001f4d6",
+    "juejin": "\U0001f48e",
+    "segmentfault": "\U0001f527",
+    "news_qq": "\U0001f4e2",
+    "ifeng": "\U0001f981",
+    "netease": "\U0001f3a8",
+    "ithome": "\U0001f4f1",
+    "weixin": "\U0001f4f2",
+}
+
+SOURCE_LABELS = {
+    "zhihu": "知乎热榜",
+    "weibo": "微博热搜",
+    "hupu": "虎扑步行街",
+    "douyin": "抖音热榜",
+    "bilibili": "B站热门",
+    "tieba": "百度贴吧",
+    "toutiao": "今日头条",
+    "36kr": "36氪",
+    "zhihu_daily": "知乎日报",
+    "sina": "新浪热点",
+    "github": "GitHub趋势",
+    "v2ex": "V2EX",
+    "csdn": "CSDN",
+    "juejin": "掘金",
+    "segmentfault": "思否",
+    "news_qq": "腾讯新闻",
+    "ifeng": "凤凰新闻",
+    "netease": "网易新闻",
+    "ithome": "IT之家",
+    "weixin": "微信热议",
+}
+
+
+def _icon_for(key: str) -> str:
+    return SOURCE_ICONS.get(key, "\U0001f4ca")
+
+
+def _label_for(key: str, name: str) -> str:
+    return SOURCE_LABELS.get(key, name)
+
+
+def _humanize_extra(extra: str) -> str:
+    s = extra.strip()
+    if not s:
+        return ""
+    return s
+
+
 def render_markdown(groups: list[dict], fetched_at: str, limit_per_source: int) -> str:
-    lines = [
-        f"# 摸摸鱼公开热榜",
-        f"",
-        f"**抓取时间**：{fetched_at}",
-        f""
-    ]
-    
+    total = sum(len(g.get("data", [])[:limit_per_source]) for g in groups)
+    lines: list[str] = []
+    lines.append("**🐟 摸摸鱼热榜**")
+    lines.append("")
+    lines.append(f"共 {total} 条 · {fetched_at}")
+    lines.append("")
+
+    global_idx = 0
     for group in groups:
-        lines.append(f"## {group['name']} ({group.get('source_key', group['id'])})")
-        lines.append("")
-        
+        source_key = group.get("source_key", "")
+        label = _label_for(source_key, group["name"])
+
         items = group.get("data", [])[:limit_per_source]
         if not items:
-            lines.append("当前没有公开条目\n")
+            lines.append(f"## {label}")
+            lines.append("")
+            lines.append("*暂无公开条目*")
+            lines.append("")
             continue
-            
-        for index, entry in enumerate(items, start=1):
-            title = entry["title"]
-            extra = f" `{entry.get('extra', '').strip()}`" if entry.get("extra") else ""
-            link = entry["link"]
-            lines.append(f"{index}. [{title}]({link}){extra}")
+
+        lines.append(f"## {label}")
         lines.append("")
-        
+
+        for entry in items:
+            global_idx += 1
+            title = entry["title"]
+            link = entry["link"]
+            extra = _humanize_extra(entry.get("extra", ""))
+
+            title_line = f"{global_idx}. **{title}**"
+            if extra:
+                title_line += f" — {extra}"
+            lines.append(title_line)
+            lines.append(f"   [原文]({link})")
+
+        lines.append("")
+
+    if global_idx == 0:
+        lines.append("*暂无数据*")
+        lines.append("")
+
     return "\n".join(lines)
 
 

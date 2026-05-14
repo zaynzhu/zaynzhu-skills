@@ -49,7 +49,7 @@ def main() -> int:
     else:
         output = render_markdown(groups, fetched_at, limit)
         if config.get("deduplicate", False) and removed_count:
-            output += f"\n\n*注：已过滤 {removed_count} 条已读历史记录*"
+            output += f"\n\n*已过滤 {removed_count} 条已读历史记录*"
         print(output)
 
     return 0

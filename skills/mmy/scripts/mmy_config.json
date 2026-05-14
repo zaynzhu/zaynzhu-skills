@@ -1,0 +1,14 @@
+{
+  "limit_per_source": 10,
+  "deduplicate": false,
+  "active_list": "default",
+  "lists": {
+    "default": [
+      "weibo",
+      "47",
+      "toutiao",
+      "zhihu",
+      "douban"
+    ]
+  }
+}
