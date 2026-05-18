@@ -1,10 +1,9 @@
 ---
-name: nanobanana-monitor
+name: trending-search
 description: |
-  X/Twitter 热帖监控机器人。搜索最近24小时内包含指定关键词的高互动帖子，按点赞排序输出 Top 20 速报。
-  触发词：「执行NanoBanana Pro每日热帖监控」「热帖监控」「hot posts monitor」「每日速报」「twitter monitor」。
-  也适用于用户想监控任何关键词在 X 上的热帖，如「监控 gemini3 热帖」「看看 OpenAI image 2.0 最近火了什么」。
-  关键词可自定义，默认监控 NanoBanana Pro 系列关键词。
+  X/Twitter 热词搜索工具。搜索最近24小时内包含指定关键词的高互动帖子，按相关性排序输出 Top 20 速报。
+  触发词：「热词搜索」「热搜速报」「trending search」「hot posts」「twitter monitor」。
+  关键词可自定义，默认监控 NanoBanana Pro 系列关键词，也可搜索任意话题如「搜索 gemini3 热帖」「看看 OpenAI 最近火了什么」。
 compatibility:
   tools: [bash, python]
   requires:
@@ -14,9 +13,9 @@ compatibility:
     - tavily-search-enhanced skill
 ---
 
-# NanoBanana Pro 每日热帖监控
+# Trending Search — X/Twitter 热词搜索
 
-搜索 X/Twitter 最近24小时内指定关键词的高互动帖子，生成结构化速报。
+搜索 X/Twitter 最近24小时内指定关键词的高互动帖子，生成结构化速报。关键词完全自定义，默认使用 NanoBanana Pro 系列。
 
 ---
 
@@ -24,7 +23,7 @@ compatibility:
 
 ```powershell
 # 默认关键词（NanoBanana Pro 系列）
-cd skills/nanobanana-monitor
+cd skills/trending-search
 python scripts/search_tweets.py
 
 # 自定义关键词
@@ -90,7 +89,7 @@ python scripts/search_tweets.py --keywords "keyword1" "keyword2" [options]
 对结果中相关性最高的前 5-10 条帖子，使用 WebSearch 逐条搜索获取互动数据：
 
 ```
-WebSearch: @{username} NanoBanana Pro likes site:x.com
+WebSearch: @{username} {关键词} likes site:x.com
 ```
 
 如果 WebSearch 也不返回精确数据：
@@ -165,13 +164,13 @@ Tavily Search API 返回的结果**不一定包含精确的点赞数和浏览量
 
 ## 触发词示例
 
-- "执行NanoBanana Pro每日热帖监控"
+- "热词搜索"
+- "热搜速报"
 - "监控 gemini3 热帖"
 - "看看 OpenAI image 2.0 最近火了什么"
-- "每日热帖速报"
 - "twitter monitor"
 - "hot posts monitor"
-- "/nanobanana" 或 "/nbm"
+- "/trending" 或 "/ts"
 
 ---
 

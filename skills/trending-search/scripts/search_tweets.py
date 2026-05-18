@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Search X/Twitter for hot posts matching given keywords using Tavily Search API.
+"""Trending Search — search X/Twitter for hot posts matching given keywords.
 
-Outputs a structured report of recent tweets sorted by relevance.
+Part of the trending-search skill. Uses Tavily Search API to find recent
+high-engagement tweets for any keyword set, outputs a structured report.
 Engagement data (likes/views) is NOT available from Tavily — the AI
 assistant should supplement it via WebSearch or mark it as "数据暂缺".
 """
