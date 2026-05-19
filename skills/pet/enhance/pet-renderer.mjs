@@ -179,10 +179,12 @@ function parseArgs() {
 // ─── Pet Definition Parser ──────────────────────────────────────────────────
 
 function findSkillDir() {
-  const localPets = path.join(__dirname, '..', 'pets');
-  if (fs.existsSync(path.join(localPets, 'cat.md'))) return path.dirname(localPets);
-  const installedPets = path.join(os.homedir(), '.claude', 'skills', 'pet-buddy', 'pets');
-  if (fs.existsSync(path.join(installedPets, 'cat.md'))) return path.join(os.homedir(), '.claude', 'skills', 'pet-buddy');
+  // Look for pets/ next to this script first (runtime layout: ~/.pet-buddy/pets/)
+  const localPets = path.join(__dirname, 'pets');
+  if (fs.existsSync(path.join(localPets, 'cat.md'))) return __dirname;
+  // Fallback: source layout (pets/ in parent directory)
+  const srcPets = path.join(__dirname, '..', 'pets');
+  if (fs.existsSync(path.join(srcPets, 'cat.md'))) return path.dirname(srcPets);
   return __dirname;
 }
 
@@ -317,7 +319,14 @@ function renderStatusLine(state) {
   const exp = state.exp || 0;
   const expThreshold = level * 100;
 
-  return `${coloredIcon} ${name} Lv.${level} ${emoji} | ❤️${mood} 🍖${hunger} 🤝${bond} ✨${exp}/${expThreshold} ${description}`;
+  // Color each attribute differently
+  const coloredLevel = colorize(`Lv.${level}`, 82);      // green
+  const coloredMood = colorize(`❤️${mood}`, 199);         // pink/red
+  const coloredHunger = colorize(`🍖${hunger}`, 208);     // orange
+  const coloredBond = colorize(`🤝${bond}`, 75);          // blue
+  const coloredExp = colorize(`✨${exp}/${expThreshold}`, 226); // yellow/gold
+
+  return `${coloredIcon} ${name} ${coloredLevel} ${emoji} | ${coloredMood} ${coloredHunger} ${coloredBond} ${coloredExp} ${description}`;
 }
 
 // ─── Sound System ────────────────────────────────────────────────────────────
