@@ -14,7 +14,7 @@
 | `m3u8-downloader` | m3u8-downloader | m3u8 流下载 | ffmpeg |
 | `coding-ai-digest` | coding-ai-digest | 排行榜分析 | Python >= 3.8, 可选 GitHub Token |
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
-| `pet` | pet | CLI 编程宠物 | Bash + jq |
+| `pet` | pet | CLI 编程宠物 | Bash + jq / Node.js |
 | `trending-search` | trending-search | 热词搜索 | Python >= 3.8, TAVILY_API_KEY |
 
 ## 强制规则
