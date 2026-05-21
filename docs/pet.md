@@ -18,7 +18,7 @@ CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态
 | 平台 | 集成方式 | 状态显示 |
 |------|---------|---------|
 | Claude Code | Bash hooks + settings.json statusLine | 状态栏持久显示 |
-| Codex CLI | Bash hooks + config.toml | systemMessage 工具输出 |
+| Codex CLI | Plugin 打包（.codex-plugin/）或 Bash hooks + hooks.json | systemMessage 工具输出 |
 | OpenCode | TypeScript 插件 + system prompt 注入 | 工具输出 + AI 自然提及 |
 
 核心状态文件 `~/.pet-buddy/state.json` 跨平台共享。
@@ -55,10 +55,14 @@ CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态
 ```
 pet/
 ├── SKILL.md              ← 主指令
+├── .codex-plugin/        ← Codex CLI 插件清单
+│   └── plugin.json
 ├── adapters/             ← 平台适配文档
 │   ├── claude-code.md    ← Claude Code 适配
 │   ├── codex.md          ← Codex CLI 适配
 │   └── opencode.md       ← OpenCode 适配
+├── codex-hooks/          ← Codex hook 事件配置
+│   └── hooks.json
 ├── enhance/              ← 增强模式渲染器
 ├── hooks/                ← 平台 Hook 脚本
 │   ├── claude-code/      ← Claude Code hooks (bash)
