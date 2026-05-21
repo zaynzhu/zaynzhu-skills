@@ -26,7 +26,8 @@ Path: `~/.pet-buddy/state.json`
   "soundEnabled": "boolean - 是否启用音效，初始 false",
   "gameHighScore": "number - 接食物小游戏最高分，初始 0",
   "createdAt": "string - ISO 8601 创建时间",
-  "lastUpdated": "string - ISO 8601 最后更新时间"
+  "lastUpdated": "string - ISO 8601 最后更新时间",
+  "platform": "string - 运行平台：'claude-code' | 'codex' | 'opencode'，可选字段（向后兼容）"
 }
 ```
 
@@ -49,9 +50,12 @@ NOTE: Use camelCase field names (createdAt, lastUpdated) NOT snake_case.
   "soundEnabled": false,
   "gameHighScore": 0,
   "createdAt": "",
-  "lastUpdated": ""
+  "lastUpdated": "",
+  "platform": ""
 }
 ```
+
+// platform 可选字段，初始化时设置，留空表示 Claude Code（向后兼容）
 
 ## 4. 属性变化规则
 
@@ -238,6 +242,11 @@ function validateState(state) {
     errors.push('gameHighScore must be a non-negative number');
   }
 
+  // platform is optional, but if present must be valid
+  if ('platform' in state && !['claude-code', 'codex', 'opencode'].includes(state.platform)) {
+    errors.push("platform must be 'claude-code', 'codex', or 'opencode'");
+  }
+
   return errors;
 }
 ```
@@ -248,6 +257,7 @@ function validateState(state) {
 - `active` is boolean
 - `soundEnabled` is boolean
 - `gameHighScore` is non-negative number
+- `platform` is optional; if present, must be 'claude-code', 'codex', or 'opencode'
 
 ## 9. 升级检查
 

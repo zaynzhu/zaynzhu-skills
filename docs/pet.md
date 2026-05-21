@@ -7,14 +7,26 @@ CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态
 - 持久状态（饥饿、心情、等级等）
 - 对工作状态实时反应（写代码、修 bug、提交成功等）
 - 互动指令：喂食、玩耍、抚摸
-- ASCII 画像常驻显示
+- ASCII 画像常驻显示（ANSI 256-color）
 - 音效反馈（BEL 终端声音）
 - 增强模式：接食物小游戏
 - 状态栏集成 + Hook 自动互动
+- **多平台支持**：Claude Code、Codex CLI、OpenCode
+
+## 多平台支持
+
+| 平台 | 集成方式 | 状态显示 |
+|------|---------|---------|
+| Claude Code | Bash hooks + settings.json statusLine | 状态栏持久显示 |
+| Codex CLI | Bash hooks + config.toml | systemMessage 工具输出 |
+| OpenCode | TypeScript 插件 + system prompt 注入 | 工具输出 + AI 自然提及 |
+
+核心状态文件 `~/.pet-buddy/state.json` 跨平台共享。
 
 ## 依赖
 
-- Bash + jq（状态文件操作）
+- Bash + jq（Claude Code / Codex CLI hooks）
+- Node.js（增强模式渲染器、OpenCode 插件）
 - 无需额外 Python 包
 
 ## 触发词
@@ -42,9 +54,16 @@ CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态
 
 ```
 pet/
-├── SKILL.md      ← 主指令
-├── adapters/     ← 平台适配
-├── enhance/      ← 增强模式（小游戏等）
-├── pets/         ← 宠物画像资源
-└── state/        ← 状态管理
+├── SKILL.md              ← 主指令
+├── adapters/             ← 平台适配文档
+│   ├── claude-code.md    ← Claude Code 适配
+│   ├── codex.md          ← Codex CLI 适配
+│   └── opencode.md       ← OpenCode 适配
+├── enhance/              ← 增强模式渲染器
+├── hooks/                ← 平台 Hook 脚本
+│   ├── claude-code/      ← Claude Code hooks (bash)
+│   ├── codex/            ← Codex CLI hooks (bash)
+│   └── opencode/         ← OpenCode 插件 (TypeScript)
+├── pets/                 ← 宠物画像资源
+└── state/                ← 状态管理规范
 ```

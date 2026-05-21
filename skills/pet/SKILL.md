@@ -1,6 +1,7 @@
 ---
 name: pet-buddy
 description: CLI 编程伴侣宠物，提供有持久属性的小宠物，能对工作状态做出实时反应。
+compatibility: claude-code, codex, opencode
 triggers:
   - /pet
   - 宠物
@@ -35,6 +36,47 @@ Skill 在以下情况下激活：
 | `/pet play` | 和宠物玩耍（增强模式下启动接食物小游戏） |
 | 自然语言提及宠物 | 如"我的宠物怎么样了"、"喂一下小黑"、"跟宠物玩一下" |
 | 首次使用 | 检测到无状态文件时自动触发初始化流程 |
+
+---
+
+## 平台检测
+
+Pet Buddy 支持三个平台：Claude Code、Codex CLI 和 OpenCode。
+
+检测当前平台的方法：
+
+1. 检查环境：
+   - 如果在 Claude Code 中运行 → `platform: "claude-code"`
+   - 如果在 Codex CLI 中运行 → `platform: "codex"`
+   - 如果在 OpenCode 中运行 → `platform: "opencode"`
+2. 自动检测启发式：
+   - Claude Code：`~/.claude/` 目录存在，或 CLAUDE_CODE 环境变量
+   - Codex：`~/.codex/` 目录存在，或 CODEX_HOME 环境变量
+   - OpenCode：`~/.config/opencode/` 目录存在，或 OPENCODE_CONFIG 环境变量
+3. 如果不确定，询问用户选择
+
+在 `state.json` 中记录 `platform` 字段。对于已有的 Claude Code 状态文件，此字段可选（向后兼容）。
+
+## 各平台初始化
+
+创建 `state.json` 后，根据平台部署对应的 hooks：
+
+- **Claude Code**：遵循 adapters/claude-code.md → 部署 bash hooks 到 ~/.pet-buddy/，配置 settings.local.json
+- **Codex CLI**：遵循 adapters/codex.md → 部署 bash hooks 到 ~/.pet-buddy/，配置 config.toml
+- **OpenCode**：遵循 adapters/opencode.md → 部署 TS 插件到 .opencode/plugins/，无需额外配置
+
+### 无 statusLine 平台的状态展示
+
+Codex CLI 和 OpenCode 没有 statusLine 功能。在这些平台上：
+
+- 宠物状态通过 hook/plugin 返回的 `systemMessage` 展示
+- 每次工具执行后，hook 输出包含宠物反应和状态信息
+- 用户可以通过 `/pet` 或 `/pet status` 手动查看完整状态
+
+示例 systemMessage 输出：
+```
+🐱 mia 开心地摇着尾巴~ [Lv.6 ❤️100 🍖40 🤝67 ✨343/600]
+```
 
 ---
 
@@ -446,6 +488,7 @@ if 指令 == "pet":
 | `soundEnabled` | boolean | - | 是否启用音效（BEL 终端声音） |
 | `gameHighScore` | number | 0+ | 接食物小游戏最高分 |
 | `lastUpdated` | string | ISO 8601 | 最后更新时间 |
+| `platform` | string | "claude-code" / "codex" / "opencode" | 运行平台标识（可选，向后兼容） |
 | `createdAt` | string | ISO 8601 | 创建时间 |
 
 **升级规则**: 当 `exp >= level * 100` 时升级，升级后 `exp -= level * 100`，`level += 1`。
