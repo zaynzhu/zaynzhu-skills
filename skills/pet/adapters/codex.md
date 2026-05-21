@@ -1,11 +1,171 @@
 ---
 name: codex-adapter
-description: OpenAI Codex CLI 平台适配，定义 hook 集成和 skill 加载方式。
+description: OpenAI Codex CLI 平台适配，定义 plugin 打包和 hook 集成方式。
 ---
+
+### 安装方式
+
+Pet Buddy 支持两种 Codex CLI 安装方式：
+
+#### 方式一：Plugin 安装（推荐）
+
+将 Pet Buddy 作为 Codex 插件安装，hooks 和 skills 自动加载：
+
+```bash
+# 1. 复制整个 pet-buddy 目录到 Codex 插件目录
+cp -r pet-buddy ~/.codex/plugins/cache/local/pet-buddy
+
+# 2. 启用插件 hooks
+# 在 ~/.codex/config.toml 中添加：
+[features]
+plugin_hooks = true
+
+# 3. 注册插件（添加到项目级或全局 marketplace）
+# 在 .codex/plugins/marketplace.json 或 ~/.codex/plugins/marketplace.json 中添加：
+# { "source": "local", "path": "~/.codex/plugins/cache/local/pet-buddy" }
+
+# 4. 增强渲染器（可选）
+cp pet-buddy/enhance/pet-renderer.mjs ~/.pet-buddy/pet-renderer.mjs
+cp -r pet-buddy/pets ~/.pet-buddy/pets
+```
+
+插件清单文件 `.codex-plugin/plugin.json` 已配置好 hooks 和 skills 引用。安装后，Codex 会自动发现 `codex-hooks/hooks.json` 中的 PostToolUse hook 和 `SKILL.md` 中的 skill。
+
+#### 方式二：手动安装
+
+仅配置 hooks，不使用 plugin 系统：
+
+```bash
+# 1. 复制 hook 脚本到运行时目录
+cp pet-buddy/hooks/codex/hook-code-success.sh ~/.pet-buddy/
+cp pet-buddy/hooks/codex/hook-bash-result.sh ~/.pet-buddy/
+cp pet-buddy/hooks/codex/apply-decay.sh ~/.pet-buddy/
+chmod +x ~/.pet-buddy/hook-code-success.sh
+chmod +x ~/.pet-buddy/hook-bash-result.sh
+chmod +x ~/.pet-buddy/apply-decay.sh
+
+# 2. 配置 hooks（选择以下方式之一）
+```
+
+**方式 2a：~/.codex/hooks.json**
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.pet-buddy/hook-code-success.sh",
+            "statusMessage": "🐱 Pet Buddy reacting..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.pet-buddy/hook-bash-result.sh",
+            "statusMessage": "🐱 Pet Buddy reacting..."
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**方式 2b：~/.codex/config.toml（内联）**
+
+```toml
+[[hooks.PostToolUse]]
+matcher = "apply_patch|Edit|Write"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = "bash ~/.pet-buddy/hook-code-success.sh"
+statusMessage = "🐱 Pet Buddy reacting..."
+
+[[hooks.PostToolUse]]
+matcher = "Bash"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = "bash ~/.pet-buddy/hook-bash-result.sh"
+statusMessage = "🐱 Pet Buddy reacting..."
+```
+
+### Plugin 结构
+
+```
+pet-buddy/
+├── .codex-plugin/
+│   └── plugin.json          ← 插件清单（引用 skills 和 hooks）
+├── codex-hooks/
+│   └── hooks.json           ← PostToolUse hook 配置
+├── hooks/
+│   └── codex/               ← Bash hook 脚本
+│       ├── hook-code-success.sh
+│       ├── hook-bash-result.sh
+│       └── apply-decay.sh
+├── SKILL.md                  ← Skill 定义（兼容 Codex 的 AGENTS.md）
+├── adapters/
+│   └── codex.md              ← 本文档
+├── pets/
+├── state/
+└── enhance/
+```
+
+### Hook 事件处理
+
+| 事件 | Matcher | 行为 | 状态变化 |
+|------|---------|------|---------|
+| PostToolUse | `apply_patch\|Edit\|Write` | 代码写入成功 | mood +5, exp +1, frame +1 |
+| PostToolUse | `Bash` | 命令执行结果 | 成功: exp +10, mood +5; 失败: mood -3 |
+
+**注意：** Codex 的工具名 `apply_patch` 是代码编辑的规范名称，`Edit` 和 `Write` 是其别名。三个名称都需包含在 matcher 中。
+
+### Hook 输入格式
+
+Codex PostToolUse hook 通过 stdin 接收 JSON，格式如下：
+
+```json
+{
+  "session_id": "...",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Bash",
+  "tool_use_id": "...",
+  "tool_input": {"command": "..."},
+  "tool_response": { ... },
+  "cwd": "...",
+  "model": "...",
+  "permission_mode": "...",
+  "turn_id": "...",
+  "transcript_path": "..."
+}
+```
+
+`tool_response` 的结构取决于具体工具（schema 为 unconstrained）。hook-bash-result.sh 会尝试多种常见 exit code 字段名（`exit_code`、`exitCode`），默认为 0（成功）。
+
+### Hook 输出格式
+
+```json
+{"systemMessage": "🐱 mia 看到你写代码，好奇地盯着屏幕~"}
+```
+
+Codex 支持 `systemMessage`（UI 可见）和 `additionalContext`（模型可见）两种输出字段。
 
 ### Skill 加载方式
 
-Pet Buddy 在 Codex CLI 中通过 skill 系统加载。触发方式与 Claude Code 相同：
+Pet Buddy 在 Codex CLI 中通过 plugin 的 skills 引用自动加载。也可手动部署：
+
+1. **项目级**：`.codex/skills/pet-buddy/SKILL.md`
+2. **全局级**：`~/.codex/skills/pet-buddy/SKILL.md`
+
+触发方式与 Claude Code 相同：
 
 1. **自然语言**：提及"宠物"、"pet buddy"、或宠物名字
 2. **手动触发**：直接描述宠物相关请求
@@ -24,56 +184,12 @@ cp pet-buddy/enhance/pet-renderer.mjs ~/.pet-buddy/pet-renderer.mjs
 cp -r pet-buddy/pets ~/.pet-buddy/pets
 ```
 
-### Hook 配置
-
-在 `~/.codex/config.toml` 中添加以下 hook 配置：
-
-```toml
-# Pet Buddy hooks for Codex CLI
-# NOTE: Exact TOML schema depends on Codex CLI version.
-# Verify against latest Codex docs before deployment.
-
-[[hooks.PostToolUse]]
-matcher = "Edit|Write"
-type = "command"
-command = "bash ~/.pet-buddy/hook-code-success.sh"
-timeout_sec = 5
-status_message = "🐱 Pet Buddy reacting..."
-
-[[hooks.PostToolUse]]
-matcher = "Bash"
-type = "command"
-command = "bash ~/.pet-buddy/hook-bash-result.sh"
-timeout_sec = 5
-status_message = "🐱 Pet Buddy reacting..."
-```
-
-### Hook 脚本部署
-
-将 hook 脚本从仓库拷贝到运行时目录：
-
-```bash
-cp pet-buddy/hooks/codex/hook-code-success.sh ~/.pet-buddy/
-cp pet-buddy/hooks/codex/hook-bash-result.sh ~/.pet-buddy/
-cp pet-buddy/hooks/codex/apply-decay.sh ~/.pet-buddy/
-chmod +x ~/.pet-buddy/hook-code-success.sh
-chmod +x ~/.pet-buddy/hook-bash-result.sh
-chmod +x ~/.pet-buddy/apply-decay.sh
-```
-
-### Hook 动作定义
-
-与 Claude Code 相同（见 adapters/claude-code.md）：
-
-- **code_success**: Edit/Write 工具成功 → mood +5, exp +1, frame +1
-- **bash_result**: Bash 工具完成 → 成功时 exp +10, mood +5; 失败时 mood -3
-
 ### 状态展示
 
 Codex CLI 使用全屏 TUI，没有 statusLine 功能。宠物状态通过以下方式展示：
 
-1. **Hook systemMessage**: 每次工具执行后，hook 返回的 `systemMessage` 包含宠物反应和当前状态
-   - 示例：`{"systemMessage": "🐱 mia 开心地摇着尾巴~ [Lv.6 ❤️100 🍖40 🤝67]"}`
+1. **Hook systemMessage**: 每次工具执行后，hook 返回的 `systemMessage` 包含宠物反应
+   - 示例：`{"systemMessage": "🐱 mia 看到你写代码，好奇地盯着屏幕~"}`
 
 2. **手动查看**: 用户通过自然语言询问宠物状态
 
@@ -87,12 +203,19 @@ Pet Buddy 在 Codex CLI 中需要以下权限：
 
 - 读取和写入 `~/.pet-buddy/` 目录
 - 执行 hook 脚本（bash）
+- 如果使用 plugin 方式：`[features] plugin_hooks = true`
 
 ### 故障排除
 
-**Hook 不触发：**
-- 检查 `~/.codex/config.toml` 语法是否正确（TOML 格式）
-- 确认 hook 脚本路径正确且可执行
+**Plugin 不加载：**
+- 确认 `~/.codex/config.toml` 中 `[features] plugin_hooks = true`
+- 确认插件路径在 marketplace.json 中正确配置
+- 重启 Codex CLI 会话
+
+**Hook 不触发（手动安装）：**
+- 检查 `~/.codex/hooks.json` 或 `~/.codex/config.toml` 语法是否正确
+- 确认 hook 脚本路径正确且可执行（`chmod +x`）
+- 确认 matcher 模式包含 `apply_patch`（不仅是 `Edit|Write`）
 - 重启 Codex CLI 会话
 
 **状态不更新：**

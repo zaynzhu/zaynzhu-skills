@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${PLUGIN_ROOT}/hooks/codex/hook-code-success.sh",
+            "statusMessage": "🐱 Pet Buddy reacting..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${PLUGIN_ROOT}/hooks/codex/hook-bash-result.sh",
+            "statusMessage": "🐱 Pet Buddy reacting..."
+          }
+        ]
+      }
+    ]
+  }
+}

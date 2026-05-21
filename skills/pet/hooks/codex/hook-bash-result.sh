@@ -1,6 +1,7 @@
 #!/bin/bash
 # Pet Buddy hook for Codex CLI: bash result (command success/failure)
-# Codex command hooks use the same stdin/stdout protocol as Claude Code.
+# Codex PostToolUse hook reads tool_name and tool_response from stdin JSON.
+# Output: {"systemMessage": "..."} on stdout.
 STATE_FILE="$HOME/.pet-buddy/state.json"
 LOCK_DIR="$HOME/.pet-buddy/.state.lock"
 
@@ -37,9 +38,13 @@ NAME=$(echo "$STATE" | jq -r '.name')
 FRAME=$(echo "$STATE" | jq -r '.frame // 0')
 NEW_FRAME=$(( (FRAME + 1) % 1000 ))
 
-# Read exit code from stdin JSON (same format as Claude Code)
+# Read exit code from stdin JSON
+# Codex PostToolUse input: {"tool_name":"Bash", "tool_response":{...}, "tool_input":{...}}
+# tool_response structure is unconstrained — try common exit code field names
 INPUT=$(cat)
-EXIT_CODE=$(echo "$INPUT" | jq -r '.tool_response.exitCode // 0' 2>/dev/null)
+EXIT_CODE=$(echo "$INPUT" | jq -r '
+  (.tool_response.exit_code // .tool_response.exitCode // .exit_code // 0)
+' 2>/dev/null)
 NOW=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
 if [ "$EXIT_CODE" = "0" ] || [ -z "$EXIT_CODE" ]; then
