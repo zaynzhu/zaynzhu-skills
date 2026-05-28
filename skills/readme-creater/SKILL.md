@@ -1,5 +1,5 @@
 ---
-name: readme-creator
+name: readme-creater
 description: |
   通用 README 创建器 + 改进器。从零为项目生成炫酷、专业的 README（含徽章、Star History、贡献者网格、中英双语），也能分析并改进现有 README。
   触发词：创建 readme、改进 readme、生成 readme、写 readme、优化 readme、write readme、improve readme、generate readme、/readme。
@@ -32,6 +32,8 @@ description: |
 
 ### Step 1: 运行检测脚本
 
+`<skill-dir>` 指本 SKILL.md 所在的目录（即 `skills/readme-creater/`）。运行前先解析为绝对路径。
+
 ```bash
 python <skill-dir>/scripts/detect_project.py <project-dir>
 ```
@@ -53,7 +55,7 @@ python <skill-dir>/scripts/detect_project.py <project-dir>
 | `python_version` | string | Python 版本要求 |
 | `package_manager` | string | 包管理器类型 |
 
-如果脚本执行成功，直接跳到 Step 3 展示结果。脚本会自动处理：
+如果脚本执行成功（退出码为 0 且输出为有效 JSON），直接跳到 Step 3 展示结果。任何非零退出码或无法解析的输出都应触发 Step 2 的手动回退。脚本会自动处理：
 - SSH 到 HTTPS 的 URL 转换
 - 多种配置文件格式的解析（package.json、setup.py、pyproject.toml、Cargo.toml、go.mod）
 - 许可证关键词识别（从 LICENSE 文件内容中提取）
@@ -166,9 +168,9 @@ python <skill-dir>/scripts/detect_project.py <project-dir>
 
 对现有 README 从以下五个维度进行评估，在 Phase 4 生成时针对性改进：
 
-- **完整性**: 是否缺少关键 section（Features、Installation、Usage、License）。对照 section-templates.md 的 15 个标准 section 逐项检查。
+- **完整性**: 是否缺少关键 section（Features、Installation、Usage、License）。对照 `references/section-templates.md` 的 15 个标准 section 逐项检查。
 - **准确性**: 代码示例是否过时、链接是否有效、API 是否更新。尝试用 Read 检查代码中引用的模块/函数是否在项目中存在。
-- **视觉质量**: 是否有徽章、Emoji 前缀、表格、代码块语言标注。对照 style-guide.md 的规范逐项评分。
+- **视觉质量**: 是否有徽章、Emoji 前缀、表格、代码块语言标注。对照 `references/style-guide.md` 的规范逐项评分。
 - **风格一致性**: 标题层级是否统一（`##` vs `###`）、间距是否规范、Emoji 使用是否一致。
 - **信息密度**: 是否有冗余段落或过于简略的说明。理想情况：每个 section 有足够的上下文让用户理解，但不重复其他 section 的内容。
 
@@ -176,7 +178,7 @@ python <skill-dir>/scripts/detect_project.py <project-dir>
 
 ## Phase 3: 交互确认
 
-使用 AskUserQuestion 工具，依次确认以下选项。每个问题都要展示推荐值和可选值。
+依次向用户确认以下选项（使用 AskUserQuestion 工具或直接提问，取决于当前环境）。每个问题都要展示推荐值和可选值。
 
 ### 3.1 徽章组合
 
@@ -244,10 +246,6 @@ Emoji 回退模式下，header 格式为：`# {{EMOJI}} {{PROJECT_NAME}}`
 
 按以下顺序逐段生成。每段都使用 `references/section-templates.md` 中对应的模板，用实际值替换 `{{PLACEHOLDER}}`。
 
-### 生成顺序
-
-每个 section 都使用 `references/section-templates.md` 中的对应模板。生成时用实际项目数据替换 `{{PLACEHOLDER}}` 占位符。
-
 1. **Logo/Header** — 有 Logo 用 Variant A（`<img>` 标签），无 Logo 用 Variant B（Emoji 回退）。居中对齐，包含项目名和导航链接行。
 2. **Language Switcher** — 仅 bilingual 模式，格式：`[中文](README.md) | [English](README_EN.md)`。放在 header 之后、badges 之前。
 3. **Badges Row** — 从 `references/badge-templates.md` 选取徽章，居中排列。替换 `{{OWNER}}`/`{{REPO}}`/`{{PACKAGE_NAME}}`。
@@ -311,7 +309,7 @@ Emoji 回退模式下，header 格式为：`# {{EMOJI}} {{PROJECT_NAME}}`
 4. **Section 完整性** — 用户在 Phase 3 确认的所有 section 都已生成，无遗漏
 5. **双语一致性** — bilingual 模式下两个文件的 section 数量和顺序一致，代码示例相同
 6. **占位符扫描** — 用 Grep 搜索 `{{`、`TODO`、`FIXME`、`TBD`，确保无遗漏的占位符
-7. **长度合理性** — 对照 style-guide.md 的长度指南（单文件脚本 50-100 行，中型项目 200-400 行，大型框架 400-600 行）
+7. **长度合理性** — 对照 `references/style-guide.md` 的 README 长度指南
 8. **格式规范** — `---` 前后有空行、`<div>` 标签正确闭合、无尾部空格、文件末尾有且仅有一个换行
 
 ### 预览与确认
