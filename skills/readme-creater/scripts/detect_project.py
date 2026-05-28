@@ -264,9 +264,6 @@ def _parse_go_mod(path: Path, result: dict[str, Any]) -> None:
             mod = m.group(1)
             result["name"] = mod.rstrip("/").rsplit("/", 1)[-1]
             result["repo_url"] = f"https://{mod}" if not mod.startswith("http") else mod
-        m = re.search(r'^go\s+(\S+)', text, re.MULTILINE)
-        if m:
-            result["python_version"] = f"go{m.group(1)}"
         # dependencies
         deps: list[str] = []
         in_req = False
