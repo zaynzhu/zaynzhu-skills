@@ -444,6 +444,13 @@ def _detect_ci(root: Path, result: dict[str, Any]) -> None:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    # Ensure stdout uses UTF-8 (important on Windows with non-UTF-8 locale)
+    if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
     if len(sys.argv) > 1:
         root = Path(sys.argv[1]).resolve()
     else:
