@@ -16,6 +16,7 @@
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
 | `pet` | pet | CLI 编程宠物 | Bash + jq / Node.js |
 | `trending-search` | trending-search | 热词搜索 | Python >= 3.8, TAVILY_API_KEY |
+| `readme-creater` | readme-creater | README 创建/改进 | Python >= 3.8（可选，自动检测脚本） |
 
 ## 强制规则
 
