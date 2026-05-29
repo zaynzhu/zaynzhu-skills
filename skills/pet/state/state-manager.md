@@ -27,7 +27,8 @@ Path: `~/.pet/state.json`
   "gameHighScore": "number - 接食物小游戏最高分，初始 0",
   "createdAt": "string - ISO 8601 创建时间",
   "lastUpdated": "string - ISO 8601 最后更新时间",
-  "platform": "string - 运行平台：'claude-code' | 'codex' | 'opencode'，可选字段（向后兼容）"
+  "platform": "string - 运行平台：'claude-code' | 'codex' | 'opencode'，可选字段（向后兼容）",
+  "unique": "object - 独特属性，键名由宠物类型决定。仓鼠: {exercise: 50}, 猫: {independence: 70}, 狗: {loyalty: 60}。向后兼容：旧状态文件无此字段时自动补全"
 }
 ```
 
@@ -51,7 +52,8 @@ NOTE: Use camelCase field names (createdAt, lastUpdated) NOT snake_case.
   "gameHighScore": 0,
   "createdAt": "",
   "lastUpdated": "",
-  "platform": ""
+  "platform": "",
+  "unique": {}
 }
 ```
 
@@ -247,6 +249,11 @@ function validateState(state) {
     errors.push("platform must be 'claude-code', 'codex', or 'opencode'");
   }
 
+  // unique is optional object
+  if ('unique' in state && (typeof state.unique !== 'object' || state.unique === null || Array.isArray(state.unique))) {
+    errors.push('unique must be an object');
+  }
+
   return errors;
 }
 ```
@@ -258,6 +265,9 @@ function validateState(state) {
 - `soundEnabled` is boolean
 - `gameHighScore` is non-negative number
 - `platform` is optional; if present, must be 'claude-code', 'codex', or 'opencode'
+- `unique` is optional object; if present, must be a plain object (not array or null)
+
+**Backward Compatibility**: If `unique` is missing from state.json, it will be auto-populated based on the pet's `type` field using `registry.json` defaults. This ensures old state files work without manual migration.
 
 ## 9. 升级检查
 

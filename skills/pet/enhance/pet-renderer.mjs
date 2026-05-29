@@ -24,14 +24,36 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const VERSION = '2.0.0';
+const VERSION = '2.1.0';
 
-const COLORS = {
-  cat: { primary: 208, secondary: 202, highlight: 226 },
-  dog: { primary: 130, secondary: 95, highlight: 226 },
-};
+// ─── Registry Loading ────────────────────────────────────────────────────────
 
-const PET_ICONS = { cat: '🐱', dog: '🐶' };
+function resolveRegistryPath() {
+  // Runtime layout: pets/ next to this script
+  const localPath = path.join(__dirname, 'pets', 'registry.json');
+  if (fs.existsSync(localPath)) return localPath;
+  // Source layout: pets/ in parent directory
+  const srcPath = path.join(__dirname, '..', 'pets', 'registry.json');
+  if (fs.existsSync(srcPath)) return srcPath;
+  return localPath;
+}
+
+function loadRegistry() {
+  try {
+    return JSON.parse(fs.readFileSync(resolveRegistryPath(), 'utf-8'));
+  } catch (e) {
+    return { types: {} };
+  }
+}
+
+const REGISTRY = loadRegistry();
+
+const COLORS = {};
+const PET_ICONS = {};
+for (const [type, def] of Object.entries(REGISTRY.types)) {
+  COLORS[type] = def.colors;
+  PET_ICONS[type] = def.icon;
+}
 
 const STATE_LABEL_MAP = {
   eating: '吃东西中', playing: '玩耍中', petting: '被抚摸',
@@ -66,6 +88,10 @@ const EMOJI_MAP = {
     confused: ['🤔', '🐶', '🤔'], idle:     ['🐶', '😌', '🐶'],
   },
 };
+
+function getEmojiMap(type) {
+  return EMOJI_MAP[type] || EMOJI_MAP.cat;
+}
 
 // Description text cycling per state per pet type
 const DESCRIPTION_MAP = {
@@ -294,6 +320,18 @@ function determineStateLabel(state) {
   return 'idle';
 }
 
+// ─── Unique Attribute Display ────────────────────────────────────────────────
+
+function getUniqueDisplay(state) {
+  const type = state.type || 'cat';
+  const typeDef = REGISTRY.types[type];
+  if (!typeDef || !typeDef.unique) return '';
+  const field = typeDef.unique.field;
+  const value = state.unique?.[field] ?? typeDef.unique.default;
+  if (typeDef.unique.decayRate === 0 && typeDef.unique.growRate === 0) return '';
+  return ` ${typeDef.unique.icon}${value}`;
+}
+
 // ─── Statusline Renderer ────────────────────────────────────────────────────
 
 function renderStatusLine(state) {
@@ -302,7 +340,7 @@ function renderStatusLine(state) {
   const frame = state.frame || 0;
   const stateLabel = determineStateLabel(state);
 
-  const emojis = (EMOJI_MAP[petType] && EMOJI_MAP[petType][stateLabel]) || EMOJI_MAP.cat.idle;
+  const emojis = getEmojiMap(petType)[stateLabel] || EMOJI_MAP.cat.idle;
   const descriptions = (DESCRIPTION_MAP[petType] && DESCRIPTION_MAP[petType][stateLabel]) || DESCRIPTION_MAP.cat.idle;
 
   const emoji = emojis[frame % emojis.length];
@@ -326,7 +364,9 @@ function renderStatusLine(state) {
   const coloredBond = colorize(`🤝${bond}`, 75);          // blue
   const coloredExp = colorize(`✨${exp}/${expThreshold}`, 226); // yellow/gold
 
-  return `${coloredIcon} ${name} ${coloredLevel} ${emoji} | ${coloredMood} ${coloredHunger} ${coloredBond} ${coloredExp} ${description}`;
+  const uniqueDisplay = getUniqueDisplay(state);
+
+  return `${coloredIcon} ${name} ${coloredLevel} ${emoji} | ${coloredMood} ${coloredHunger} ${coloredBond}${uniqueDisplay} ${coloredExp} ${description}`;
 }
 
 // ─── Sound System ────────────────────────────────────────────────────────────

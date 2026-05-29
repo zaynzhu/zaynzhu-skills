@@ -1,0 +1,55 @@
+{
+  "types": {
+    "cat": {
+      "name": "猫咪",
+      "icon": "🐱",
+      "personality": "傲娇、独立",
+      "colors": { "primary": 208, "secondary": 202, "highlight": 226 },
+      "artFile": "cat.md",
+      "defaultName": "小黑",
+      "unique": {
+        "field": "independence",
+        "label": "独立性",
+        "icon": "😼",
+        "default": 70,
+        "range": [0, 100],
+        "decayRate": 0,
+        "growRate": 0
+      }
+    },
+    "dog": {
+      "name": "狗狗",
+      "icon": "🐶",
+      "personality": "忠诚、热情",
+      "colors": { "primary": 130, "secondary": 95, "highlight": 226 },
+      "artFile": "dog.md",
+      "defaultName": "小黄",
+      "unique": {
+        "field": "loyalty",
+        "label": "忠诚度",
+        "icon": "🐕",
+        "default": 60,
+        "range": [0, 100],
+        "decayRate": 0,
+        "growRate": 0
+      }
+    },
+    "hamster": {
+      "name": "仓鼠",
+      "icon": "🐹",
+      "personality": "圆滚滚、爱囤食",
+      "colors": { "primary": 221, "secondary": 178, "highlight": 229 },
+      "artFile": "hamster.md",
+      "defaultName": "小圆",
+      "unique": {
+        "field": "exercise",
+        "label": "运动量",
+        "icon": "🏃",
+        "default": 50,
+        "range": [0, 100],
+        "decayRate": 3,
+        "growRate": 15
+      }
+    }
+  }
+}

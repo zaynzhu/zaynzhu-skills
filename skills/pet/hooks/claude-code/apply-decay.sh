@@ -3,6 +3,7 @@
 # Source this file and call apply_decay to update hunger/bond based on elapsed time.
 # Also increments the frame counter for animation cycling.
 STATE_FILE="$HOME/.pet/state.json"
+REGISTRY_FILE="$HOME/.pet/pets/registry.json"
 
 apply_decay() {
   if [ ! -f "$STATE_FILE" ]; then return 1; fi
@@ -44,5 +45,31 @@ apply_decay() {
   ')
 
   echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+
+  # Apply unique attribute decay if registry exists
+  if [ -f "$REGISTRY_FILE" ] && [ "$ELAPSED_HOURS" -gt 0 ]; then
+    local PET_TYPE=$(echo "$NEW_STATE" | jq -r '.type // "cat"')
+    local DECAY_RATE=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.decayRate // 0' "$REGISTRY_FILE" 2>/dev/null)
+    local FIELD=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.field // empty' "$REGISTRY_FILE" 2>/dev/null)
+    local RANGE_MIN=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.range[0] // 0' "$REGISTRY_FILE" 2>/dev/null)
+    local RANGE_MAX=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.range[1] // 100' "$REGISTRY_FILE" 2>/dev/null)
+    local DEFAULT=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.default // 50' "$REGISTRY_FILE" 2>/dev/null)
+
+    if [ -n "$FIELD" ] && [ "$DECAY_RATE" -gt 0 ] 2>/dev/null; then
+      NEW_STATE=$(echo "$NEW_STATE" | jq \
+        --arg field "$FIELD" \
+        --arg rate "$DECAY_RATE" \
+        --arg hours "$ELAPSED_HOURS" \
+        --arg min "$RANGE_MIN" \
+        --arg max "$RANGE_MAX" \
+        --arg default "$DEFAULT" '
+        (.unique[$field] // ($default | tonumber)) as $cur |
+        .unique[$field] = ([$cur - ($rate | tonumber) * ($hours | tonumber), ($min | tonumber)] | max |
+                          if . > ($max | tonumber) then ($max | tonumber) else . end)
+      ')
+      echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+    fi
+  fi
+
   return 0
 }

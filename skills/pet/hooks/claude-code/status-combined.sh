@@ -156,7 +156,23 @@ if [ -f "$STATE_FILE" ]; then
       DESC="${DESCS[$DESC_IDX]}"
 
       EXP_NEEDED=$((LEVEL * 100))
-      PET_OUTPUT="$ICON $NAME Lv.$LEVEL $EMOJI | ❤️$MOOD 🍖$HUNGER 🤝$BOND ✨$EXP/$EXP_NEEDED $DESC"
+
+      # Unique attribute display
+      UNIQUE_DISPLAY=""
+      REGISTRY_FILE="$HOME/.pet/pets/registry.json"
+      if [ -f "$REGISTRY_FILE" ]; then
+        U_FIELD=$(jq -r --arg t "$TYPE" '.types[$t].unique.field // empty' "$REGISTRY_FILE" 2>/dev/null)
+        U_ICON=$(jq -r --arg t "$TYPE" '.types[$t].unique.icon // empty' "$REGISTRY_FILE" 2>/dev/null)
+        U_DEFAULT=$(jq -r --arg t "$TYPE" '.types[$t].unique.default // 50' "$REGISTRY_FILE" 2>/dev/null)
+        U_DECAY=$(jq -r --arg t "$TYPE" '.types[$t].unique.decayRate // 0' "$REGISTRY_FILE" 2>/dev/null)
+        U_GROW=$(jq -r --arg t "$TYPE" '.types[$t].unique.growRate // 0' "$REGISTRY_FILE" 2>/dev/null)
+        if [ -n "$U_FIELD" ] && { [ "$U_DECAY" -gt 0 ] 2>/dev/null || [ "$U_GROW" -gt 0 ] 2>/dev/null; }; then
+          U_VALUE=$(echo "$STATE" | jq -r --arg f "$U_FIELD" --arg d "$U_DEFAULT" '.unique[$f] // ($d | tonumber)')
+          UNIQUE_DISPLAY=" ${U_ICON}${U_VALUE}"
+        fi
+      fi
+
+      PET_OUTPUT="$ICON $NAME Lv.$LEVEL $EMOJI | ❤️$MOOD 🍖$HUNGER 🤝$BOND${UNIQUE_DISPLAY} ✨$EXP/$EXP_NEEDED $DESC"
 
       # Increment frame and save (modulo 1000 to prevent overflow)
       NEW_FRAME=$(( (FRAME + 1) % 1000 ))

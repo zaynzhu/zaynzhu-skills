@@ -153,10 +153,14 @@ else:
 
 步骤 1 — 选择宠物类型：
 "请选择你的宠物类型："
-  1. 🐱 猫咪 — 独立优雅，偶尔撒娇
-  2. 🐶 狗狗 — 忠诚热情，时刻陪伴
 
-等待用户输入 → pet_type = "cat" | "dog"
+从 pets/registry.json 读取所有类型，动态生成选项列表：
+  1. {icon} {name} — {personality}
+  2. {icon} {name} — {personality}
+  ...
+（当前可用：猫咪🐱、狗狗🐶、仓鼠🐹）
+
+等待用户输入 → pet_type = registry 中对应的 key
 
 步骤 2 — 为宠物命名：
 "给你的宠物起个名字吧！（直接输入名字，或按回车使用默认名）"
@@ -348,6 +352,7 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
 | `/pet on` | "开启宠物"、"宠物打开"、"要宠物" | 在当前项目根目录写入 `.pet.json {"enabled": true}`，显示 `"{name} 在这个项目中激活了！"` + 渲染宠物 |
 | `/pet off` | "关闭宠物"、"宠物关掉"、"不要宠物" | 在当前项目根目录写入 `.pet.json {"enabled": false}`，显示 `"{name} 在这个项目中去休息了... 💤"` |
 | `/pet status` | "宠物状态"、"宠物怎么样了" | 显示完整状态信息 + 当前项目开关状态 |
+| `/pet special` | 专属互动（仓鼠=跑转轮，猫=独立散步，狗=叼飞盘） | unique +25, mood +5, bond +2 |
 
 **实现细节**：`/pet on` 和 `/pet off` 操作的是当前工作目录（项目根目录）下的 `.pet.json` 文件，不是全局 `state.json` 的 `active` 字段。宠物数据仍然是全局共享的。
 
@@ -409,6 +414,7 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
 | `/pet feed` | hunger -30, mood +5, bond +3 | "{name} 吃得很开心！🍖" |
 | `/pet play` | mood +10, bond +5, hunger +5 | "{name} 玩得很开心！🎾" |
 | `/pet pet` | mood +3, bond +2 | "{name} 舒服地蹭了蹭你~ 🖐️" |
+| `/pet special` | unique +25, mood +5, bond +2 | "{name} {type-specific action}！{type-specific emoji}" |
 
 互动流程：
 
@@ -436,6 +442,15 @@ if 指令 == "pet":
   state.mood = min(state.mood + 3, 100)
   state.bond = min(state.bond + 2, 100)
   显示："{name} 舒服地蹭了蹭你~ 🖐️"
+
+if 指令 == "special":
+  state.unique = min(state.unique + 25, 100)   // unique 字段名因宠物类型而异
+  state.mood = min(state.mood + 5, 100)
+  state.bond = min(state.bond + 2, 100)
+  type-specific 行为：
+    hamster: "{name} 在转轮上跑得飞快！🐹"
+    cat:     "{name} 独自去探险了一圈回来了！😼"
+    dog:     "{name} 兴奋地叼着飞盘跑回来！🐶"
 
 // 互动后执行完整的渲染阶段输出
 ```
