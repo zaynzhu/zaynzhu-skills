@@ -1,6 +1,6 @@
 ---
 name: video-downloader
-description: 下载 Bilibili（B站）、抖音（Douyin）、TikTok 视频或图集。当用户提到"帮我下载这个视频""下载这个 B 站/抖音/TikTok 链接""批量下载视频""查看视频信息不下载"时触发。核心实现已 vendored 在 vendor/video-downloader/，开箱即用；也可通过 --project-root 或环境变量指向外部安装。
+description: 下载 YouTube、Bilibili（B站）、抖音（Douyin）、Twitter/X、Instagram、TikTok 视频或图集。基于 yt-dlp 核心引擎，抖音支持三级 fallback（yt-dlp → API → Playwright）。当用户提到"帮我下载这个视频""下载这个 B 站/抖音/YouTube 链接""批量下载视频""查看视频信息不下载"时触发。核心实现已 vendored 在 vendor/video-downloader/，开箱即用；也可通过 --project-root 或环境变量指向外部安装。
 compatibility:
   tools: [bash, python]
   requires:
@@ -141,13 +141,15 @@ python scripts/video_downloader_bridge.py doctor
 - 安装可导入的 `video_downloader` 模块，或
 - 用 `--project-root` 提供一个本地项目目录
 
-### 抖音 / TikTok 需要浏览器自动化
+### 抖音需要浏览器自动化
 
-这取决于底层实现，不是包装层本身决定的。通常要额外准备：
+抖音使用三级 fallback：yt-dlp（快）→ 直接 API → Playwright 浏览器（稳定）。如果前两级都失败，需要安装 Playwright：
 
 ```bash
 playwright install chromium
 ```
+
+YouTube、Bilibili、Twitter/X、Instagram、TikTok 由 yt-dlp 直接支持，不需要 Playwright。
 
 ### 403 / 反爬被拦
 
@@ -171,12 +173,16 @@ video-downloader/
 └── vendor/
     └── video-downloader/             ← 核心实现（已 vendored）
         ├── video_downloader/          ← Python 包
+        │   ├── extractors/
+        │   │   ├── yt_dlp.py          ← yt-dlp 提取器（6 平台）
+        │   │   ├── bilibili.py        ← Bilibili 备选提取器
+        │   │   └── douyin.py          ← 抖音三级 fallback
+        │   ├── core.py, cli.py, ...
         ├── mcp_server.py
-        ├── quick_start.py
         ├── setup.py
         ├── requirements.txt
         ├── USAGE.md
-        └── ...（完整项目，不含 __pycache__/downloads 等输出目录）
+        └── cookies/                   ← Cookie 示例文件
 ```
 
 ## 更新与同步

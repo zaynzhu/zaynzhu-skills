@@ -1,10 +1,10 @@
 """
-Platform extractors for video-downloader-skill.
+Platform extractors for video-downloader.
 """
 
 from .base import PlatformExtractor
 from .bilibili import BilibiliExtractor
 from .douyin import DouyinExtractor
-from .tiktok import TikTokExtractor
+from .yt_dlp import YtDlpExtractor
 
-__all__ = ["PlatformExtractor", "BilibiliExtractor", "DouyinExtractor", "TikTokExtractor"]
+__all__ = ["PlatformExtractor", "BilibiliExtractor", "DouyinExtractor", "YtDlpExtractor"]
