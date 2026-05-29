@@ -1,0 +1,60 @@
+# Model Router 配置文件
+# API key 通过环境变量设置，不要写在配置文件中
+
+profiles:
+  gpt4o:
+    provider: openai
+    model: gpt-4o
+    api_key_env: OPENAI_API_KEY
+    capabilities: [text, image]
+    endpoint: "https://api.openai.com/v1/chat/completions"
+    max_tokens: 4096
+    cost:
+      input_per_1m: 2.5
+      output_per_1m: 10.0
+  gemini-vision:
+    provider: google
+    model: gemini-2.0-flash
+    api_key_env: GOOGLE_API_KEY
+    capabilities: [text, image]
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    cost:
+      input_per_1m: 0.1
+      output_per_1m: 0.4
+  ollama-local:
+    provider: ollama
+    model: llava
+    capabilities: [text, image]
+    endpoint: "http://localhost:11434/api/generate"
+    api_key_env: null
+    cost:
+      input_per_1m: 0
+      output_per_1m: 0
+  claude-haiku:
+    provider: anthropic
+    model: claude-haiku-4-5-20251001
+    api_key_env: ANTHROPIC_API_KEY
+    capabilities: [text]
+    endpoint: "https://api.anthropic.com/v1/messages"
+    cost:
+      input_per_1m: 0.8
+      output_per_1m: 4.0
+  claude-opus:
+    provider: anthropic
+    model: claude-opus-4-7
+    api_key_env: ANTHROPIC_API_KEY
+    capabilities: [text, reasoning]
+    endpoint: "https://api.anthropic.com/v1/messages"
+    cost:
+      input_per_1m: 15.0
+      output_per_1m: 75.0
+routing:
+  - match: has_image_input
+    prefer: [gpt4o, gemini-vision, ollama-local]
+    cost_mode: cheapest
+  - match: complex_reasoning
+    prefer: [claude-opus]
+    cost_mode: best
+  - match: quick_task
+    prefer: [claude-haiku]
+    cost_mode: cheapest

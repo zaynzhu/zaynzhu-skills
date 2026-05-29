@@ -18,6 +18,7 @@
 | `trending-search` | trending-search | 热词搜索 | Python >= 3.8, TAVILY_API_KEY |
 | `readme-creater` | readme-creater | README 创建/改进 | Python >= 3.8（可选，自动检测脚本） |
 | `article-creater` | 公众号写作 | 公众号文章创作（长文/短内容/续写/改写） | 无（可选 MCP 搜索工具） |
+| `model-router` | model-router | 动态模型切换（图片识别/验证码/多模型路由） | Python >= 3.8, curl, 模型 API Key |
 
 ## 强制规则
 
