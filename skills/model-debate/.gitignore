@@ -1,0 +1,9 @@
+# 用户敏感信息
+.env
+*.env
+
+# 运行时生成的 JSON 配置（含用户特定设置）
+model-debate.json
+
+# 状态记忆文件
+.state.json

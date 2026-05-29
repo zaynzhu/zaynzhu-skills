@@ -1,0 +1,30 @@
+# Model Debate 配置文件
+# 在 models 中定义参与辩论的模型
+# API key 通过环境变量设置，不要写在配置文件中
+
+models:
+  gpt4o:
+    provider: openai
+    model: gpt-4o
+    api_key_env: OPENAI_API_KEY
+    endpoint: https://api.openai.com/v1/chat/completions
+    max_tokens: 4096
+
+  claude-sonnet:
+    provider: anthropic
+    model: claude-sonnet-4-6
+    api_key_env: ANTHROPIC_API_KEY
+    endpoint: https://api.anthropic.com/v1/messages
+    max_tokens: 4096
+
+  gemini-flash:
+    provider: google
+    model: gemini-2.0-flash
+    api_key_env: GOOGLE_API_KEY
+    endpoint: https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent
+
+debate:
+  participants: [gpt4o, claude-sonnet, gemini-flash]
+  default_mode: single
+  max_rounds: 3
+  convergence_ratio: 0.8
