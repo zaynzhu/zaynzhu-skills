@@ -1,9 +1,19 @@
 #!/bin/bash
 # Pet Buddy hook: code success (Edit/Write tool used)
-STATE_FILE="$HOME/.pet-buddy/state.json"
-LOCK_DIR="$HOME/.pet-buddy/.state.lock"
+STATE_FILE="$HOME/.pet/state.json"
+LOCK_DIR="$HOME/.pet/.state.lock"
 
 if [ ! -f "$STATE_FILE" ]; then exit 0; fi
+
+# Per-project config check
+_dir="$PWD"; while [ -n "$_dir" ]; do
+  if [ -f "$_dir/.pet.json" ]; then
+    _enabled=$(jq -r 'if .enabled == false then "false" else "true" end' "$_dir/.pet.json" 2>/dev/null)
+    [ "$_enabled" = "false" ] && exit 0
+    break
+  fi
+  _dir="${_dir%/*}"
+done
 
 # mkdir-based file lock (atomic, cross-platform)
 lock_state() {
@@ -26,7 +36,7 @@ ACTIVE=$(echo "$STATE" | jq -r '.active // true')
 if [ "$ACTIVE" = "false" ]; then unlock_state; exit 0; fi
 
 # Apply time decay first
-source "$HOME/.pet-buddy/apply-decay.sh"
+source "$HOME/.pet/apply-decay.sh"
 apply_decay
 
 # Re-read state after decay

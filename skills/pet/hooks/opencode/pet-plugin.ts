@@ -1,9 +1,9 @@
 // Pet Buddy plugin for OpenCode
 // Handles tool execution events and injects pet status into system prompt.
-// Deploy to: .opencode/plugins/pet-buddy.ts (project-level)
-//   or: ~/.config/opencode/plugins/pet-buddy.ts (global)
+// Deploy to: .opencode/plugins/pet.ts (project-level)
+//   or: ~/.config/opencode/plugins/pet.ts (global)
 //
-// This plugin reads/writes ~/.pet-buddy/state.json (shared across platforms).
+// This plugin reads/writes ~/.pet/state.json (shared across platforms).
 // It implements the same state update logic as the bash hooks used by
 // Claude Code and Codex CLI.
 //
@@ -16,7 +16,7 @@ import { readFile, writeFile, rename } from "node:fs/promises"
 import path from "node:path"
 import { homedir } from "node:os"
 
-const PET_BUDDY_DIR = path.join(homedir(), ".pet-buddy")
+const PET_BUDDY_DIR = path.join(homedir(), ".pet")
 const STATE_FILE = path.join(PET_BUDDY_DIR, "state.json")
 const STATE_TMP = path.join(PET_BUDDY_DIR, "state.json.tmp")
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Pet Buddy status line script for Claude Code
-STATE_FILE="$HOME/.pet-buddy/state.json"
+STATE_FILE="$HOME/.pet/state.json"
 
 if [ ! -f "$STATE_FILE" ]; then
   echo "🐾 /pet to adopt a companion"

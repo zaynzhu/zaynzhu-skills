@@ -2,7 +2,7 @@
 # Pet Buddy: shared time decay function
 # Source this file and call apply_decay to update hunger/bond based on elapsed time.
 # Also increments the frame counter for animation cycling.
-STATE_FILE="$HOME/.pet-buddy/state.json"
+STATE_FILE="$HOME/.pet/state.json"
 
 apply_decay() {
   if [ ! -f "$STATE_FILE" ]; then return 1; fi

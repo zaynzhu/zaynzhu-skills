@@ -1,5 +1,5 @@
 ---
-name: pet-buddy
+name: pet
 description: CLI 编程伴侣宠物，提供有持久属性的小宠物，能对工作状态做出实时反应。
 compatibility: claude-code, codex, opencode
 triggers:
@@ -13,6 +13,13 @@ triggers:
   - 小橘
   - 喵
   - 汪
+  - 关闭宠物
+  - 开启宠物
+  - 宠物关掉
+  - 宠物打开
+  - 不要宠物
+  - pet off
+  - pet on
 ---
 
 # Pet Buddy — CLI 编程伴侣宠物
@@ -61,8 +68,8 @@ Pet Buddy 支持三个平台：Claude Code、Codex CLI 和 OpenCode。
 
 创建 `state.json` 后，根据平台部署对应的 hooks：
 
-- **Claude Code**：遵循 adapters/claude-code.md → 部署 bash hooks 到 ~/.pet-buddy/，配置 settings.local.json
-- **Codex CLI**：遵循 adapters/codex.md → 部署 bash hooks 到 ~/.pet-buddy/，配置 config.toml
+- **Claude Code**：遵循 adapters/claude-code.md → 部署 bash hooks 到 ~/.pet/，配置 settings.local.json
+- **Codex CLI**：遵循 adapters/codex.md → 部署 bash hooks 到 ~/.pet/，配置 config.toml
 - **OpenCode**：遵循 adapters/opencode.md → 部署 TS 插件到 .opencode/plugins/，无需额外配置
 
 ### 无 statusLine 平台的状态展示
@@ -84,10 +91,12 @@ Codex CLI 和 OpenCode 没有 statusLine 功能。在这些平台上：
 
 ### 1. 初始化检测
 
-每次 skill 被触发时，首先读取状态文件：
+每次 skill 被触发时，首先检查是否为纯开关指令（`/pet on`、`/pet off`、"关闭宠物"、"开启宠物"等）。如果是，直接操作 `.pet.json` 配置文件，不读取全局状态，不触发初始化流程。
+
+否则，读取状态文件：
 
 ```
-读取 ~/.pet-buddy/state.json
+读取 ~/.pet/state.json
 
 if 文件存在:
   尝试解析 JSON
@@ -103,7 +112,7 @@ elif 文件不存在:
   进入首次初始化流程
 ```
 
-状态文件路径：`~/.pet-buddy/state.json`
+状态文件路径：`~/.pet/state.json`
 
 ---
 
@@ -114,7 +123,7 @@ elif 文件不存在:
 ```
 增强模式条件（全部满足）：
   1. node 命令可用（command -v node 成功）
-  2. ~/.pet-buddy/pet-renderer.mjs 存在
+  2. ~/.pet/pet-renderer.mjs 存在
 
 if 增强模式可用:
   enhanceMode = true
@@ -248,7 +257,7 @@ if state.active == false:
 
 根据宠物当前状态，决定显示内容和 ASCII 艺术：
 
-**增强模式渲染**：当 `enhanceMode == true` 时，使用 `node ~/.pet-buddy/pet-renderer.mjs --mode=render --pet={type} --state={stateLabel} --frame={frame}` 输出带 ANSI 256-color 的彩色 ASCII 画像。猫为橙色系（primary:208, secondary:202），狗为棕色系（primary:130, secondary:95）。彩色输出仅在支持 ANSI 的终端中可见。
+**增强模式渲染**：当 `enhanceMode == true` 时，使用 `node ~/.pet/pet-renderer.mjs --mode=render --pet={type} --state={stateLabel} --frame={frame}` 输出带 ANSI 256-color 的彩色 ASCII 画像。猫为橙色系（primary:208, secondary:202），狗为棕色系（primary:130, secondary:95）。彩色输出仅在支持 ANSI 的终端中可见。
 
 **Bash 回退渲染**：当增强模式不可用时，使用纯文本 ASCII 画像，`sed 's/\[[0-9]*\]//g'` 剥离颜色标记。
 
@@ -334,11 +343,20 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
 
 ### 5. 控制指令处理
 
-| 指令 | 行为 |
-|------|------|
-| `/pet on` | 设置 `state.active = true`，保存，显示 `"{name} 醒来了！"` + 渲染宠物 |
-| `/pet off` | 设置 `state.active = false`，保存，显示 `"{name} 去休息了...晚安 💤"` |
-| `/pet status` | 显示完整状态信息（名字、类型、等级、所有属性数值、活跃状态、创建时间） |
+| 指令 | 自然语言 | 行为 |
+|------|---------|------|
+| `/pet on` | "开启宠物"、"宠物打开"、"要宠物" | 在当前项目根目录写入 `.pet.json {"enabled": true}`，显示 `"{name} 在这个项目中激活了！"` + 渲染宠物 |
+| `/pet off` | "关闭宠物"、"宠物关掉"、"不要宠物" | 在当前项目根目录写入 `.pet.json {"enabled": false}`，显示 `"{name} 在这个项目中去休息了... 💤"` |
+| `/pet status` | "宠物状态"、"宠物怎么样了" | 显示完整状态信息 + 当前项目开关状态 |
+
+**实现细节**：`/pet on` 和 `/pet off` 操作的是当前工作目录（项目根目录）下的 `.pet.json` 文件，不是全局 `state.json` 的 `active` 字段。宠物数据仍然是全局共享的。
+
+```
+/pet off  → cwd/.pet.json = {"enabled": false}
+/pet on   → cwd/.pet.json = {"enabled": true}
+```
+
+**项目级开关机制**：hooks 和 statusLine 在运行时从 `$PWD` 往上查找 `.pet.json` 文件。如果找到且 `enabled: false`，则跳过所有宠物相关逻辑（不更新状态、不输出消息、statusLine 不显示宠物）。默认 `enabled: true`（无文件或文件中无 enabled 字段时）。
 
 `/pet ascii` 指令：
 
@@ -360,7 +378,7 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
 - 升级 → `levelUp`（3 声 BEL）
 - 互动 → `interact`（1 声 BEL）
 
-音效通过 `node ~/.pet-buddy/pet-renderer.mjs --mode=sound --event={type}` 播放，仅在 `soundEnabled == true` 且终端为 TTY 时生效。
+音效通过 `node ~/.pet/pet-renderer.mjs --mode=sound --event={type}` 播放，仅在 `soundEnabled == true` 且终端为 TTY 时生效。
 
 `/pet status` 完整输出示例：
 
@@ -404,7 +422,7 @@ if 指令 == "feed":
 if 指令 == "play":
   if enhanceMode && stdin.isTTY:
     // 增强模式：启动接食物小游戏
-    运行：node ~/.pet-buddy/pet-renderer.mjs --mode=game
+    运行：node ~/.pet/pet-renderer.mjs --mode=game
     游戏结束后自动更新 state.json（mood/hunger/exp/bond/gameHighScore）
     显示游戏结果
   else:
@@ -461,7 +479,7 @@ if 指令 == "pet":
 | JSON 解析失败 | 提示用户确认是否重新初始化，确认后走初始化流程 |
 | 属性值超出范围 | 自动 clamp 到合法范围（0-100），无需用户干预 |
 | 未知宠物类型 | 默认使用 "cat"（猫咪），提示用户类型已重置 |
-| 状态文件路径不存在 | 自动创建 `~/.pet-buddy/` 目录 |
+| 状态文件路径不存在 | 自动创建 `~/.pet/` 目录 |
 | 时间戳异常（未来时间） | 将 lastUpdated 重置为当前时间，忽略异常衰减 |
 | 互动指令在宠物未激活时使用 | 提示 "请先使用 /pet on 激活宠物" |
 
@@ -469,7 +487,7 @@ if 指令 == "pet":
 
 ## 状态文件规范
 
-**路径**: `~/.pet-buddy/state.json`
+**路径**: `~/.pet/state.json`
 
 **字段定义**:
 

@@ -130,7 +130,7 @@ function applyColors(line, defaultColor) {
 // ─── State Loader ────────────────────────────────────────────────────────────
 
 function loadState() {
-  const filePath = path.join(os.homedir(), '.pet-buddy', 'state.json');
+  const filePath = path.join(os.homedir(), '.pet', 'state.json');
   try {
     if (!fs.existsSync(filePath)) return null;
     const raw = fs.readFileSync(filePath, 'utf-8');
@@ -141,7 +141,7 @@ function loadState() {
 }
 
 function saveState(state) {
-  const dir = path.join(os.homedir(), '.pet-buddy');
+  const dir = path.join(os.homedir(), '.pet');
   const filePath = path.join(dir, 'state.json');
   const tmpPath = path.join(dir, 'state.json.tmp');
   const bakPath = path.join(dir, 'state.json.bak');
@@ -179,7 +179,7 @@ function parseArgs() {
 // ─── Pet Definition Parser ──────────────────────────────────────────────────
 
 function findSkillDir() {
-  // Look for pets/ next to this script first (runtime layout: ~/.pet-buddy/pets/)
+  // Look for pets/ next to this script first (runtime layout: ~/.pet/pets/)
   const localPets = path.join(__dirname, 'pets');
   if (fs.existsSync(path.join(localPets, 'cat.md'))) return __dirname;
   // Fallback: source layout (pets/ in parent directory)

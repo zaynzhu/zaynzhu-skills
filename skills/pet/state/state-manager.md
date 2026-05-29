@@ -7,7 +7,7 @@ description: Pet Buddy 状态管理规则，定义 JSON schema、读写逻辑和
 
 ## 1. 状态文件位置
 
-Path: `~/.pet-buddy/state.json`
+Path: `~/.pet/state.json`
 
 ## 2. JSON Schema
 
@@ -136,7 +136,7 @@ function applyTimePass(state) {
 
 ```javascript
 function loadState() {
-  const filePath = path.join(os.homedir(), '.pet-buddy', 'state.json');
+  const filePath = path.join(os.homedir(), '.pet', 'state.json');
 
   if (!fs.existsSync(filePath)) {
     return null;
@@ -160,7 +160,7 @@ function loadState() {
 }
 ```
 
-1. Reads `~/.pet-buddy/state.json`
+1. Reads `~/.pet/state.json`
 2. Parses JSON
 3. Validates required fields (name, type, mood, hunger, bond, level, exp, active, showAscii, frame, soundEnabled, gameHighScore, createdAt, lastUpdated)
 4. Returns state object, or `null` if file doesn't exist, or `{ error: "invalid_json" }` if JSON invalid, or `{ error: "missing_fields", fields: [...] }` if fields missing
@@ -169,7 +169,7 @@ function loadState() {
 
 ```javascript
 function saveState(state) {
-  const dir = path.join(os.homedir(), '.pet-buddy');
+  const dir = path.join(os.homedir(), '.pet');
   const filePath = path.join(dir, 'state.json');
   const tmpPath = path.join(dir, 'state.json.tmp');
   const bakPath = path.join(dir, 'state.json.bak');
@@ -199,9 +199,9 @@ function saveState(state) {
 
 1. Updates `lastUpdated` to current ISO time
 2. Validates all attributes are in valid ranges (clamp)
-3. Writes to temp file `~/.pet-buddy/state.json.tmp`
-4. Renames to `~/.pet-buddy/state.json` (atomic)
-5. Keeps backup `~/.pet-buddy/state.json.bak`
+3. Writes to temp file `~/.pet/state.json.tmp`
+4. Renames to `~/.pet/state.json` (atomic)
+5. Keeps backup `~/.pet/state.json.bak`
 
 ## 8. 状态验证
 

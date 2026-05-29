@@ -12,15 +12,34 @@ for candidate in "$HOME/.claude/settings.json" "$HOME/.config/claude/settings.js
   fi
 done
 
-STATE_FILE="$HOME/.pet-buddy/state.json"
-ENHANCE_SCRIPT="$HOME/.pet-buddy/pet-renderer.mjs"
+STATE_FILE="$HOME/.pet/state.json"
+ENHANCE_SCRIPT="$HOME/.pet/pet-renderer.mjs"
+
+# --- Per-project config check ---
+# Walk up from PWD looking for .pet.json
+is_pet_enabled() {
+  local dir="$PWD"
+  while [ -n "$dir" ]; do
+    if [ -f "$dir/.pet.json" ]; then
+      local enabled
+      enabled=$(jq -r 'if .enabled == false then "false" else "true" end' "$dir/.pet.json" 2>/dev/null)
+      [ "$enabled" = "false" ] && return 1
+      return 0
+    fi
+    dir="${dir%/*}"
+  done
+  return 0
+}
+
+PET_ENABLED=true
+is_pet_enabled || PET_ENABLED=false
 
 # --- Part 1: Run original statusLine command ---
 ORIGINAL_OUTPUT=""
 ORIGINAL_CMD=""
 
 # Priority 1: Read from our saved original command file
-ORIG_CMD_FILE="$HOME/.pet-buddy/original-statusline-cmd.txt"
+ORIG_CMD_FILE="$HOME/.pet/original-statusline-cmd.txt"
 if [ -f "$ORIG_CMD_FILE" ]; then
   ORIGINAL_CMD=$(cat "$ORIG_CMD_FILE" 2>/dev/null)
 fi
@@ -38,9 +57,14 @@ if [ -n "$ORIGINAL_CMD" ]; then
   ORIGINAL_OUTPUT=$(eval "$ORIGINAL_CMD" 2>/dev/null)
 fi
 
-# --- Part 2: Build pet status ---
+# --- Part 2: Build pet status (skip if disabled for this project) ---
 PET_OUTPUT=""
 ENHANCE_MODE=false
+
+if [ "$PET_ENABLED" = "false" ]; then
+  # Project has pet disabled, skip pet rendering
+  :
+else
 
 # Try Node.js enhance mode first
 if command -v node >/dev/null 2>&1 && [ -f "$ENHANCE_SCRIPT" ]; then
@@ -137,7 +161,7 @@ if [ -f "$STATE_FILE" ]; then
       # Increment frame and save (modulo 1000 to prevent overflow)
       NEW_FRAME=$(( (FRAME + 1) % 1000 ))
       NEW_STATE=$(echo "$STATE" | jq --arg f "$NEW_FRAME" '.frame = ($f | tonumber)')
-      LOCK_DIR="$HOME/.pet-buddy/.state.lock"
+      LOCK_DIR="$HOME/.pet/.state.lock"
       retries=0; while ! mkdir "$LOCK_DIR" 2>/dev/null; do retries=$((retries+1)); [ "$retries" -ge 20 ] && break; sleep 0.1; done
       echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
       rm -rf "$LOCK_DIR" 2>/dev/null
@@ -146,7 +170,8 @@ if [ -f "$STATE_FILE" ]; then
 fi
   # Strip any color markers from Bash fallback output
   PET_OUTPUT=$(echo "$PET_OUTPUT" | sed 's/\[[0-9]*\]//g')
-fi
+fi # end ENHANCE_MODE check
+fi # end PET_ENABLED check
 
 # --- Part 3: Combine outputs ---
 if [ -n "$ORIGINAL_OUTPUT" ] && [ -n "$PET_OUTPUT" ]; then

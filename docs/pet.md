@@ -1,4 +1,4 @@
-# pet (Pet Buddy)
+# pet
 
 CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态做出实时反应。
 
@@ -11,6 +11,7 @@ CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态
 - 音效反馈（BEL 终端声音）
 - 增强模式：接食物小游戏
 - 状态栏集成 + Hook 自动互动
+- **项目级开关**：不同项目可独立启用/禁用宠物
 - **多平台支持**：Claude Code、Codex CLI、OpenCode
 
 ## 多平台支持
@@ -21,7 +22,18 @@ CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态
 | Codex CLI | Plugin 打包（.codex-plugin/）或 Bash hooks + hooks.json | systemMessage 工具输出 |
 | OpenCode | TypeScript 插件 + system prompt 注入 | 工具输出 + AI 自然提及 |
 
-核心状态文件 `~/.pet-buddy/state.json` 跨平台共享。
+核心状态文件 `~/.pet/state.json` 跨平台共享。
+
+## 项目级开关
+
+在项目根目录放 `.pet.json` 控制该项目是否启用宠物：
+
+```json
+{"enabled": false}  // 该项目禁用宠物
+{"enabled": true}   // 该项目启用宠物（默认）
+```
+
+也可用自然语言控制：说"关闭宠物"或"开启宠物"即可。
 
 ## 依赖
 
@@ -31,24 +43,24 @@ CLI 编程伴侣宠物——有持久属性的猫/狗宠物，能对工作状态
 
 ## 触发词
 
-| 命令 | 说明 |
-|------|------|
-| `/pet on` | 激活宠物伴侣 |
-| `/pet off` | 停用 |
-| `/pet status` | 查看完整状态 |
-| `/pet feed` | 喂食 |
-| `/pet play` | 玩耍（增强模式启动接食物小游戏） |
-| `/pet pet` | 抚摸 |
-| `/pet ascii on` | 开启 ASCII 画像常驻显示 |
-| `/pet ascii off` | 关闭画像，仅状态栏 |
-| `/pet sound on` | 开启音效 |
-| `/pet sound off` | 关闭音效 |
+| 命令 | 自然语言 | 说明 |
+|------|---------|------|
+| `/pet on` | 开启宠物、要宠物 | 项目级激活 |
+| `/pet off` | 关闭宠物、不要宠物 | 项目级停用 |
+| `/pet status` | 宠物状态 | 查看完整状态 |
+| `/pet feed` | 喂食 | 喂食宠物 |
+| `/pet play` | 玩耍 | 玩耍（增强模式启动接食物小游戏） |
+| `/pet pet` | 摸摸 | 抚摸宠物 |
+| `/pet ascii on` | - | 开启 ASCII 画像常驻显示 |
+| `/pet ascii off` | - | 关闭画像，仅状态栏 |
+| `/pet sound on` | - | 开启音效 |
+| `/pet sound off` | - | 关闭音效 |
 
-也可以用自然语言触发，如"我的宠物怎么样了"、"喂一下小黑"。
+也可以用自然语言触发，如"我的宠物怎么样了"、"喂一下小黑"、"跟宠物玩一下"。
 
 ## 状态文件
 
-宠物状态保存在 `~/.pet-buddy/state.json`，跨会话持久。
+宠物状态保存在 `~/.pet/state.json`，跨会话持久。
 
 ## 文件结构
 

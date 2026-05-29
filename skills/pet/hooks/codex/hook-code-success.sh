@@ -1,8 +1,8 @@
 #!/bin/bash
 # Pet Buddy hook for Codex CLI: code success (Edit/Write tool used)
 # Codex command hooks use the same stdin/stdout protocol as Claude Code.
-STATE_FILE="$HOME/.pet-buddy/state.json"
-LOCK_DIR="$HOME/.pet-buddy/.state.lock"
+STATE_FILE="$HOME/.pet/state.json"
+LOCK_DIR="$HOME/.pet/.state.lock"
 
 if [ ! -f "$STATE_FILE" ]; then exit 0; fi
 
@@ -26,7 +26,7 @@ ACTIVE=$(echo "$STATE" | jq -r '.active // true')
 if [ "$ACTIVE" = "false" ]; then unlock_state; exit 0; fi
 
 # Apply time decay first
-source "$HOME/.pet-buddy/apply-decay.sh"
+source "$HOME/.pet/apply-decay.sh"
 apply_decay
 
 # Re-read state after decay
