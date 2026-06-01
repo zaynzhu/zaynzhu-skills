@@ -39,13 +39,19 @@ def load_config():
         from model_config import parse_yaml_simple
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             return parse_yaml_simple(f.read())
-    print("错误: 配置文件不存在。请先运行 'python model_config.py add' 添加模型。")
-    sys.exit(1)
+    raise FileNotFoundError("配置文件不存在。请先运行 'python model_config.py add' 添加模型。")
 
 
 # ---------------------------------------------------------------------------
 # 查询分类器
 # ---------------------------------------------------------------------------
+
+def _approx_word_count(text):
+    """近似词数：中文按字计，英文按词计。"""
+    cjk = len(re.findall(r'[一-鿿　-〿＀-￯]', text))
+    non_cjk = len(re.findall(r'[a-zA-Z0-9]+', text))
+    return cjk + non_cjk
+
 
 def classify_query(prompt, has_image=False):
     """分析查询内容，返回 (task_type, confidence)。
@@ -68,7 +74,7 @@ def classify_query(prompt, has_image=False):
         r"为什么|解释原理|explain.*architecture|compare.*trade.?off|"
         r"安全审计|security|性能分析|benchmark|设计方案)"
     )
-    word_count = len(prompt.split())
+    word_count = _approx_word_count(prompt)
     has_reasoning_kw = bool(re.search(reasoning_kw, lower))
 
     if word_count > 100 or (word_count > 30 and has_reasoning_kw):
@@ -107,8 +113,7 @@ def select_candidates(config, task_type=None, profile_name=None, cost_mode=None)
     if profile_name:
         if profile_name in profiles:
             return [(profile_name, profiles[profile_name])]
-        print(f"错误: profile '{profile_name}' 不存在")
-        sys.exit(1)
+        raise KeyError(f"profile '{profile_name}' 不存在")
 
     candidates = []
     effective_cost_mode = cost_mode
@@ -152,8 +157,7 @@ def encode_image(image_path):
     """将图片文件编码为 base64。"""
     path = Path(image_path)
     if not path.exists():
-        print(f"错误: 图片文件不存在: {image_path}")
-        sys.exit(1)
+        raise FileNotFoundError(f"图片文件不存在: {image_path}")
 
     suffix = path.suffix.lower()
     mime_map = {
@@ -225,6 +229,7 @@ def build_request(profile, prompt, image_path=None, image_url=None):
         }
 
     elif provider == "google":
+        endpoint = endpoint.replace("{model}", model)
         parts = [{"text": prompt}]
         if image_path:
             mime, data = encode_image(image_path)
@@ -262,15 +267,33 @@ def build_request(profile, prompt, image_path=None, image_url=None):
 # 响应解析
 # ---------------------------------------------------------------------------
 
+def _safe_first(lst, default=""):
+    """安全取列表第一个元素，处理空列表和 None 元素。"""
+    if not lst:
+        return default
+    item = lst[0]
+    return item if item is not None else default
+
+
 def extract_response(provider, response_json):
     """从 API 响应中提取文本。"""
     if provider == "openai":
-        return response_json.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if "choices" not in response_json:
+            return f"[调用失败: API 返回异常 {json.dumps(response_json, ensure_ascii=False)[:200]}]"
+        return _safe_first(response_json["choices"], {}).get("message", {}).get("content", "")
     elif provider == "anthropic":
-        return response_json.get("content", [{}])[0].get("text", "")
+        if "content" not in response_json:
+            return f"[调用失败: API 返回异常 {json.dumps(response_json, ensure_ascii=False)[:200]}]"
+        return _safe_first(response_json["content"], {}).get("text", "")
     elif provider == "google":
-        return response_json.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        if "candidates" not in response_json:
+            return f"[调用失败: API 返回异常 {json.dumps(response_json, ensure_ascii=False)[:200]}]"
+        candidate = _safe_first(response_json["candidates"], {})
+        parts = candidate.get("content", {}).get("parts", [{}])
+        return _safe_first(parts, {}).get("text", "")
     elif provider == "ollama":
+        if "error" in response_json:
+            return f"[调用失败: {response_json['error']}]"
         return response_json.get("response", "")
     else:
         return json.dumps(response_json, ensure_ascii=False)
@@ -298,8 +321,13 @@ def call_api(endpoint, headers, body, timeout=60):
     output = result.stdout.strip()
     lines = output.rsplit("\n", 1)
     if len(lines) == 2 and lines[1].strip().isdigit():
-        resp_body = lines[0]
-        status_code = int(lines[1].strip())
+        code = int(lines[1].strip())
+        if 100 <= code <= 599:
+            resp_body = lines[0]
+            status_code = code
+        else:
+            resp_body = output
+            status_code = 200
     else:
         resp_body = output
         status_code = 200
@@ -331,12 +359,10 @@ def route(task_type=None, profile_name=None, prompt=None,
     candidates = select_candidates(config, task_type, profile_name, cost_mode)
 
     if not candidates:
-        print("错误: 没有可用的模型。请运行 'python model_config.py add' 添加模型。")
-        sys.exit(1)
+        raise ValueError("没有可用的模型。请运行 'python model_config.py add' 添加模型。")
 
     if not prompt:
-        print("错误: 必须提供 --prompt 参数")
-        sys.exit(1)
+        raise ValueError("必须提供 --prompt 参数")
 
     last_error = None
     tried = []
@@ -367,9 +393,7 @@ def route(task_type=None, profile_name=None, prompt=None,
             print(f"警告: {name} 失败 ({e})，尝试下一个...", file=sys.stderr)
             continue
 
-    print(f"错误: 所有 {len(tried)} 个候选模型均失败。最后错误: {last_error}", file=sys.stderr)
-    print(f"已尝试: {', '.join(tried)}", file=sys.stderr)
-    sys.exit(1)
+    raise RuntimeError(f"所有 {len(tried)} 个候选模型均失败。最后错误: {last_error}。已尝试: {', '.join(tried)}")
 
 
 # ---------------------------------------------------------------------------
@@ -404,16 +428,20 @@ def main():
     args = parser.parse_args()
 
     if args.command == "route":
-        name, profile, text = route(
-            task_type=args.task,
-            profile_name=args.profile,
-            prompt=args.prompt,
-            image_path=args.image,
-            image_url=args.image_url,
-            cost_mode=args.cost,
-            auto_task=args.auto_task,
-        )
-        print(text)
+        try:
+            name, profile, text = route(
+                task_type=args.task,
+                profile_name=args.profile,
+                prompt=args.prompt,
+                image_path=args.image,
+                image_url=args.image_url,
+                cost_mode=args.cost,
+                auto_task=args.auto_task,
+            )
+            print(text)
+        except (FileNotFoundError, KeyError, ValueError, RuntimeError) as e:
+            print(f"错误: {e}", file=sys.stderr)
+            sys.exit(1)
 
     elif args.command == "list":
         config = load_config()

@@ -24,6 +24,7 @@ import argparse
 import json
 import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
 from pathlib import Path
 
@@ -211,6 +212,7 @@ def build_request(model_cfg, messages):
 
     elif provider == "google":
         # Google 用 contents 格式
+        endpoint = endpoint.replace("{model}", model)
         contents = []
         for msg in messages:
             role = "user" if msg["role"] == "user" else "model"
@@ -244,15 +246,33 @@ def build_request(model_cfg, messages):
     return endpoint, headers, body
 
 
+def _safe_first(lst, default=""):
+    """安全取列表第一个元素，处理空列表和 None 元素。"""
+    if not lst:
+        return default
+    item = lst[0]
+    return item if item is not None else default
+
+
 def extract_response(provider, response_json):
     """从 API 响应中提取文本。"""
     if provider == "openai":
-        return response_json.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if "choices" not in response_json:
+            return f"[调用失败: API 返回异常 {json.dumps(response_json, ensure_ascii=False)[:200]}]"
+        return _safe_first(response_json["choices"], {}).get("message", {}).get("content", "")
     elif provider == "anthropic":
-        return response_json.get("content", [{}])[0].get("text", "")
+        if "content" not in response_json:
+            return f"[调用失败: API 返回异常 {json.dumps(response_json, ensure_ascii=False)[:200]}]"
+        return _safe_first(response_json["content"], {}).get("text", "")
     elif provider == "google":
-        return response_json.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        if "candidates" not in response_json:
+            return f"[调用失败: API 返回异常 {json.dumps(response_json, ensure_ascii=False)[:200]}]"
+        candidate = _safe_first(response_json["candidates"], {})
+        parts = candidate.get("content", {}).get("parts", [{}])
+        return _safe_first(parts, {}).get("text", "")
     elif provider == "ollama":
+        if "error" in response_json:
+            return f"[调用失败: {response_json['error']}]"
         return response_json.get("response", "")
     else:
         return json.dumps(response_json, ensure_ascii=False)
@@ -272,8 +292,13 @@ def call_api(endpoint, headers, body, timeout=120):
     output = result.stdout.strip()
     lines = output.rsplit("\n", 1)
     if len(lines) == 2 and lines[1].strip().isdigit():
-        resp_body = lines[0]
-        status_code = int(lines[1].strip())
+        code = int(lines[1].strip())
+        if 100 <= code <= 599:
+            resp_body = lines[0]
+            status_code = code
+        else:
+            resp_body = output
+            status_code = 200
     else:
         resp_body = output
         status_code = 200
@@ -361,20 +386,26 @@ def run_single_debate(config, prompt, model_names):
     print(f"问题: {prompt[:80]}...", file=sys.stderr)
     print(file=sys.stderr)
 
-    # 收集各模型回答
+    # 并行收集各模型回答
     answers = {}
-    for name in model_names:
-        model_cfg = models[name]
-        messages = [{"role": "user", "content": SINGLE_DEBATE_PROMPT.format(question=prompt)}]
+    with ThreadPoolExecutor(max_workers=len(model_names)) as executor:
+        future_to_name = {}
+        for name in model_names:
+            model_cfg = models[name]
+            messages = [{"role": "user", "content": SINGLE_DEBATE_PROMPT.format(question=prompt)}]
+            future = executor.submit(query_model, name, model_cfg, messages)
+            future_to_name[future] = name
+            print(f"[{name}] 回答中...", file=sys.stderr)
 
-        print(f"[{name}] 回答中...", file=sys.stderr)
-        try:
-            answer = query_model(name, model_cfg, messages)
-            answers[name] = answer
-            print(f"[{name}] 完成 ({len(answer)} 字符)", file=sys.stderr)
-        except Exception as e:
-            print(f"[{name}] 失败: {e}", file=sys.stderr)
-            answers[name] = f"[调用失败: {e}]"
+        for future in future_to_name:
+            name = future_to_name[future]
+            try:
+                answer = future.result()
+                answers[name] = answer
+                print(f"[{name}] 完成 ({len(answer)} 字符)", file=sys.stderr)
+            except Exception as e:
+                print(f"[{name}] 失败: {e}", file=sys.stderr)
+                answers[name] = f"[调用失败: {e}]"
 
     # 合成共识
     print(f"\n[共识合成] 分析中...", file=sys.stderr)
@@ -479,8 +510,15 @@ def run_multi_debate(config, prompt, model_names):
                 print(f"[{name}] 失败，保留原回答: {e}", file=sys.stderr)
                 new_answers[name] = answers[name]
 
+        # 收敛检测：如果大多数模型回答未变化，提前结束
+        changed = sum(1 for name in model_names if new_answers.get(name) != answers.get(name))
+        unchanged_ratio = 1 - changed / max(len(model_names), 1)
         answers = new_answers
         all_rounds.append(dict(answers))
+
+        if unchanged_ratio >= convergence_ratio:
+            print(f"\n--- 第 {round_num} 轮后收敛（{unchanged_ratio:.0%} 未变化），提前结束 ---", file=sys.stderr)
+            break
 
     # 合成共识
     print(f"\n[共识合成] 分析中...", file=sys.stderr)

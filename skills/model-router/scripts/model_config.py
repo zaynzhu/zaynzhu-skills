@@ -653,12 +653,19 @@ def _test_api(provider, endpoint, model, env_key):
     resp = json.loads(result.stdout)
 
     # 提取响应
+    def _safe(lst, default={}):
+        if not lst:
+            return default
+        return lst[0] if lst[0] is not None else default
+
     if provider == "openai":
-        return resp.get("choices", [{}])[0].get("message", {}).get("content", "")
+        return _safe(resp.get("choices", [{}])).get("message", {}).get("content", "")
     elif provider == "anthropic":
-        return resp.get("content", [{}])[0].get("text", "")
+        return _safe(resp.get("content", [{}])).get("text", "")
     elif provider == "google":
-        return resp.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        candidate = _safe(resp.get("candidates", [{}]))
+        parts = candidate.get("content", {}).get("parts", [{}])
+        return _safe(parts).get("text", "")
     elif provider == "ollama":
         return resp.get("response", "")
     else:
