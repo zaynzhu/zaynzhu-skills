@@ -12,7 +12,9 @@ _dir="$PWD"; while [ -n "$_dir" ]; do
     [ "$_enabled" = "false" ] && exit 0
     break
   fi
-  _dir="${_dir%/*}"
+  _parent="${_dir%/*}"
+  [ "$_parent" = "$_dir" ] && break
+  _dir="$_parent"
 done
 
 # mkdir-based file lock (atomic, cross-platform)
@@ -43,6 +45,13 @@ apply_decay
 STATE=$(cat "$STATE_FILE" 2>/dev/null)
 if [ -z "$STATE" ]; then unlock_state; exit 0; fi
 
+# Skip state changes if sleeping
+SLEEPING=$(echo "$STATE" | jq -r '.sleeping // false')
+if [ "$SLEEPING" = "true" ]; then
+  unlock_state
+  exit 0
+fi
+
 NAME=$(echo "$STATE" | jq -r '.name')
 FRAME=$(echo "$STATE" | jq -r '.frame // 0')
 NEW_FRAME=$(( (FRAME + 1) % 1000 ))
@@ -61,18 +70,78 @@ if [ "$EXIT_CODE" = "0" ] || [ -z "$EXIT_CODE" ]; then
     .lastUpdated = $now |
     levelup
   ')
+  cp "$STATE_FILE" "$STATE_FILE.bak" 2>/dev/null || true
   echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
 
   LEVEL_BEFORE=$(echo "$STATE" | jq -r '.level')
   LEVEL_AFTER=$(echo "$NEW_STATE" | jq -r '.level')
 
+  # Calculate evolution stages
+  EVOLUTION_BEFORE=0
+  [ "$LEVEL_BEFORE" -ge 5 ] && EVOLUTION_BEFORE=1
+  [ "$LEVEL_BEFORE" -ge 15 ] && EVOLUTION_BEFORE=2
+  [ "$LEVEL_BEFORE" -ge 30 ] && EVOLUTION_BEFORE=3
+
+  EVOLUTION_AFTER=0
+  [ "$LEVEL_AFTER" -ge 5 ] && EVOLUTION_AFTER=1
+  [ "$LEVEL_AFTER" -ge 15 ] && EVOLUTION_AFTER=2
+  [ "$LEVEL_AFTER" -ge 30 ] && EVOLUTION_AFTER=3
+
+  # Update evolution in state if changed
+  if [ "$EVOLUTION_AFTER" -gt "$EVOLUTION_BEFORE" ]; then
+    NEW_STATE=$(echo "$NEW_STATE" | jq --arg evo "$EVOLUTION_AFTER" '.evolution = ($evo | tonumber)')
+    cp "$STATE_FILE" "$STATE_FILE.bak" 2>/dev/null || true
+  echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+  fi
+
+  # Increment counters and check achievements
+  source "$HOME/.pet/check-achievements.sh"
+  NEW_STATE=$(cat "$STATE_FILE" 2>/dev/null)
+  NEW_STATE=$(echo "$NEW_STATE" | jq '
+    .counters.bashSuccesses = ((.counters.bashSuccesses // 0) + 1) |
+    .counters.maxLevel = ([.counters.maxLevel // 0, .level] | max) |
+    .counters.maxBond = ([.counters.maxBond // 0, .bond] | max)
+  ')
+  cp "$STATE_FILE" "$STATE_FILE.bak" 2>/dev/null || true
+  echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+
+  # Update streak
+  TODAY=$(date -u +%Y-%m-%d)
+  LAST_ACTIVE=$(echo "$NEW_STATE" | jq -r '.counters.lastActiveDate // ""')
+  if [ "$LAST_ACTIVE" != "$TODAY" ]; then
+    YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d 2>/dev/null)
+    if [ -z "$YESTERDAY" ]; then
+      # Cannot compute yesterday, reset streak
+      NEW_STATE=$(echo "$NEW_STATE" | jq '.counters.consecutiveDays = 1')
+    else
+      if [ "$LAST_ACTIVE" = "$YESTERDAY" ]; then
+        NEW_STATE=$(echo "$NEW_STATE" | jq '.counters.consecutiveDays = ((.counters.consecutiveDays // 0) + 1)')
+      else
+        NEW_STATE=$(echo "$NEW_STATE" | jq '.counters.consecutiveDays = 1')
+      fi
+    fi
+    NEW_STATE=$(echo "$NEW_STATE" | jq --arg today "$TODAY" '.counters.lastActiveDate = $today')
+    cp "$STATE_FILE" "$STATE_FILE.bak" 2>/dev/null || true
+  echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+  fi
+
+  ACH_MESSAGES=$(check_achievements)
+
   unlock_state
 
-  if [ "$LEVEL_AFTER" -gt "$LEVEL_BEFORE" ]; then
-    LEVELUP_MSG=$(printf '\033[38;5;226m🎉 %s 升级到了 Lv.%d！\033[0m' "$NAME" "$LEVEL_AFTER")
-    echo "{\"systemMessage\": \"$LEVELUP_MSG\"}"
+  if [ "$EVOLUTION_AFTER" -gt "$EVOLUTION_BEFORE" ]; then
+    EVO_NAMES=("基础" "少年" "成年" "觉醒")
+    OLD_NAME=${EVO_NAMES[$EVOLUTION_BEFORE]}
+    NEW_NAME=${EVO_NAMES[$EVOLUTION_AFTER]}
+    EXIST_MSG=$(printf '\033[38;5;226m🌟 %s 进化了！%s → %s ✨ 外观已更新！\033[0m' "$NAME" "$OLD_NAME" "$NEW_NAME")
+  elif [ "$LEVEL_AFTER" -gt "$LEVEL_BEFORE" ]; then
+    EXIST_MSG=$(printf '\033[38;5;226m🎉 %s 升级到了 Lv.%d！\033[0m' "$NAME" "$LEVEL_AFTER")
   else
-    echo "{\"systemMessage\": \"🐱 $NAME 高兴地摇了摇尾巴！测试通过了！🎉\"}"
+    EXIST_MSG="🐱 $NAME 高兴地摇了摇尾巴！测试通过了！🎉"
+  fi
+  echo "{\"systemMessage\": \"$EXIST_MSG\"}"
+  if [ -n "$ACH_MESSAGES" ]; then
+    echo "$ACH_MESSAGES"
   fi
 else
   NEW_STATE=$(echo "$STATE" | jq --arg now "$NOW" --arg f "$NEW_FRAME" '
@@ -80,9 +149,23 @@ else
     .frame = ($f | tonumber) |
     .lastUpdated = $now
   ')
+  cp "$STATE_FILE" "$STATE_FILE.bak" 2>/dev/null || true
   echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+
+  # Increment failure counter
+  NEW_STATE=$(cat "$STATE_FILE" 2>/dev/null)
+  NEW_STATE=$(echo "$NEW_STATE" | jq '.counters.testFails = ((.counters.testFails // 0) + 1)')
+  cp "$STATE_FILE" "$STATE_FILE.bak" 2>/dev/null || true
+  echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
+
+  # Check achievements
+  source "$HOME/.pet/check-achievements.sh"
+  ACH_MESSAGES=$(check_achievements)
 
   unlock_state
 
   echo "{\"systemMessage\": \"🐱 $NAME 安静地陪在你身边...别灰心！💪\"}"
+  if [ -n "$ACH_MESSAGES" ]; then
+    echo "$ACH_MESSAGES"
+  fi
 fi

@@ -50,6 +50,74 @@
         "decayRate": 3,
         "growRate": 15
       }
+    },
+    "rabbit": {
+      "name": "兔子",
+      "icon": "🐰",
+      "personality": "可爱、活泼",
+      "colors": { "primary": 219, "secondary": 213, "highlight": 229 },
+      "artFile": "rabbit.md",
+      "defaultName": "小白",
+      "unique": {
+        "field": "agility",
+        "label": "跳跃力",
+        "icon": "🦘",
+        "default": 60,
+        "range": [0, 100],
+        "decayRate": 2,
+        "growRate": 15
+      }
+    },
+    "parrot": {
+      "name": "鹦鹉",
+      "icon": "🦜",
+      "personality": "聪明、话多",
+      "colors": { "primary": 46, "secondary": 22, "highlight": 226 },
+      "artFile": "parrot.md",
+      "defaultName": "彩彩",
+      "unique": {
+        "field": "intelligence",
+        "label": "学习力",
+        "icon": "🧠",
+        "default": 50,
+        "range": [0, 100],
+        "decayRate": 1,
+        "growRate": 10
+      }
+    },
+    "turtle": {
+      "name": "乌龟",
+      "icon": "🐢",
+      "personality": "慢悠悠、长寿",
+      "colors": { "primary": 34, "secondary": 28, "highlight": 226 },
+      "artFile": "turtle.md",
+      "defaultName": "小慢",
+      "unique": {
+        "field": "patience",
+        "label": "耐心",
+        "icon": "⏳",
+        "default": 80,
+        "range": [0, 100],
+        "decayRate": 0,
+        "growRate": 0
+      }
+    },
+    "fish": {
+      "name": "鱼",
+      "icon": "🐟",
+      "personality": "安静、治愈",
+      "colors": { "primary": 39, "secondary": 33, "highlight": 226 },
+      "artFile": "fish.md",
+      "defaultName": "小蓝",
+      "unique": {
+        "field": "vitality",
+        "label": "活力",
+        "icon": "💧",
+        "default": 70,
+        "range": [0, 100],
+        "decayRate": 5,
+        "growRate": 20
+      }
     }
   }
 }

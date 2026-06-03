@@ -36,8 +36,14 @@ FACE=$(echo "$STATE" | jq -r '
   else "😺" end
 ')
 
+REGISTRY_FILE="$HOME/.pet/pets/registry.json"
 ICON="🐱"
-[ "$TYPE" = "dog" ] && ICON="🐶"
+if [ -f "$REGISTRY_FILE" ]; then
+  REG_ICON=$(jq -r --arg t "$TYPE" '.types[$t].icon // empty' "$REGISTRY_FILE" 2>/dev/null)
+  [ -n "$REG_ICON" ] && ICON="$REG_ICON"
+else
+  [ "$TYPE" = "dog" ] && ICON="🐶"
+fi
 
 EXP_NEEDED=$((LEVEL * 100))
 

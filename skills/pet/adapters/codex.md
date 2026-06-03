@@ -40,9 +40,11 @@ cp -r pet/pets ~/.pet/pets
 cp pet/hooks/codex/hook-code-success.sh ~/.pet/
 cp pet/hooks/codex/hook-bash-result.sh ~/.pet/
 cp pet/hooks/codex/apply-decay.sh ~/.pet/
+cp pet/hooks/codex/check-achievements.sh ~/.pet/check-achievements.sh
 chmod +x ~/.pet/hook-code-success.sh
 chmod +x ~/.pet/hook-bash-result.sh
 chmod +x ~/.pet/apply-decay.sh
+chmod +x ~/.pet/check-achievements.sh
 
 # 2. 配置 hooks（选择以下方式之一）
 ```

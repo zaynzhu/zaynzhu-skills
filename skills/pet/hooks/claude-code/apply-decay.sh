@@ -37,17 +37,27 @@ apply_decay() {
   local FRAME=$(echo "$STATE" | jq -r '.frame // 0')
   local NEW_FRAME=$(( (FRAME + 1) % 1000 ))
 
-  local NEW_STATE=$(echo "$STATE" | jq --arg hours "$ELAPSED_HOURS" --arg days "$ELAPSED_DAYS" --arg now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" --arg f "$NEW_FRAME" '
-    .hunger = ((.hunger + 5 * ($hours | tonumber)) | if . > 100 then 100 elif . < 0 then 0 else . end) |
+  local SLEEPING=$(echo "$STATE" | jq -r '.sleeping // false')
+  local HUNGER_RATE=5
+  if [ "$SLEEPING" = "true" ]; then HUNGER_RATE=2; fi
+
+  local NEW_STATE=$(echo "$STATE" | jq --arg hours "$ELAPSED_HOURS" --arg days "$ELAPSED_DAYS" --arg now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" --arg f "$NEW_FRAME" --arg rate "$HUNGER_RATE" '
+    .hunger = ((.hunger + ($rate | tonumber) * ($hours | tonumber)) | if . > 100 then 100 elif . < 0 then 0 else . end) |
     .bond = ((.bond - 1 * ($days | tonumber)) | if . < 0 then 0 elif . > 100 then 100 else . end) |
     .frame = ($f | tonumber) |
     .lastUpdated = $now
   ')
 
+  # If sleeping, skip bond decay by restoring pre-decay value
+  if [ "$SLEEPING" = "true" ]; then
+    local BOND_BEFORE=$(echo "$STATE" | jq '.bond // 50')
+    NEW_STATE=$(echo "$NEW_STATE" | jq --argjson bond "$BOND_BEFORE" '.bond = $bond')
+  fi
+
   echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
 
-  # Apply unique attribute decay if registry exists
-  if [ -f "$REGISTRY_FILE" ] && [ "$ELAPSED_HOURS" -gt 0 ]; then
+  # Apply unique attribute decay if registry exists (use fractional hours for sub-hour precision)
+  if [ -f "$REGISTRY_FILE" ] && [ "$ELAPSED" -gt 0 ]; then
     local PET_TYPE=$(echo "$NEW_STATE" | jq -r '.type // "cat"')
     local DECAY_RATE=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.decayRate // 0' "$REGISTRY_FILE" 2>/dev/null)
     local FIELD=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.field // empty' "$REGISTRY_FILE" 2>/dev/null)
@@ -59,12 +69,12 @@ apply_decay() {
       NEW_STATE=$(echo "$NEW_STATE" | jq \
         --arg field "$FIELD" \
         --arg rate "$DECAY_RATE" \
-        --arg hours "$ELAPSED_HOURS" \
+        --arg seconds "$ELAPSED" \
         --arg min "$RANGE_MIN" \
         --arg max "$RANGE_MAX" \
         --arg default "$DEFAULT" '
         (.unique[$field] // ($default | tonumber)) as $cur |
-        .unique[$field] = ([$cur - ($rate | tonumber) * ($hours | tonumber), ($min | tonumber)] | max |
+        .unique[$field] = ([$cur - ($rate | tonumber) * ($seconds | tonumber) / 3600, ($min | tonumber)] | max |
                           if . > ($max | tonumber) then ($max | tonumber) else . end)
       ')
       echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"

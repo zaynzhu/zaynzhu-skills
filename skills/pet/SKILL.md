@@ -38,6 +38,8 @@ Skill 在以下情况下激活：
 | `/pet pet` | 抚摸宠物 |
 | `/pet ascii on` | 开启 ASCII 画像常驻显示（每次 AI 回复都带宠物画像） |
 | `/pet ascii off` | 关闭 ASCII 画像常驻显示（仅状态栏显示） |
+| `/pet dress [item]` | 给宠物穿戴装扮（hat/scarf/glasses/wings/halo/none） |
+| `/pet achievements` | 无状态变化 | 显示成就列表和进度 |
 | `/pet sound on` | 开启音效（BEL 终端声音） |
 | `/pet sound off` | 关闭音效 |
 | `/pet play` | 和宠物玩耍（增强模式下启动接食物小游戏） |
@@ -158,7 +160,7 @@ else:
   1. {icon} {name} — {personality}
   2. {icon} {name} — {personality}
   ...
-（当前可用：猫咪🐱、狗狗🐶、仓鼠🐹）
+（当前可用：猫咪🐱、狗狗🐶、仓鼠🐹、兔子🐰、鹦鹉🦜、乌龟🐢、鱼🐟）
 
 等待用户输入 → pet_type = registry 中对应的 key
 
@@ -166,10 +168,8 @@ else:
 "给你的宠物起个名字吧！（直接输入名字，或按回车使用默认名）"
 
 if 用户输入为空:
-  if pet_type == "cat":
-    name = "小黑"
-  else:
-    name = "小黄"
+  从 registry.json 读取 types[pet_type].defaultName 作为默认名
+  （cat="小黑", dog="小黄", hamster="小圆", rabbit="小白", parrot="彩彩", turtle="小慢", fish="小蓝"）
 
 步骤 3 — 创建初始状态：
 ```
@@ -179,7 +179,7 @@ if 用户输入为空:
 ```json
 {
   "name": "用户输入的名字",
-  "type": "cat 或 dog",
+  "type": "cat / dog / hamster / rabbit / parrot / turtle / fish",
   "mood": 80,
   "hunger": 20,
   "bond": 50,
@@ -191,7 +191,8 @@ if 用户输入为空:
   "soundEnabled": false,
   "gameHighScore": 0,
   "createdAt": "ISO 时间戳",
-  "lastUpdated": "ISO 时间戳"
+  "lastUpdated": "ISO 时间戳",
+  "outfit": null
 }
 ```
 
@@ -306,7 +307,17 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
 #### 4.3 状态栏格式
 
 ```
-{icon} {name} Lv.{level} {emoji} | ❤️{mood} 🍖{hunger} 🤝{bond} ✨{exp}/{level*100} {description}
+{icon} {name} {evoIcon} Lv.{level} {emoji} | ❤️{mood} 🍖{hunger} 🤝{bond} ✨{exp}/{level*100} {description}
+```
+
+进化阶段图标（`evoIcon`）：无=基础, ✨=少年, 🌟=成年, 💫=觉醒
+
+进化阶段根据等级自动升级：Lv.5 → 少年, Lv.15 → 成年, Lv.30 → 觉醒。
+
+示例输出：
+```
+🐱 小黑 ✨ Lv.5 😻 | ❤️85 🍖35 🤝63 ✨66/100 骄傲地甩了甩尾巴
+🐶 小黄 🌟 Lv.18 😸 | ❤️90 🍖20 🤝80 ✨45/1800 开心地摇着尾巴
 ```
 
 增强模式下各属性有独立 ANSI 256-color 颜色：
@@ -334,7 +345,7 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
 
 #### 4.4 ASCII 画像选择
 
-根据 `(petType, stateLabel, frame)` 选择具体帧。详见 `pets/cat.md` 和 `pets/dog.md` 中的多帧定义。
+根据 `(petType, stateLabel, frame)` 选择具体帧。详见 `pets/` 目录下各宠物的 `.md` 文件（cat.md, dog.md, hamster.md, rabbit.md, parrot.md, turtle.md, fish.md）中的多帧定义。
 
 示例（猫咪 happy）：
 ```
@@ -393,17 +404,21 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
   名字: {name}
   类型: {type == "cat" ? "猫咪 🐱" : "狗狗 🐶"}
   等级: Lv.{level}
+  进化阶段: {evolutionName} {evolutionIcon}
   ❤️ 心情: {mood}/100
   🍖 饥饿: {hunger}/100
   🤝 好感度: {bond}/100
   ✨ 经验: {exp}/{level * 100}
   📅 陪伴天数: {(now - createdAt) / 86400} 天
+  👗 装扮: {outfit ? itemNames[outfit] : "无"}
   🟢 状态: 活跃中
 
    /\_/\
   ( •ω• )
    >   <
 ```
+
+进化阶段取值：0=基础（无图标）, 1=少年✨, 2=成年🌟, 3=觉醒💫
 
 ---
 
@@ -415,6 +430,11 @@ frame 范围：0-999，递增后取模 `frame = (frame + 1) % 1000`
 | `/pet play` | mood +10, bond +5, hunger +5 | "{name} 玩得很开心！🎾" |
 | `/pet pet` | mood +3, bond +2 | "{name} 舒服地蹭了蹭你~ 🖐️" |
 | `/pet special` | unique +25, mood +5, bond +2 | "{name} {type-specific action}！{type-specific emoji}" |
+| `/pet sleep` | sleeping = true, sleepStartedAt = now | "{name} 打了个哈欠，准备睡觉了...😴" |
+| `/pet wake` | sleeping = false, mood +15, bond +3 | "{name} 醒来了，伸了个懒腰！😸" |
+| `/pet train` | hunger -20, exp +15, unique +10, mood +3, bond +2 | "{name} 训练得很认真！💪" |
+| `/pet dress [item]` | outfit = item | "{name} 戴上了{item}！✨" |
+| `/pet dress none` | outfit = null | "{name} 脱下了装扮~" |
 
 互动流程：
 
@@ -424,6 +444,13 @@ if 指令 == "feed":
   state.mood = min(state.mood + 5, 100)
   state.bond = min(state.bond + 3, 100)
   显示："{name} 吃得很开心！🍖"
+  // 递增计数器
+  incrementCounter(state, "feeds")
+  updateMaxStats(state)
+  updateStreak(state)
+  newAchs = checkAchievements(state)
+  if newAchs.length > 0:
+    显示成就解锁动画
 
 if 指令 == "play":
   if enhanceMode && stdin.isTTY:
@@ -437,11 +464,25 @@ if 指令 == "play":
     state.bond = min(state.bond + 5, 100)
     state.hunger = min(state.hunger + 5, 100)
     显示："{name} 玩得很开心！🎾"
+  // 递增计数器
+  incrementCounter(state, "plays")
+  updateMaxStats(state)
+  updateStreak(state)
+  newAchs = checkAchievements(state)
+  if newAchs.length > 0:
+    显示成就解锁动画
 
 if 指令 == "pet":
   state.mood = min(state.mood + 3, 100)
   state.bond = min(state.bond + 2, 100)
   显示："{name} 舒服地蹭了蹭你~ 🖐️"
+  // 递增计数器
+  incrementCounter(state, "pets")
+  updateMaxStats(state)
+  updateStreak(state)
+  newAchs = checkAchievements(state)
+  if newAchs.length > 0:
+    显示成就解锁动画
 
 if 指令 == "special":
   state.unique = min(state.unique + 25, 100)   // unique 字段名因宠物类型而异
@@ -451,6 +492,103 @@ if 指令 == "special":
     hamster: "{name} 在转轮上跑得飞快！🐹"
     cat:     "{name} 独自去探险了一圈回来了！😼"
     dog:     "{name} 兴奋地叼着飞盘跑回来！🐶"
+    rabbit:  "{name} 开心地蹦了好几下！🐰"
+    parrot:  "{name} 学会了一个新词！🦜"
+    turtle:  "{name} 慢慢地爬了一圈回来了！🐢"
+    fish:    "{name} 快速地转了好几圈！🐟"
+  // 递增计数器
+  incrementCounter(state, "specials")
+  updateMaxStats(state)
+  updateStreak(state)
+  newAchs = checkAchievements(state)
+  if newAchs.length > 0:
+    显示成就解锁动画
+
+if 指令 == "sleep":
+  state.sleeping = true
+  state.sleepStartedAt = now
+  显示："{name} 打了个哈欠，准备睡觉了...😴"
+  // 递增计数器
+  incrementCounter(state, "sleeps")
+  updateMaxStats(state)
+  updateStreak(state)
+  newAchs = checkAchievements(state)
+  if newAchs.length > 0:
+    显示成就解锁动画
+
+if 指令 == "wake":
+  if state.sleeping:
+    state.sleeping = false
+    state.sleepStartedAt = null
+    state.mood = min(state.mood + 15, 100)
+    state.bond = min(state.bond + 3, 100)
+    显示："{name} 醒来了，伸了个懒腰！😸"
+    // 递增计数器
+    incrementCounter(state, "wakes")
+    updateMaxStats(state)
+    updateStreak(state)
+    newAchs = checkAchievements(state)
+    if newAchs.length > 0:
+      显示成就解锁动画
+  else:
+    显示："{name} 并没有在睡觉哦~"
+
+if 指令 == "train":
+  if state.hunger < 20:
+    显示："{name} 太饿了，先喂食吧！🍖"
+  else:
+    state.hunger = max(state.hunger - 20, 0)
+    state.exp += 15
+    state.unique = min(state.unique + 10, 100)   // unique 字段名因宠物类型而异
+    state.mood = min(state.mood + 3, 100)
+    state.bond = min(state.bond + 2, 100)
+    type-specific 行为：
+      cat:     "{name} 练习扑击，越来越熟练了！🐱"
+      dog:     "{name} 练习接飞盘，接得越来越准了！🐶"
+      hamster: "{name} 在转轮上跑得飞快！🐹"
+      rabbit:  "{name} 练习跳跃，跳得越来越高了！🐰"
+      parrot:  "{name} 练习说话，学会了一个新词！🦜"
+      turtle:  "{name} 慢慢地爬行训练，虽然慢但很认真！🐢"
+      fish:    "{name} 快速游动训练，游得越来越快了！🐟"
+    // 递增计数器
+    incrementCounter(state, "trains")
+    updateMaxStats(state)
+    updateStreak(state)
+    newAchs = checkAchievements(state)
+    if newAchs.length > 0:
+      显示成就解锁动画
+
+if 指令.startsWith("dress"):
+  item = 指令.split(" ")[1]  // hat, scarf, glasses, wings, halo, none
+
+  if item == "none":
+    state.outfit = null
+    显示："{name} 脱下了装扮~"
+  elif item 在 ["hat", "scarf", "glasses", "wings", "halo"] 中:
+    // 检查等级解锁条件
+    unlockLevels = { hat: 5, scarf: 10, glasses: 15, wings: 20, halo: 30 }
+    if state.level >= unlockLevels[item]:
+      state.outfit = item
+      itemNames = { hat: "帽子", scarf: "围巾", glasses: "眼镜", wings: "翅膀", halo: "光环" }
+      显示："{name} 戴上了{itemNames[item]}！✨"
+      // 递增计数器
+      incrementCounter(state, "dresses")
+      // 记录穿戴过的装扮
+      if item != "none" and item not in state.counters.dressItems:
+        state.counters.dressItems.push(item)
+      updateMaxStats(state)
+      updateStreak(state)
+      newAchs = checkAchievements(state)
+      if newAchs.length > 0:
+        显示成就解锁动画
+    else:
+      显示："{name} 的等级还不够解锁这个装扮哦~ (需要 Lv.{unlockLevels[item]})"
+  else:
+    显示："可用装扮：hat(帽子), scarf(围巾), glasses(眼镜), wings(翅膀), halo(光环), none(脱下)"
+
+if 指令 == "achievements":
+  运行：node ~/.pet/pet-renderer.mjs --mode=achievements
+  显示成就列表（已解锁的彩色显示，未解锁的灰色+进度）
 
 // 互动后执行完整的渲染阶段输出
 ```
@@ -509,7 +647,7 @@ if 指令 == "special":
 | 字段 | 类型 | 范围 | 说明 |
 |------|------|------|------|
 | `name` | string | - | 宠物名字 |
-| `type` | string | "cat" / "dog" | 宠物类型 |
+| `type` | string | "cat" / "dog" / "hamster" / "rabbit" / "parrot" / "turtle" / "fish" | 宠物类型 |
 | `hunger` | number | 0-100 | 饥饿度，0=饱，100=极饿 |
 | `mood` | number | 0-100 | 心情值，越高越好 |
 | `bond` | number | 0-100 | 亲密度，越高越好 |
@@ -523,5 +661,9 @@ if 指令 == "special":
 | `lastUpdated` | string | ISO 8601 | 最后更新时间 |
 | `platform` | string | "claude-code" / "codex" / "opencode" | 运行平台标识（可选，向后兼容） |
 | `createdAt` | string | ISO 8601 | 创建时间 |
+| `outfit` | string / null | "hat" / "scarf" / "glasses" / "wings" / "halo" / null | 当前装扮，null 表示无装扮 |
+| `evolution` | number | 0-3 | 进化阶段：0=基础, 1=少年, 2=成年, 3=觉醒（可选，向后兼容，默认 0） |
 
-**升级规则**: 当 `exp >= level * 100` 时升级，升级后 `exp -= level * 100`，`level += 1`。
+**升级规则**: 当 `exp >= level * 100` 时升级，升级后 `exp -= level * 100`，`level += 1`，`mood +20`（上限 100），`hunger -10`（下限 0）。
+
+**进化规则**: 升级后自动检查进化阶段：Lv.5 → 少年(1), Lv.15 → 成年(2), Lv.30 → 觉醒(3)。进化时 `state.evolution` 更新，外观自动变化（表情升级、装饰行、颜色增强等）。

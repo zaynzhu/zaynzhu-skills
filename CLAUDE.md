@@ -14,7 +14,8 @@
 | `m3u8-downloader` | m3u8-downloader | m3u8 流下载 | ffmpeg |
 | `coding-ai-digest` | coding-ai-digest | 排行榜分析 | Python >= 3.8, 可选 GitHub Token |
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
-| `pet` | pet | CLI 编程宠物 | Bash + jq / Node.js |
+| `pet` | pet | CLI 编程宠物（7种宠物/进化/成就/装扮） | Bash + jq / Node.js |
+| `model-debate` | model-debate | 多模型辩论 | Python ≥ 3.8, curl, 模型 API Key |
 | `trending-search` | trending-search | 热词搜索 | Python >= 3.8, TAVILY_API_KEY |
 | `readme-creater` | readme-creater | README 创建/改进 | Python >= 3.8（可选，自动检测脚本） |
 | `article-creater` | 公众号写作 | 公众号文章创作（长文/短内容/续写/改写） | 无（可选 MCP 搜索工具） |
