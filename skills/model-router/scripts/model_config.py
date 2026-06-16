@@ -15,6 +15,26 @@ import sys
 import subprocess
 from pathlib import Path
 
+# --- 加载 .env 文件 ---
+def load_env():
+    """加载 .env 文件中的环境变量（如果 python-dotenv 可用）。"""
+    env_path = SCRIPT_DIR.parent / ".env"
+    if env_path.exists():
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(env_path, override=True)
+        except ImportError:
+            # 没有 python-dotenv，手动解析
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, _, value = line.partition("=")
+                    key = key.strip()
+                    value = value.strip().strip("'\"")
+                    os.environ.setdefault(key, value)
+
 # --- 配置文件路径 ---
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_PATH = SCRIPT_DIR.parent / "model-router.yaml"
@@ -295,7 +315,8 @@ def _format_val(value):
 
 # --- 配置读写 ---
 def load_config():
-    """加载配置文件。优先 YAML，其次 JSON。"""
+    """加载配置文件。优先 YAML，其次 JSON。先加载 .env。"""
+    load_env()
     if CONFIG_PATH.exists():
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             return parse_yaml_simple(f.read())
@@ -441,10 +462,14 @@ def cmd_add():
     cost_output_input = input("  Output 成本 $/1M tokens []: ").strip()
     cost = None
     if cost_input_input or cost_output_input:
-        cost = {
-            "input_per_1m": float(cost_input_input) if cost_input_input else 0,
-            "output_per_1m": float(cost_output_input) if cost_output_input else 0,
-        }
+        try:
+            cost = {
+                "input_per_1m": float(cost_input_input) if cost_input_input else 0,
+                "output_per_1m": float(cost_output_input) if cost_output_input else 0,
+            }
+        except ValueError:
+            print("  [WARN] 成本输入不是有效数字，跳过成本配置")
+            cost = None
 
     # 构造 profile
     profile = {
@@ -503,9 +528,13 @@ def cmd_list():
     print("\n=== 已配置模型 ===\n")
     for name, p in profiles.items():
         caps = ", ".join(p.get("capabilities", []))
-        key_status = "已设置" if os.environ.get(p.get("api_key_env", "")) else "未设置"
-        if p.get("api_key_env") is None:
+        api_key_env = p.get("api_key_env")
+        if api_key_env is None:
             key_status = "本地模型"
+        elif os.environ.get(api_key_env):
+            key_status = "已设置"
+        else:
+            key_status = "未设置"
         cost = p.get("cost", {})
         cost_str = "未设置"
         if cost:
@@ -589,9 +618,9 @@ def _test_api(provider, endpoint, model, env_key):
         })
         cmd = [
             "curl", "-s", endpoint,
-            "-H", f"Authorization: Bearer {os.environ.get(env_key, '')}",
+            "-H", f"Authorization: Bearer {os.environ.get(env_key or '', '')}",
             "-H", "Content-Type: application/json",
-            "-d", body,
+            "-d", "@-",
         ]
 
     elif provider == "anthropic":
@@ -602,14 +631,14 @@ def _test_api(provider, endpoint, model, env_key):
         })
         cmd = [
             "curl", "-s", endpoint,
-            "-H", f"x-api-key: {os.environ.get(env_key, '')}",
+            "-H", f"x-api-key: {os.environ.get(env_key or '', '')}",
             "-H", "anthropic-version: 2023-06-01",
             "-H", "Content-Type: application/json",
-            "-d", body,
+            "-d", "@-",
         ]
 
     elif provider == "google":
-        api_key = os.environ.get(env_key, "")
+        api_key = os.environ.get(env_key or "", "")
         url = f"{endpoint}?key={api_key}"
         body = json.dumps({
             "contents": [{"parts": [{"text": test_prompt}]}],
@@ -617,7 +646,7 @@ def _test_api(provider, endpoint, model, env_key):
         cmd = [
             "curl", "-s", url,
             "-H", "Content-Type: application/json",
-            "-d", body,
+            "-d", "@-",
         ]
 
     elif provider == "ollama":
@@ -629,7 +658,7 @@ def _test_api(provider, endpoint, model, env_key):
         cmd = [
             "curl", "-s", endpoint,
             "-H", "Content-Type: application/json",
-            "-d", body,
+            "-d", "@-",
         ]
 
     else:
@@ -638,15 +667,15 @@ def _test_api(provider, endpoint, model, env_key):
             "model": model,
             "prompt": test_prompt,
         })
-        api_key = os.environ.get(env_key, "") if env_key else ""
+        api_key = os.environ.get(env_key or "", "") if env_key else ""
         cmd = [
             "curl", "-s", endpoint,
             "-H", "Content-Type: application/json",
             "-H", f"Authorization: Bearer {api_key}",
-            "-d", body,
+            "-d", "@-",
         ]
 
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    result = subprocess.run(cmd, input=body, capture_output=True, text=True, timeout=30)
     if result.returncode != 0:
         raise RuntimeError(f"curl 失败: {result.stderr}")
 
@@ -798,4 +827,5 @@ def main():
 
 
 if __name__ == "__main__":
+    load_env()
     main()

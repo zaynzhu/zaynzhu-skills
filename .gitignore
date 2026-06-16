@@ -18,3 +18,6 @@ evals/runs/
 
 # 摸摸鱼登录凭证（敏感信息）
 skills/mmy/scripts/mmy_credentials.json
+
+# Model Router 本地 API Key
+skills/model-router/.env

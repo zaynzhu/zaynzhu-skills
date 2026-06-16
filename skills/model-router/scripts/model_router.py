@@ -14,12 +14,18 @@
 
 import argparse
 import base64
+import io
 import json
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+# Windows 编码修复：确保 stdout/stderr 用 UTF-8
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_PATH = SCRIPT_DIR.parent / "model-router.yaml"
@@ -32,8 +38,29 @@ RESULTS_DIR_NAME = "results"
 RETRYABLE_STATUS = {408, 429, 500, 502, 503, 504}
 
 
+def load_env():
+    """加载 .env 文件中的环境变量（如果 python-dotenv 可用）。"""
+    env_path = SCRIPT_DIR.parent / ".env"
+    if env_path.exists():
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(env_path, override=True)
+        except ImportError:
+            # 没有 python-dotenv，手动解析
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, _, value = line.partition("=")
+                    key = key.strip()
+                    value = value.strip().strip("'\"")
+                    os.environ.setdefault(key, value)
+
+
 def load_config():
     """加载配置文件。"""
+    load_env()  # 确保环境变量已加载
     if CONFIG_JSON_PATH.exists():
         with open(CONFIG_JSON_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -43,6 +70,7 @@ def load_config():
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             return parse_yaml_simple(f.read())
     raise FileNotFoundError("配置文件不存在。请先运行 'python model_config.py add' 添加模型。")
+
 
 def prepare_workspace(root="."):
     """创建项目级图片中转目录，避免把图片 payload 直接交给不支持视觉的主模型。"""
@@ -229,19 +257,53 @@ def build_request(profile, prompt, image_path=None, image_url=None):
             "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": content}],
         })
-        env_key = profile.get("api_key_env", "")
+        env_key = profile.get("api_key_env") or ""
         headers = {
             "Authorization": f"Bearer {os.environ.get(env_key, '')}",
             "Content-Type": "application/json",
         }
 
     elif provider == "anthropic":
+        content = []
+        if image_path:
+            mime, data = encode_image(image_path)
+            content.append({
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": mime,
+                    "data": data,
+                },
+            })
+        elif image_url:
+            # Anthropic API 不支持 URL 类型的图片源，需要下载后以 base64 发送
+            import urllib.request as urlreq
+            try:
+                with urlreq.urlopen(image_url, timeout=30) as resp:
+                    img_bytes = resp.read()
+                # 从 URL 推断 MIME 类型
+                url_path = image_url.split("?")[0].lower()
+                mime_map = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                            ".gif": "image/gif", ".webp": "image/webp", ".bmp": "image/bmp"}
+                suffix = "." + url_path.rsplit(".", 1)[-1] if "." in url_path else ".png"
+                mime = mime_map.get(suffix, "image/png")
+                content.append({
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": mime,
+                        "data": base64.b64encode(img_bytes).decode("utf-8"),
+                    },
+                })
+            except Exception as e:
+                raise RuntimeError(f"无法下载图片 URL: {image_url}, 错误: {e}")
+        content.append({"type": "text", "text": prompt})
         body = json.dumps({
             "model": model,
             "max_tokens": max_tokens,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": [{"role": "user", "content": content}],
         })
-        env_key = profile.get("api_key_env", "")
+        env_key = profile.get("api_key_env") or ""
         headers = {
             "x-api-key": os.environ.get(env_key, ""),
             "anthropic-version": "2023-06-01",
@@ -258,7 +320,7 @@ def build_request(profile, prompt, image_path=None, image_url=None):
             parts.append({"file_data": {"mime_type": "image/png", "file_uri": image_url}})
 
         body = json.dumps({"contents": [{"parts": parts}]})
-        env_key = profile.get("api_key_env", "")
+        env_key = profile.get("api_key_env") or ""
         api_key = os.environ.get(env_key, "")
         endpoint = f"{endpoint}?key={api_key}"
         headers = {"Content-Type": "application/json"}
@@ -324,15 +386,15 @@ def extract_response(provider, response_json):
 # ---------------------------------------------------------------------------
 
 def call_api(endpoint, headers, body, timeout=60):
-    """用 curl 调用 API。区分可重试/不可重试错误。"""
+    """用 curl 调用 API。区分可重试/不可重试错误。通过 stdin 管道传 body，避免 Windows 命令行长度限制。"""
     cmd = ["curl", "-s", "--max-time", str(timeout), "-w", "\n%{http_code}"]
 
     for k, v in headers.items():
         cmd.extend(["-H", f"{k}: {v}"])
 
-    cmd.extend(["-d", body, endpoint])
+    cmd.extend(["-d", "@-", endpoint])
 
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 10, encoding="utf-8", errors="replace")
+    result = subprocess.run(cmd, input=body, capture_output=True, text=True, timeout=timeout + 10, encoding="utf-8", errors="replace")
 
     if result.returncode != 0:
         raise RuntimeError(f"curl 失败: {result.stderr}")
@@ -444,6 +506,7 @@ def main():
     prepare_parser = subparsers.add_parser("prepare", help="创建图片中转目录")
     prepare_parser.add_argument("--root", default=".", help="项目根目录，默认当前目录")
     prepare_parser.add_argument("--json", action="store_true", help="以 JSON 输出目录信息")
+
     # classify 子命令（调试用）
     classify_parser = subparsers.add_parser("classify", help="查看查询分类结果（调试用）")
     classify_parser.add_argument("--prompt", required=True, help="要分类的查询文本")
@@ -488,6 +551,7 @@ def main():
             print(f"图片目录: {paths['images_dir']}")
             print(f"结果目录: {paths['results_dir']}")
             print("后续截图、验证码、图表和 UI 自动化图片必须先保存到图片目录，再把路径交给 route --image。")
+
     elif args.command == "classify":
         has_img = bool(args.image)
         task_type, confidence = classify_query(args.prompt, has_img)

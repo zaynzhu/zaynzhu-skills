@@ -48,9 +48,18 @@ profiles:
     cost:
       input_per_1m: 15.0
       output_per_1m: 75.0
+  mimo-v2.5:
+    provider: anthropic
+    model: mimo-v2.5
+    api_key_env: MIMO_API_KEY
+    capabilities: [text, image]
+    endpoint: "https://api.xiaomimimo.com/anthropic/v1/messages"
+    cost:
+      input_per_1m: 1.0
+      output_per_1m: 4.0
 routing:
   - match: has_image_input
-    prefer: [gpt4o, gemini-vision, ollama-local]
+    prefer: [mimo-v2.5, gemini-vision, gpt4o, ollama-local]
     cost_mode: cheapest
   - match: complex_reasoning
     prefer: [claude-opus]
