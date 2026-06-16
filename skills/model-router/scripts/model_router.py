@@ -24,6 +24,9 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_PATH = SCRIPT_DIR.parent / "model-router.yaml"
 CONFIG_JSON_PATH = SCRIPT_DIR.parent / "model-router.json"
+WORKSPACE_DIR_NAME = ".model-router"
+IMAGES_DIR_NAME = "images"
+RESULTS_DIR_NAME = "results"
 
 # 可重试的 HTTP 状态码
 RETRYABLE_STATUS = {408, 429, 500, 502, 503, 504}
@@ -40,6 +43,23 @@ def load_config():
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             return parse_yaml_simple(f.read())
     raise FileNotFoundError("配置文件不存在。请先运行 'python model_config.py add' 添加模型。")
+
+def prepare_workspace(root="."):
+    """创建项目级图片中转目录，避免把图片 payload 直接交给不支持视觉的主模型。"""
+    project_root = Path(root).expanduser().resolve()
+    workspace_dir = project_root / WORKSPACE_DIR_NAME
+    images_dir = workspace_dir / IMAGES_DIR_NAME
+    results_dir = workspace_dir / RESULTS_DIR_NAME
+
+    images_dir.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    return {
+        "project_root": str(project_root),
+        "workspace_dir": str(workspace_dir),
+        "images_dir": str(images_dir),
+        "results_dir": str(results_dir),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -420,6 +440,10 @@ def main():
     # list 子命令
     subparsers.add_parser("list", help="列出可用模型")
 
+    # prepare 子命令
+    prepare_parser = subparsers.add_parser("prepare", help="创建图片中转目录")
+    prepare_parser.add_argument("--root", default=".", help="项目根目录，默认当前目录")
+    prepare_parser.add_argument("--json", action="store_true", help="以 JSON 输出目录信息")
     # classify 子命令（调试用）
     classify_parser = subparsers.add_parser("classify", help="查看查询分类结果（调试用）")
     classify_parser.add_argument("--prompt", required=True, help="要分类的查询文本")
@@ -454,6 +478,16 @@ def main():
                 cost_str = f" ${cost.get('input_per_1m', '?')}/{cost.get('output_per_1m', '?')} per 1M"
             print(f"{name}: {p.get('provider')}/{p.get('model')} [{caps}]{cost_str}")
 
+    elif args.command == "prepare":
+        paths = prepare_workspace(args.root)
+        if args.json:
+            print(json.dumps(paths, ensure_ascii=False, indent=2))
+        else:
+            print("Model Router 工作目录已准备好")
+            print(f"项目根目录: {paths['project_root']}")
+            print(f"图片目录: {paths['images_dir']}")
+            print(f"结果目录: {paths['results_dir']}")
+            print("后续截图、验证码、图表和 UI 自动化图片必须先保存到图片目录，再把路径交给 route --image。")
     elif args.command == "classify":
         has_img = bool(args.image)
         task_type, confidence = classify_query(args.prompt, has_img)

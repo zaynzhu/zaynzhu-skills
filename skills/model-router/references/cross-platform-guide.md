@@ -29,11 +29,14 @@ python skills/model-router/scripts/model_config.py test
 
 ### 调用模型
 ```bash
+# 不支持图片输入的主模型先准备图片中转目录
+python skills/model-router/scripts/model_router.py prepare
+
 # 根据任务类型自动选择模型
 python skills/model-router/scripts/model_router.py route \
   --task has_image_input \
   --prompt "描述这张图片" \
-  --image /path/to/screenshot.png
+  --image .model-router/images/screenshot.png
 
 # 直接指定模型
 python skills/model-router/scripts/model_router.py route \
@@ -55,6 +58,20 @@ python skills/model-router/scripts/model_router.py route \
 - `/model-router` 或自动触发（检测到图片/验证码等关键词）
 - Skill 文件：`skills/model-router/SKILL.md`
 
+如果当前主模型不支持图片输入，可以在项目 `CLAUDE.md` 写短规则：
+
+```markdown
+当前主模型不支持图片输入。任何截图、验证码、图片、图表、UI 自动化截图都不得直接作为图片内容发送给主模型，必须使用 model-router skill。
+```
+
+触发后，skill 会先运行：
+
+```bash
+python skills/model-router/scripts/model_router.py prepare
+```
+
+然后要求截图、验证码、图表和 UI 自动化图片保存到 `.model-router/images/`，再用 `route --image` 调用视觉模型。
+
 ### Gemini CLI
 
 在 `GEMINI.md` 中引用：
@@ -71,7 +88,8 @@ python skills/model-router/scripts/model_router.py route --task has_image_input 
 ```markdown
 ## 模型切换
 遇到需要图片识别的场景（验证码、截图分析等），使用 model_router.py：
-python skills/model-router/scripts/model_router.py route --task has_image_input --prompt "..." --image "..."
+python skills/model-router/scripts/model_router.py prepare
+python skills/model-router/scripts/model_router.py route --task has_image_input --prompt "..." --image ".model-router/images/..."
 ```
 
 ### 通用 Shell
@@ -82,10 +100,11 @@ python skills/model-router/scripts/model_router.py route --task has_image_input 
 python skills/model-router/scripts/model_config.py add
 
 # 识别验证码
+python skills/model-router/scripts/model_router.py prepare
 python skills/model-router/scripts/model_router.py route \
   --task has_image_input \
   --prompt "这个验证码是什么？请只返回验证码文字" \
-  --image ./captcha.png
+  --image .model-router/images/captcha.png
 ```
 
 ## 环境变量
