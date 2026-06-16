@@ -1,10 +1,12 @@
 # mp-writer 全面升级实施计划
 
+> **历史备注**：本计划中的 `mp-writer` 后续已重命名为 `article-creater`（公众号写作）。文中所有 `skills/article-creater/` 路径均对应实际目录，若引用历史名称请知晓其等价关系。
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 将 mp-writer 从单一长文写作 skill 升级为支持四种模式（长文/短内容/续写/改写）的多模式写作系统，同时重构流程效率（大纲步骤+自检简化）和风格体系（三层分层）。
 
-**Architecture:** 重写 SKILL.md 主文件为流程+模式+风格的三段式结构；新增两个 reference 文件（mode-templates.md 和 search-guide.md）提供各模式的模板和搜索指南；微调 style_examples.md 增加风格锦囊分类标记。所有改动都在 `skills/mp-writer/` 目录内。
+**Architecture:** 重写 SKILL.md 主文件为流程+模式+风格的三段式结构；新增两个 reference 文件（mode-templates.md 和 search-guide.md）提供各模式的模板和搜索指南；微调 style_examples.md 增加风格锦囊分类标记。所有改动都在 `skills/article-creater/` 目录内。
 
 **Tech Stack:** 纯 Markdown skill 文件，无代码依赖。
 
@@ -14,18 +16,18 @@
 
 | 文件 | 操作 | 职责 |
 |------|------|------|
-| `skills/mp-writer/SKILL.md` | 重写 | 主文件：流程、模式、风格体系、自检 |
-| `skills/mp-writer/references/mode-templates.md` | 新建 | 各模式结构模板、自检标准、风格指纹提取 |
-| `skills/mp-writer/references/search-guide.md` | 新建 | 分类型搜索指南 |
-| `skills/mp-writer/references/style_examples.md` | 微调 | 给示例增加锦囊分类标记 |
-| `skills/mp-writer/references/content_methodology.md` | 不变 | 保留原样 |
+| `skills/article-creater/SKILL.md` | 重写 | 主文件：流程、模式、风格体系、自检 |
+| `skills/article-creater/references/mode-templates.md` | 新建 | 各模式结构模板、自检标准、风格指纹提取 |
+| `skills/article-creater/references/search-guide.md` | 新建 | 分类型搜索指南 |
+| `skills/article-creater/references/style_examples.md` | 微调 | 给示例增加锦囊分类标记 |
+| `skills/article-creater/references/content_methodology.md` | 不变 | 保留原样 |
 
 ---
 
 ### Task 1: 新建 search-guide.md（分类型搜索指南）
 
 **Files:**
-- Create: `skills/mp-writer/references/search-guide.md`
+- Create: `skills/article-creater/references/search-guide.md`
 
 - [ ] **Step 1: 创建搜索指南文件**
 
@@ -135,13 +137,13 @@
 
 - [ ] **Step 2: 验证文件内容完整**
 
-Run: `cat skills/mp-writer/references/search-guide.md | head -5`
+Run: `cat skills/article-creater/references/search-guide.md | head -5`
 Expected: 看到文件开头 "# 分类型搜索指南"
 
 - [ ] **Step 3: 提交**
 
 ```bash
-git add skills/mp-writer/references/search-guide.md
+git add skills/article-creater/references/search-guide.md
 git commit -m "feat(mp-writer): add search guide with per-type search strategies"
 ```
 
@@ -150,7 +152,7 @@ git commit -m "feat(mp-writer): add search guide with per-type search strategies
 ### Task 2: 新建 mode-templates.md（各模式模板和自检标准）
 
 **Files:**
-- Create: `skills/mp-writer/references/mode-templates.md`
+- Create: `skills/article-creater/references/mode-templates.md`
 
 - [ ] **Step 1: 创建模式模板文件**
 
@@ -350,13 +352,13 @@ git commit -m "feat(mp-writer): add search guide with per-type search strategies
 
 - [ ] **Step 2: 验证文件内容完整**
 
-Run: `cat skills/mp-writer/references/mode-templates.md | head -5`
+Run: `cat skills/article-creater/references/mode-templates.md | head -5`
 Expected: 看到文件开头 "# 各模式结构模板与自检标准"
 
 - [ ] **Step 3: 提交**
 
 ```bash
-git add skills/mp-writer/references/mode-templates.md
+git add skills/article-creater/references/mode-templates.md
 git commit -m "feat(mp-writer): add mode templates for long/short/continue/rewrite modes"
 ```
 
@@ -365,7 +367,7 @@ git commit -m "feat(mp-writer): add mode templates for long/short/continue/rewri
 ### Task 3: 微调 style_examples.md（增加锦囊分类标记）
 
 **Files:**
-- Modify: `skills/mp-writer/references/style_examples.md`
+- Modify: `skills/article-creater/references/style_examples.md`
 
 这个 task 给现有的风格示例增加锦囊分类标记，让 AI 能快速知道每个示例属于哪个风格锦囊。
 
@@ -433,7 +435,7 @@ git commit -m "feat(mp-writer): add mode templates for long/short/continue/rewri
 - [ ] **Step 3: 提交**
 
 ```bash
-git add skills/mp-writer/references/style_examples.md
+git add skills/article-creater/references/style_examples.md
 git commit -m "feat(mp-writer): add style pouch labels to examples and type-pouch mapping"
 ```
 
@@ -442,7 +444,7 @@ git commit -m "feat(mp-writer): add style pouch labels to examples and type-pouc
 ### Task 4: 重写 SKILL.md 主文件（核心改动）
 
 **Files:**
-- Rewrite: `skills/mp-writer/SKILL.md`
+- Rewrite: `skills/article-creater/SKILL.md`
 
 这是最大的任务。SKILL.md 需要从当前的"五步平铺"结构重构为"流程+模式+风格+自检"的新结构。
 
@@ -827,7 +829,7 @@ AI：按快扫+终审体系检查 → 输出修改建议
 
 - [ ] **Step 2: 验证新 SKILL.md 内容完整**
 
-Run: `wc -l skills/mp-writer/SKILL.md`
+Run: `wc -l skills/article-creater/SKILL.md`
 Expected: 约 200-300 行（比原来的 456 行精简很多）
 
 手动检查关键部分是否都包含：
@@ -843,7 +845,7 @@ Expected: 约 200-300 行（比原来的 456 行精简很多）
 - [ ] **Step 3: 提交**
 
 ```bash
-git add skills/mp-writer/SKILL.md
+git add skills/article-creater/SKILL.md
 git commit -m "feat(mp-writer): rewrite SKILL.md with multi-mode support, 3-layer style system, and streamlined self-check"
 ```
 
@@ -856,11 +858,11 @@ git commit -m "feat(mp-writer): rewrite SKILL.md with multi-mode support, 3-laye
 Run: `find skills/mp-writer -type f | sort`
 Expected 输出应包含：
 ```
-skills/mp-writer/SKILL.md
-skills/mp-writer/references/content_methodology.md
-skills/mp-writer/references/mode-templates.md
-skills/mp-writer/references/search-guide.md
-skills/mp-writer/references/style_examples.md
+skills/article-creater/SKILL.md
+skills/article-creater/references/content_methodology.md
+skills/article-creater/references/mode-templates.md
+skills/article-creater/references/search-guide.md
+skills/article-creater/references/style_examples.md
 ```
 
 - [ ] **Step 2: 检查 SKILL.md 中的 reference 引用路径是否正确**
@@ -873,12 +875,12 @@ skills/mp-writer/references/style_examples.md
 
 - [ ] **Step 3: 检查 style_examples.md 的锦囊标记**
 
-Run: `grep -c '【' skills/mp-writer/references/style_examples.md`
+Run: `grep -c '【' skills/article-creater/references/style_examples.md`
 Expected: 至少 13 个锦囊标记（对应 13 个章节标题标记）
 
 - [ ] **Step 4: 检查 mode-templates.md 中的四种模式是否完整**
 
-Run: `grep '## ' skills/mp-writer/references/mode-templates.md`
+Run: `grep '## ' skills/article-creater/references/mode-templates.md`
 Expected: 应包含四种模式的章节标题：
 - 长文模式
 - 短内容模式
@@ -888,6 +890,6 @@ Expected: 应包含四种模式的章节标题：
 - [ ] **Step 5: 最终提交（如有遗漏的修改）**
 
 ```bash
-git add -A skills/mp-writer/
+git add -A skills/article-creater/
 git commit -m "feat(mp-writer): complete multi-mode upgrade with streamlined flow and 3-layer style system"
 ```

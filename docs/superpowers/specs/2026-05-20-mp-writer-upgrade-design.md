@@ -1,5 +1,7 @@
 # mp-writer 全面升级设计文档
 
+> **历史备注**：本文档中的 `mp-writer` 后续已重命名为 `article-creater`（公众号写作）。所有 `skills/article-creater/` 路径均对应实际目录。
+>
 > 日期：2026-05-20
 > 状态：待审阅
 
@@ -161,7 +163,7 @@ AI 在大纲步骤中选定用哪 3-5 个锦囊，写作时专注用好选定的
 升级后的文件结构：
 
 ```
-skills/mp-writer/
+skills/article-creater/
 ├── SKILL.md                          # 主文件：流程、模式、风格体系
 ├── references/
 │   ├── style_examples.md             # 风格示例库（保留，微调）
