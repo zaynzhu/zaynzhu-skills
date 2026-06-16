@@ -855,7 +855,7 @@ git commit -m "feat(mp-writer): rewrite SKILL.md with multi-mode support, 3-laye
 
 - [ ] **Step 1: 检查所有文件是否到位**
 
-Run: `find skills/mp-writer -type f | sort`
+Run: `find skills/article-creater -type f | sort`
 Expected 输出应包含：
 ```
 skills/article-creater/SKILL.md
