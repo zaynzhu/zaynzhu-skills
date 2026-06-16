@@ -134,15 +134,18 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 zaynzhu-skills/
 ├── README.md
 ├── docs/                   ← 各技能使用文档
-│   ├── enhanced-skill-creator.md
-│   ├── video-downloader.md
+│   ├── article-creater.md
 │   ├── coding-ai-digest.md
-│   ├── tavily-search-enhanced.md
+│   ├── enhanced-skill-creator.md
 │   ├── m3u8-downloader.md
 │   ├── mmy.md
+│   ├── model-debate.md
+│   ├── model-router.md
 │   ├── pet.md
+│   ├── readme-creater.md
+│   ├── tavily-search-enhanced.md
 │   ├── trending-search.md
-│   └── model-debate.md
+│   └── video-downloader.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
