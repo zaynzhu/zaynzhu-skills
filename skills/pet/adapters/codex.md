@@ -7,29 +7,24 @@ description: OpenAI Codex CLI 平台适配，定义 plugin 打包和 hook 集成
 
 Pet Buddy 支持两种 Codex CLI 安装方式：
 
-#### 方式一：Plugin 安装（推荐）
+#### 方式一：Plugin 安装
 
-将 Pet Buddy 作为 Codex 插件安装，hooks 和 skills 自动加载：
+将 Pet Buddy 作为 Codex 插件安装，skill 会自动加载。插件根目录同时提供 `hooks.json`，用于支持 Codex 默认发现 hooks 的版本。Codex CLI 没有真正的 statusLine API，因此插件通过 `PostToolUse` hook 在每次工具执行后输出宠物反应、ASCII 画像和状态栏，形成接近常驻的 UI。
 
 ```bash
 # 1. 复制整个 pet 目录到 Codex 插件目录
 cp -r pet ~/.codex/plugins/cache/local/pet
 
-# 2. 启用插件 hooks
-# 在 ~/.codex/config.toml 中添加：
-[features]
-plugin_hooks = true
-
-# 3. 注册插件（添加到项目级或全局 marketplace）
+# 2. 注册插件（添加到项目级或全局 marketplace）
 # 在 .codex/plugins/marketplace.json 或 ~/.codex/plugins/marketplace.json 中添加：
 # { "source": "local", "path": "~/.codex/plugins/cache/local/pet" }
 
-# 4. 增强渲染器（可选）
+# 3. 增强渲染器（可选；插件 hook 会优先使用 ~/.pet，缺失时回退到插件内置文件）
 cp pet/enhance/pet-renderer.mjs ~/.pet/pet-renderer.mjs
 cp -r pet/pets ~/.pet/pets
 ```
 
-插件清单文件 `.codex-plugin/plugin.json` 已配置好 hooks 和 skills 引用。安装后，Codex 会自动发现 `codex-hooks/hooks.json` 中的 PostToolUse hook 和 `SKILL.md` 中的 skill。
+插件清单文件 `.codex-plugin/plugin.json` 已配置好 `skills` 引用。安装后，Codex 会发现 `skills/pet/SKILL.md` 中的 skill 入口；支持插件 hook 自动发现的 Codex 版本会同时加载插件根目录的 `hooks.json`。如果当前 Codex 版本没有自动发现 hooks，使用“方式二”手动配置。
 
 #### 方式二：手动安装
 
@@ -105,9 +100,13 @@ statusMessage = "🐱 Pet Buddy reacting..."
 ```
 pet/
 ├── .codex-plugin/
-│   └── plugin.json          ← 插件清单（引用 skills 和 hooks）
+│   └── plugin.json          ← 插件清单（引用 skills）
+├── hooks.json               ← Codex 插件 hook 自动发现入口
+├── skills/
+│   └── pet/
+│       └── SKILL.md         ← Codex 插件 skill 入口
 ├── codex-hooks/
-│   └── hooks.json           ← PostToolUse hook 配置
+│   └── hooks.json           ← 兼容旧文档路径的 PostToolUse hook 配置
 ├── hooks/
 │   └── codex/               ← Bash hook 脚本
 │       ├── hook-code-success.sh
@@ -155,7 +154,7 @@ Codex PostToolUse hook 通过 stdin 接收 JSON，格式如下：
 ### Hook 输出格式
 
 ```json
-{"systemMessage": "🐱 mia 看到你写代码，好奇地盯着屏幕~"}
+{"systemMessage": "🐱 mia 看到你写代码，好奇地盯着屏幕~\n\n  /\\_/\\\n ( •ω• )\n  > _ <\n🐱 mia Lv.3 😸 | ❤️85 🍖35 🤝63 ✨66/300 舔了舔爪子"}
 ```
 
 Codex 支持 `systemMessage`（UI 可见）和 `additionalContext`（模型可见）两种输出字段。
@@ -190,8 +189,8 @@ cp -r pet/pets ~/.pet/pets
 
 Codex CLI 使用全屏 TUI，没有 statusLine 功能。宠物状态通过以下方式展示：
 
-1. **Hook systemMessage**: 每次工具执行后，hook 返回的 `systemMessage` 包含宠物反应
-   - 示例：`{"systemMessage": "🐱 mia 看到你写代码，好奇地盯着屏幕~"}`
+1. **Hook systemMessage**: 每次工具执行后，hook 返回的 `systemMessage` 包含宠物反应、ASCII 画像和状态栏
+   - 这不是底部常驻栏，但在 Codex 当前能力范围内是安装后自动显示的最接近方案
 
 2. **手动查看**: 用户通过自然语言询问宠物状态
 
@@ -205,7 +204,7 @@ Pet Buddy 在 Codex CLI 中需要以下权限：
 
 - 读取和写入 `~/.pet/` 目录
 - 执行 hook 脚本（bash）
-- 如果使用 plugin 方式：`[features] plugin_hooks = true`
+- 如果当前 Codex 版本要求显式开启插件 hooks：`[features] plugin_hooks = true`
 
 ### 故障排除
 

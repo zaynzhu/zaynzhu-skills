@@ -12,13 +12,14 @@
 // 2. Injecting pet context into the system prompt so the LLM mentions the pet
 
 import { type Plugin } from "@opencode-ai/plugin"
-import { readFile, writeFile, rename } from "node:fs/promises"
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { homedir } from "node:os"
 
 const PET_BUDDY_DIR = path.join(homedir(), ".pet")
 const STATE_FILE = path.join(PET_BUDDY_DIR, "state.json")
 const STATE_TMP = path.join(PET_BUDDY_DIR, "state.json.tmp")
+const STATE_LOCK = path.join(PET_BUDDY_DIR, ".state.lock")
 
 interface PetState {
   name: string
@@ -171,6 +172,24 @@ function clamp(value: number, min: number, max: number): number {
 // In-process lock to prevent concurrent writes
 let writeLock = Promise.resolve()
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function acquireStateLock(): Promise<() => Promise<void>> {
+  for (let retries = 0; retries < 20; retries++) {
+    try {
+      await mkdir(STATE_LOCK)
+      return async () => {
+        await rm(STATE_LOCK, { recursive: true, force: true })
+      }
+    } catch {
+      await sleep(100)
+    }
+  }
+  throw new Error("state lock timeout")
+}
+
 async function readState(): Promise<PetState | null> {
   try {
     const raw = await readFile(STATE_FILE, "utf-8")
@@ -186,7 +205,9 @@ async function writeState(state: PetState): Promise<void> {
   let resolve: () => void = () => {}
   writeLock = new Promise(r => { resolve = r })
 
+  let releaseStateLock: (() => Promise<void>) | null = null
   try {
+    releaseStateLock = await acquireStateLock()
     state.lastUpdated = new Date().toISOString()
     state.mood = clamp(state.mood, 0, 100)
     state.hunger = clamp(state.hunger, 0, 100)
@@ -198,6 +219,7 @@ async function writeState(state: PetState): Promise<void> {
     await writeFile(STATE_TMP, data, "utf-8")
     await rename(STATE_TMP, STATE_FILE)
   } finally {
+    if (releaseStateLock) await releaseStateLock()
     resolve()
   }
 }

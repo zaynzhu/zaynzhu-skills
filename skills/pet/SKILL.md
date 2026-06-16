@@ -274,15 +274,18 @@ if state.active == false:
 1. eating    — 互动中（正在吃东西）
 2. playing   — 互动中（正在玩耍）
 3. petting   — 互动中（正在被抚摸）
-4. hungry    — hunger >= 80
-5. angry     — hunger >= 90 && mood < 30
-6. excited   — mood >= 90
-7. happy     — mood >= 80
-8. sleepy    — 长时间闲置 > 30min
-9. curious   — mood >= 60
-10. sad      — mood < 40
-11. confused — 不识别的指令
-12. idle     — 默认
+4. training  — 互动中（正在训练）
+5. sleeping  — 睡眠中
+6. angry     — hunger >= 90 && mood < 30
+7. hungry    — hunger >= 80
+8. excited   — mood >= 90
+9. happy     — mood >= 80
+10. sleepy   — 长时间闲置 > 30min
+11. curious  — mood >= 60
+12. sad      — mood < 40
+13. restless / noisy / bored — 宠物唯一属性触发的状态
+14. confused — 不识别的指令
+15. idle     — 默认
 ```
 
 #### 4.2 帧选择与描述随机化

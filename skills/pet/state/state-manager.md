@@ -191,6 +191,7 @@ function saveState(state) {
   const filePath = path.join(dir, 'state.json');
   const tmpPath = path.join(dir, 'state.json.tmp');
   const bakPath = path.join(dir, 'state.json.bak');
+  const lockPath = path.join(dir, '.state.lock');
 
   // 1. Update lastUpdated to current ISO time
   state.lastUpdated = new Date().toISOString();
@@ -217,24 +218,32 @@ function saveState(state) {
   }
   if (state.achievements === undefined) state.achievements = [];
 
-  // 3. Write to temp file
-  fs.writeFileSync(tmpPath, JSON.stringify(state, null, 2), 'utf-8');
+  // 3. Acquire mkdir-based cross-process lock
+  acquireLock(lockPath);
+  try {
+    // 4. Write to temp file
+    fs.writeFileSync(tmpPath, JSON.stringify(state, null, 2), 'utf-8');
 
-  // 4. Keep backup
-  if (fs.existsSync(filePath)) {
-    fs.copyFileSync(filePath, bakPath);
+    // 5. Keep backup
+    if (fs.existsSync(filePath)) {
+      fs.copyFileSync(filePath, bakPath);
+    }
+
+    // 6. Rename to final (atomic on most filesystems)
+    fs.renameSync(tmpPath, filePath);
+  } finally {
+    releaseLock(lockPath);
   }
-
-  // 5. Rename to final (atomic on most filesystems)
-  fs.renameSync(tmpPath, filePath);
 }
 ```
 
 1. Updates `lastUpdated` to current ISO time
 2. Validates all attributes are in valid ranges (clamp)
-3. Writes to temp file `~/.pet/state.json.tmp`
-4. Renames to `~/.pet/state.json` (atomic)
-5. Keeps backup `~/.pet/state.json.bak`
+3. Acquires mkdir-based cross-process lock `~/.pet/.state.lock`
+4. Writes to temp file `~/.pet/state.json.tmp`
+5. Renames to `~/.pet/state.json` (atomic)
+6. Keeps backup `~/.pet/state.json.bak`
+7. Releases the lock in `finally`
 
 ## 8. 状态验证
 

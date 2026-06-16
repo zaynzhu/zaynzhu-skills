@@ -2,8 +2,38 @@
 # Pet Buddy: shared time decay function
 # Source this file and call apply_decay to update hunger/bond based on elapsed time.
 # Also increments the frame counter for animation cycling.
-STATE_FILE="$HOME/.pet/state.json"
-REGISTRY_FILE="$HOME/.pet/pets/registry.json"
+jq() {
+  local jq_bin
+  jq_bin=$(type -P jq 2>/dev/null || true)
+  if [ -z "$jq_bin" ]; then
+    for candidate in "$PET_HOME/.pet/bin/jq" "$PET_HOME/.pet/bin/jq.exe" "$HOME/.pet/bin/jq" "$HOME/.pet/bin/jq.exe"; do
+      if [ -x "$candidate" ]; then jq_bin="$candidate"; break; fi
+    done
+  fi
+  "$jq_bin" "$@" | tr -d '\r'
+  return ${PIPESTATUS[0]}
+}
+
+resolve_pet_home() {
+  local home_dir="${PET_HOME:-$HOME}"
+  local windows_home=""
+  if [ -n "$USERPROFILE" ]; then
+    if command -v cygpath >/dev/null 2>&1; then
+      windows_home=$(cygpath -u "$USERPROFILE" 2>/dev/null || printf '%s' "$USERPROFILE")
+    else
+      windows_home="$USERPROFILE"
+    fi
+  fi
+  if [ -n "$windows_home" ] && [ -d "$windows_home" ]; then
+    if [ ! -d "$home_dir" ] || { [ ! -d "$home_dir/.pet" ] && [ -d "$windows_home/.pet" ]; }; then
+      home_dir="$windows_home"
+    fi
+  fi
+  printf '%s' "$home_dir"
+}
+PET_HOME=$(resolve_pet_home)
+STATE_FILE="$PET_HOME/.pet/state.json"
+REGISTRY_FILE="$PET_HOME/.pet/pets/registry.json"
 
 apply_decay() {
   if [ ! -f "$STATE_FILE" ]; then return 1; fi
@@ -18,7 +48,7 @@ apply_decay() {
   local LAST=$(echo "$STATE" | jq -r '.lastUpdated // empty' | sed 's/\.[0-9]*Z$//' | sed 's/T/ /')
   local LAST_TS=0
   if [ -n "$LAST" ]; then
-    LAST_TS=$(date -u -d "$LAST" +%s 2>/dev/null || echo "0")
+    LAST_TS=$(date -u -d "$LAST" +%s 2>/dev/null || date -u -j -f "%Y-%m-%d %H:%M:%S" "$LAST" +%s 2>/dev/null || echo "0")
   fi
 
   if [ "$LAST_TS" -eq 0 ] || [ "$LAST_TS" -gt "$NOW" ]; then
@@ -59,11 +89,11 @@ apply_decay() {
   # Apply unique attribute decay if registry exists (use fractional hours for sub-hour precision)
   if [ -f "$REGISTRY_FILE" ] && [ "$ELAPSED" -gt 0 ]; then
     local PET_TYPE=$(echo "$NEW_STATE" | jq -r '.type // "cat"')
-    local DECAY_RATE=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.decayRate // 0' "$REGISTRY_FILE" 2>/dev/null)
-    local FIELD=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.field // empty' "$REGISTRY_FILE" 2>/dev/null)
-    local RANGE_MIN=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.range[0] // 0' "$REGISTRY_FILE" 2>/dev/null)
-    local RANGE_MAX=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.range[1] // 100' "$REGISTRY_FILE" 2>/dev/null)
-    local DEFAULT=$(jq -r --arg t "$PET_TYPE" '.types[$t].unique.default // 50' "$REGISTRY_FILE" 2>/dev/null)
+    local DECAY_RATE=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$PET_TYPE" '.types[$t].unique.decayRate // 0' 2>/dev/null)
+    local FIELD=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$PET_TYPE" '.types[$t].unique.field // empty' 2>/dev/null)
+    local RANGE_MIN=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$PET_TYPE" '.types[$t].unique.range[0] // 0' 2>/dev/null)
+    local RANGE_MAX=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$PET_TYPE" '.types[$t].unique.range[1] // 100' 2>/dev/null)
+    local DEFAULT=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$PET_TYPE" '.types[$t].unique.default // 50' 2>/dev/null)
 
     if [ -n "$FIELD" ] && [ "$DECAY_RATE" -gt 0 ] 2>/dev/null; then
       NEW_STATE=$(echo "$NEW_STATE" | jq \

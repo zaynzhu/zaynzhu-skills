@@ -1,14 +1,44 @@
 #!/bin/bash
 # Pet Buddy hook: code success (Edit/Write tool used)
-STATE_FILE="$HOME/.pet/state.json"
-LOCK_DIR="$HOME/.pet/.state.lock"
+jq() {
+  local jq_bin
+  jq_bin=$(type -P jq 2>/dev/null || true)
+  if [ -z "$jq_bin" ]; then
+    for candidate in "$PET_HOME/.pet/bin/jq" "$PET_HOME/.pet/bin/jq.exe" "$HOME/.pet/bin/jq" "$HOME/.pet/bin/jq.exe"; do
+      if [ -x "$candidate" ]; then jq_bin="$candidate"; break; fi
+    done
+  fi
+  "$jq_bin" "$@" | tr -d '\r'
+  return ${PIPESTATUS[0]}
+}
+
+resolve_pet_home() {
+  local home_dir="${PET_HOME:-$HOME}"
+  local windows_home=""
+  if [ -n "$USERPROFILE" ]; then
+    if command -v cygpath >/dev/null 2>&1; then
+      windows_home=$(cygpath -u "$USERPROFILE" 2>/dev/null || printf '%s' "$USERPROFILE")
+    else
+      windows_home="$USERPROFILE"
+    fi
+  fi
+  if [ -n "$windows_home" ] && [ -d "$windows_home" ]; then
+    if [ ! -d "$home_dir" ] || { [ ! -d "$home_dir/.pet" ] && [ -d "$windows_home/.pet" ]; }; then
+      home_dir="$windows_home"
+    fi
+  fi
+  printf '%s' "$home_dir"
+}
+PET_HOME=$(resolve_pet_home)
+STATE_FILE="$PET_HOME/.pet/state.json"
+LOCK_DIR="$PET_HOME/.pet/.state.lock"
 
 if [ ! -f "$STATE_FILE" ]; then exit 0; fi
 
 # Per-project config check
 _dir="$PWD"; while [ -n "$_dir" ]; do
   if [ -f "$_dir/.pet.json" ]; then
-    _enabled=$(jq -r 'if .enabled == false then "false" else "true" end' "$_dir/.pet.json" 2>/dev/null)
+    _enabled=$(cat "$_dir/.pet.json" 2>/dev/null | jq -r 'if .enabled == false then "false" else "true" end' 2>/dev/null)
     [ "$_enabled" = "false" ] && exit 0
     break
   fi
@@ -29,6 +59,17 @@ lock_state() {
 }
 unlock_state() { rm -rf "$LOCK_DIR" 2>/dev/null; }
 
+emit_system_message() {
+  local msg="$1"
+  local extra="$2"
+  if [ -n "$extra" ]; then
+    msg="${msg}
+
+${extra}"
+  fi
+  jq -n --arg msg "$msg" '{systemMessage: $msg}'
+}
+
 lock_state || exit 0
 
 STATE=$(cat "$STATE_FILE" 2>/dev/null)
@@ -38,7 +79,7 @@ ACTIVE=$(echo "$STATE" | jq -r '.active // true')
 if [ "$ACTIVE" = "false" ]; then unlock_state; exit 0; fi
 
 # Apply time decay first
-source "$HOME/.pet/apply-decay.sh"
+source "$PET_HOME/.pet/apply-decay.sh"
 apply_decay
 
 # Re-read state after decay
@@ -92,7 +133,7 @@ echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
 fi
 
 # Increment counters and check achievements
-source "$HOME/.pet/check-achievements.sh"
+source "$PET_HOME/.pet/check-achievements.sh"
 NEW_STATE=$(cat "$STATE_FILE" 2>/dev/null)
 NEW_STATE=$(echo "$NEW_STATE" | jq '
   .counters.codeWrites = ((.counters.codeWrites // 0) + 1) |
@@ -136,7 +177,4 @@ elif [ "$LEVEL_AFTER" -gt "$LEVEL_BEFORE" ]; then
 else
   EXIST_MSG="🐱 $NAME 看到你写代码，好奇地盯着屏幕~"
 fi
-echo "{\"systemMessage\": \"$EXIST_MSG\"}"
-if [ -n "$ACH_MESSAGES" ]; then
-  echo "$ACH_MESSAGES"
-fi
+emit_system_message "$EXIST_MSG" "$ACH_MESSAGES"

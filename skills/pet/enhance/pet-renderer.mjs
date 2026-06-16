@@ -455,6 +455,25 @@ function loadState() {
   }
 }
 
+function sleepMs(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function lockState(dir) {
+  const lockDir = path.join(dir, '.state.lock');
+  for (let retries = 0; retries < 20; retries += 1) {
+    try {
+      fs.mkdirSync(lockDir);
+      return () => {
+        fs.rmSync(lockDir, { recursive: true, force: true });
+      };
+    } catch {
+      sleepMs(100);
+    }
+  }
+  throw new Error('state lock timeout');
+}
+
 function saveState(state) {
   const dir = path.join(os.homedir(), '.pet');
   const filePath = path.join(dir, 'state.json');
@@ -476,9 +495,14 @@ function saveState(state) {
   }
 
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(tmpPath, JSON.stringify(state, null, 2), 'utf-8');
-  if (fs.existsSync(filePath)) fs.copyFileSync(filePath, bakPath);
-  fs.renameSync(tmpPath, filePath);
+  const unlockState = lockState(dir);
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify(state, null, 2), 'utf-8');
+    if (fs.existsSync(filePath)) fs.copyFileSync(filePath, bakPath);
+    fs.renameSync(tmpPath, filePath);
+  } finally {
+    unlockState();
+  }
 }
 
 function checkAchievements(state) {
@@ -907,7 +931,18 @@ function determineStateLabel(state) {
   // Check sleeping state first
   if (state.sleeping) return 'sleeping';
 
-  // Check unique-attribute-triggered states first (type-specific)
+  if (state.hunger >= 90 && state.mood < 30) return 'angry';
+  if (state.hunger >= 80) return 'hungry';
+  if (state.mood >= 90) return 'excited';
+  if (state.mood >= 80) return 'happy';
+  if (state.lastUpdated) {
+    const lastUpdated = new Date(state.lastUpdated);
+    const diffMinutes = (Date.now() - lastUpdated.getTime()) / (1000 * 60);
+    if (diffMinutes > 30) return 'sleepy';
+  }
+  if (state.mood >= 60) return 'curious';
+  if (state.mood < 40) return 'sad';
+
   const petType = state.type || 'cat';
   const typeDef = REGISTRY.types[petType];
   if (typeDef && typeDef.unique) {
@@ -919,17 +954,6 @@ function determineStateLabel(state) {
     if (field === 'vitality' && value < 20) return 'bored';
   }
 
-  if (state.hunger >= 90 && state.mood < 30) return 'angry';
-  if (state.hunger >= 80) return 'hungry';
-  if (state.mood >= 90) return 'excited';
-  if (state.mood >= 80) return 'happy';
-  if (state.mood >= 60) return 'curious';
-  if (state.mood < 40) return 'sad';
-  if (state.lastUpdated) {
-    const lastUpdated = new Date(state.lastUpdated);
-    const diffMinutes = (Date.now() - lastUpdated.getTime()) / (1000 * 60);
-    if (diffMinutes > 30) return 'sleepy';
-  }
   return 'idle';
 }
 

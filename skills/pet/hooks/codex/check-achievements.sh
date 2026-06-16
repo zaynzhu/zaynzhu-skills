@@ -1,9 +1,39 @@
 #!/bin/bash
 # Pet Buddy: check achievements after state update
 # Source this file and call check_achievements to check for new achievements.
+jq() {
+  local jq_bin
+  jq_bin=$(type -P jq 2>/dev/null || true)
+  if [ -z "$jq_bin" ]; then
+    for candidate in "$PET_HOME/.pet/bin/jq" "$PET_HOME/.pet/bin/jq.exe" "$HOME/.pet/bin/jq" "$HOME/.pet/bin/jq.exe"; do
+      if [ -x "$candidate" ]; then jq_bin="$candidate"; break; fi
+    done
+  fi
+  "$jq_bin" "$@" | tr -d '\r'
+  return ${PIPESTATUS[0]}
+}
+
+resolve_pet_home() {
+  local home_dir="${PET_HOME:-$HOME}"
+  local windows_home=""
+  if [ -n "$USERPROFILE" ]; then
+    if command -v cygpath >/dev/null 2>&1; then
+      windows_home=$(cygpath -u "$USERPROFILE" 2>/dev/null || printf '%s' "$USERPROFILE")
+    else
+      windows_home="$USERPROFILE"
+    fi
+  fi
+  if [ -n "$windows_home" ] && [ -d "$windows_home" ]; then
+    if [ ! -d "$home_dir" ] || { [ ! -d "$home_dir/.pet" ] && [ -d "$windows_home/.pet" ]; }; then
+      home_dir="$windows_home"
+    fi
+  fi
+  printf '%s' "$home_dir"
+}
+PET_HOME=$(resolve_pet_home)
 
 check_achievements() {
-  local STATE_FILE="$HOME/.pet/state.json"
+  local STATE_FILE="$PET_HOME/.pet/state.json"
   if [ ! -f "$STATE_FILE" ]; then return; fi
 
   local STATE=$(cat "$STATE_FILE" 2>/dev/null)

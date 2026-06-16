@@ -3,17 +3,53 @@
 # Reads original statusLine command from settings.json, executes it,
 # then appends pet status with frame-based emoji/description cycling.
 
+jq() {
+  local jq_bin
+  jq_bin=$(type -P jq 2>/dev/null || true)
+  if [ -z "$jq_bin" ]; then
+    for candidate in "$PET_HOME/.pet/bin/jq" "$PET_HOME/.pet/bin/jq.exe" "$HOME/.pet/bin/jq" "$HOME/.pet/bin/jq.exe"; do
+      if [ -x "$candidate" ]; then jq_bin="$candidate"; break; fi
+    done
+  fi
+  "$jq_bin" "$@" | tr -d '\r'
+  return ${PIPESTATUS[0]}
+}
+
+to_unix_path() {
+  if [ -n "$1" ] && command -v cygpath >/dev/null 2>&1; then
+    cygpath -u "$1" 2>/dev/null || printf '%s' "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+resolve_pet_home() {
+  local home_dir="${PET_HOME:-$HOME}"
+  local windows_home=""
+  if [ -n "$USERPROFILE" ]; then
+    windows_home=$(to_unix_path "$USERPROFILE")
+  fi
+  if [ -n "$windows_home" ] && [ -d "$windows_home" ]; then
+    if [ ! -d "$home_dir" ] || { [ ! -d "$home_dir/.pet" ] && [ -d "$windows_home/.pet" ]; }; then
+      home_dir="$windows_home"
+    fi
+  fi
+  printf '%s' "$home_dir"
+}
+PET_HOME=$(resolve_pet_home)
+APPDATA_UNIX=$(to_unix_path "$APPDATA")
+
 # Auto-detect settings.json location across platforms
 SETTINGS_FILE=""
-for candidate in "$HOME/.claude/settings.json" "$HOME/.config/claude/settings.json" "$APPDATA/claude/settings.json"; do
+for candidate in "$PET_HOME/.claude/settings.json" "$PET_HOME/.config/claude/settings.json" "$APPDATA_UNIX/claude/settings.json"; do
   if [ -f "$candidate" ]; then
     SETTINGS_FILE="$candidate"
     break
   fi
 done
 
-STATE_FILE="$HOME/.pet/state.json"
-ENHANCE_SCRIPT="$HOME/.pet/pet-renderer.mjs"
+STATE_FILE="$PET_HOME/.pet/state.json"
+ENHANCE_SCRIPT="$PET_HOME/.pet/pet-renderer.mjs"
 
 # --- Per-project config check ---
 # Walk up from PWD looking for .pet.json
@@ -22,7 +58,7 @@ is_pet_enabled() {
   while [ -n "$dir" ]; do
     if [ -f "$dir/.pet.json" ]; then
       local enabled
-      enabled=$(jq -r 'if .enabled == false then "false" else "true" end' "$dir/.pet.json" 2>/dev/null)
+      enabled=$(cat "$dir/.pet.json" 2>/dev/null | jq -r 'if .enabled == false then "false" else "true" end' 2>/dev/null)
       [ "$enabled" = "false" ] && return 1
       return 0
     fi
@@ -39,14 +75,14 @@ ORIGINAL_OUTPUT=""
 ORIGINAL_CMD=""
 
 # Priority 1: Read from our saved original command file
-ORIG_CMD_FILE="$HOME/.pet/original-statusline-cmd.txt"
+ORIG_CMD_FILE="$PET_HOME/.pet/original-statusline-cmd.txt"
 if [ -f "$ORIG_CMD_FILE" ]; then
   ORIGINAL_CMD=$(cat "$ORIG_CMD_FILE" 2>/dev/null)
 fi
 
 # Priority 2: If no saved file, try reading from settings.json (skip our own script)
 if [ -z "$ORIGINAL_CMD" ] && [ -f "$SETTINGS_FILE" ]; then
-  SETTINGS_CMD=$(jq -r '.statusLine.command // empty' "$SETTINGS_FILE" 2>/dev/null)
+  SETTINGS_CMD=$(cat "$SETTINGS_FILE" 2>/dev/null | jq -r '.statusLine.command // empty' 2>/dev/null)
   if [ -n "$SETTINGS_CMD" ] && ! echo "$SETTINGS_CMD" | grep -q "status-combined"; then
     ORIGINAL_CMD="$SETTINGS_CMD"
   fi
@@ -54,7 +90,14 @@ fi
 
 # Execute the original command if found
 if [ -n "$ORIGINAL_CMD" ]; then
-  ORIGINAL_OUTPUT=$(eval "$ORIGINAL_CMD" 2>/dev/null)
+  case "$ORIGINAL_CMD" in
+    *$'\n'*|*$'\r'*)
+      ORIGINAL_CMD=""
+      ;;
+  esac
+fi
+if [ -n "$ORIGINAL_CMD" ]; then
+  ORIGINAL_OUTPUT=$(bash -lc "$ORIGINAL_CMD" 2>/dev/null)
 fi
 
 # --- Part 2: Build pet status (skip if disabled for this project) ---
@@ -159,13 +202,13 @@ if [ -f "$STATE_FILE" ]; then
 
       # Unique attribute display
       UNIQUE_DISPLAY=""
-      REGISTRY_FILE="$HOME/.pet/pets/registry.json"
+      REGISTRY_FILE="$PET_HOME/.pet/pets/registry.json"
       if [ -f "$REGISTRY_FILE" ]; then
-        U_FIELD=$(jq -r --arg t "$TYPE" '.types[$t].unique.field // empty' "$REGISTRY_FILE" 2>/dev/null)
-        U_ICON=$(jq -r --arg t "$TYPE" '.types[$t].unique.icon // empty' "$REGISTRY_FILE" 2>/dev/null)
-        U_DEFAULT=$(jq -r --arg t "$TYPE" '.types[$t].unique.default // 50' "$REGISTRY_FILE" 2>/dev/null)
-        U_DECAY=$(jq -r --arg t "$TYPE" '.types[$t].unique.decayRate // 0' "$REGISTRY_FILE" 2>/dev/null)
-        U_GROW=$(jq -r --arg t "$TYPE" '.types[$t].unique.growRate // 0' "$REGISTRY_FILE" 2>/dev/null)
+        U_FIELD=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$TYPE" '.types[$t].unique.field // empty' 2>/dev/null)
+        U_ICON=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$TYPE" '.types[$t].unique.icon // empty' 2>/dev/null)
+        U_DEFAULT=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$TYPE" '.types[$t].unique.default // 50' 2>/dev/null)
+        U_DECAY=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$TYPE" '.types[$t].unique.decayRate // 0' 2>/dev/null)
+        U_GROW=$(cat "$REGISTRY_FILE" 2>/dev/null | jq -r --arg t "$TYPE" '.types[$t].unique.growRate // 0' 2>/dev/null)
         if [ -n "$U_FIELD" ] && { [ "$U_DECAY" -gt 0 ] 2>/dev/null || [ "$U_GROW" -gt 0 ] 2>/dev/null; }; then
           U_VALUE=$(echo "$STATE" | jq -r --arg f "$U_FIELD" --arg d "$U_DEFAULT" '.unique[$f] // ($d | tonumber)')
           UNIQUE_DISPLAY=" ${U_ICON}${U_VALUE}"
@@ -177,7 +220,7 @@ if [ -f "$STATE_FILE" ]; then
       # Increment frame and save (modulo 1000 to prevent overflow)
       NEW_FRAME=$(( (FRAME + 1) % 1000 ))
       NEW_STATE=$(echo "$STATE" | jq --arg f "$NEW_FRAME" '.frame = ($f | tonumber)')
-      LOCK_DIR="$HOME/.pet/.state.lock"
+      LOCK_DIR="$PET_HOME/.pet/.state.lock"
       retries=0; while ! mkdir "$LOCK_DIR" 2>/dev/null; do retries=$((retries+1)); [ "$retries" -ge 20 ] && break; sleep 0.1; done
       echo "$NEW_STATE" > "$STATE_FILE.tmp" && mv "$STATE_FILE.tmp" "$STATE_FILE"
       rm -rf "$LOCK_DIR" 2>/dev/null

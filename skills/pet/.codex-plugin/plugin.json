@@ -2,13 +2,20 @@
   "name": "pet",
   "version": "1.0.0",
   "description": "CLI 编程伴侣宠物 — Pet Buddy for Codex CLI",
-  "skills": "../",
-  "hooks": "../codex-hooks/hooks.json",
+  "author": {
+    "name": "Pet Buddy"
+  },
+  "skills": "./skills/",
   "interface": {
     "displayName": "Pet Buddy",
     "shortDescription": "Your coding companion pet that reacts to your work",
     "longDescription": "Pet Buddy gives you a persistent virtual pet that reacts to your coding activity. Write code and your pet gets curious; pass tests and it celebrates; fail tests and it comforts you. Features mood, hunger, bond, and leveling systems.",
+    "developerName": "Pet Buddy",
     "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
     "defaultPrompt": [
       "Use Pet Buddy to track my coding companion pet",
       "Check on my pet with /pet status"
