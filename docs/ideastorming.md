@@ -8,6 +8,7 @@
 - 把热点转换为 1 到 7 天可完成 demo 的项目点子
 - 优先输出开发者工具、AI 工作流工具、RAG / 知识库工具、文档处理工具、浏览器插件、小型 SaaS 原型
 - 每个项目包含目标用户、核心痛点、MVP、进阶功能、技术栈、展示价值和第一条开发提示词
+- 收尾时生成带时间戳的 Markdown 和静态 HTML，HTML 会突出展示可复制的第一条开发提示词
 - 区分普通 AI 资讯简报场景：只想看新闻摘要时应使用 aihot 类技能，本技能只做“热点转项目”
 
 ## 依赖
@@ -56,7 +57,15 @@ AIHOT 热点转项目
 
 ## 输出结构
 
-每次默认输出 5 到 10 个项目点子。每个项目包含：
+每次默认输出 5 到 10 个项目点子，并生成：
+
+```text
+ideastorming-reports/<YYYYMMDD-HHMMSS>/
+├── ideas-<YYYYMMDD-HHMMSS>.md
+└── index-<YYYYMMDD-HHMMSS>.html
+```
+
+每个项目包含：
 
 - 对应热点
 - 背后趋势
@@ -71,6 +80,28 @@ AIHOT 热点转项目
 - 展示价值
 - 第一条开发提示词
 
+## 静态 HTML 报告
+
+`index-<YYYYMMDD-HHMMSS>.html` 由 `scripts/build_static_report.py` 从 `ideas-<YYYYMMDD-HHMMSS>.md` 渲染生成。页面会把项目拆成卡片，并在每张卡片底部突出显示“第一条开发提示词”，方便复制给 Codex / Claude Code / Cursor。文件名带时间，避免覆盖上次报告。
+
+手动生成示例：
+
+```powershell
+python scripts/build_static_report.py `
+  --input path\to\ideas-20260618-143000.md `
+  --output-dir path\to\report `
+  --stamp 20260618-143000 `
+  --title "Ideastorming 项目选题报告"
+```
+
+如需本地预览：
+
+```powershell
+python -m http.server 8765 --directory path\to\report
+```
+
+打开 `http://localhost:8765/index-20260618-143000.html` 即可预览对应报告。
+
 ## Windows 终端编码
 
 脚本使用 UTF-8 JSON 输出。在 GBK codepage 的 Windows 终端里直接打印中文时可能显示乱码，但重定向到文件或由 Agent 读取时不影响 JSON 内容。
@@ -80,5 +111,5 @@ AIHOT 热点转项目
 ```
 ideastorming/
 ├── SKILL.md      ← 主指令
-└── scripts/      ← AIHOT 抓取脚本
+└── scripts/      ← AIHOT 抓取和静态报告脚本
 ```

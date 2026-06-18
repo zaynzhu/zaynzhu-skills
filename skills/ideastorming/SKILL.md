@@ -132,7 +132,17 @@ python scripts/fetch_aihot_items.py --mode selected --query "Agent" --take 30
 
 默认输出 5 到 10 个项目点子。除非用户指定数量，否则推荐输出 6 个，保证质量高于数量。
 
-每个项目使用以下格式：
+最终交付不只打印在对话里，必须生成一份带时间戳的 Markdown 报告和一个带时间戳的静态 HTML 页面。对话里只给摘要、文件路径和访问地址，完整内容放在报告里。
+
+默认输出目录：
+
+```text
+ideastorming-reports/<YYYYMMDD-HHMMSS>/
+├── ideas-<YYYYMMDD-HHMMSS>.md
+└── index-<YYYYMMDD-HHMMSS>.html
+```
+
+每个项目在 Markdown 报告中使用以下格式：
 
 ```markdown
 ### 项目名称
@@ -183,6 +193,49 @@ AI 模型：
 
 ---
 
+## 静态报告流程
+
+完成项目构思后执行以下收尾流程：
+
+1. 生成当前时间戳 `<YYYYMMDD-HHMMSS>`。
+2. 在当前工作区创建 `ideastorming-reports/<YYYYMMDD-HHMMSS>/`。
+3. 将完整项目清单写入该目录的 `ideas-<YYYYMMDD-HHMMSS>.md`，保持上一节的 Markdown 结构。
+4. 调用本技能脚本生成静态页面：
+
+```powershell
+python <skill-path>/scripts/build_static_report.py `
+  --input <report-dir>/ideas-<YYYYMMDD-HHMMSS>.md `
+  --output-dir <report-dir> `
+  --stamp <YYYYMMDD-HHMMSS> `
+  --title "Ideastorming 项目选题报告"
+```
+
+脚本会输出 `ideas-<YYYYMMDD-HHMMSS>.md` 和 `index-<YYYYMMDD-HHMMSS>.html`，文件名带时间，避免覆盖上次结果。
+
+5. 如果当前环境支持 shell 和本地端口，启动静态服务。默认从 `8765` 开始；端口占用时递增。
+
+PowerShell 示例：
+
+```powershell
+Start-Process -WindowStyle Hidden python -ArgumentList '-m','http.server','8765','--directory','<report-dir>'
+```
+
+Bash 示例：
+
+```bash
+python -m http.server 8765 --directory <report-dir> >/tmp/ideastorming-report.log 2>&1 &
+```
+
+6. 交付时告诉用户：
+   - Markdown 文件路径
+   - HTML 文件路径
+   - 本地访问地址，例如 `http://localhost:8765/index-<YYYYMMDD-HHMMSS>.html`
+   - 如果无法启动服务，明确说明原因，并给出带时间戳的 HTML 路径
+
+静态 HTML 的核心目标是“直观看项目”，尤其要突出每个项目的 `第一条开发提示词`，让用户能快速复制给编码 Agent。不要只生成普通 Markdown 预览。
+
+---
+
 ## 质量标准
 
 生成时优先具体，不要停留在“做一个平台”这种层面。好的项目点子应该包含：
@@ -215,10 +268,13 @@ AI 模型：
 
 ## 交付语气
 
-直接给项目，不要写长篇新闻综述。可以在开头用 1 到 3 句话说明本次使用的数据范围、时间范围和筛选逻辑，然后进入项目列表。
+直接给结果，不要写长篇新闻综述。可以在开头用 1 到 3 句话说明本次使用的数据范围、时间范围和筛选逻辑，然后给出报告路径和本地页面地址。
+
+对话内不要粘贴完整项目清单，避免刷屏。只列 3 到 6 条最高价值项目标题和一句话摘要，并提醒完整内容在带时间戳的 Markdown 和 HTML 文件中。
 
 ---
 
 ## 参考文件
 
 - 执行脚本：`scripts/fetch_aihot_items.py`
+- 静态报告脚本：`scripts/build_static_report.py`
