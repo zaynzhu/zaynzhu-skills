@@ -13,10 +13,30 @@ from typing import Dict, List
 
 
 DEFAULT_TITLE = "Ideastorming 项目选题报告"
-PROJECT_HEADING_RE = re.compile(r"^###\s+(.+?)\s*$")
-SECTION_HEADING_RE = re.compile(r"^####\s+(.+?)\s*$")
+HEADING_RE = re.compile(r"^(#{2,6})\s+(.+?)\s*$")
+KNOWN_SECTIONS = {
+  "对应热点",
+  "背后趋势",
+  "项目一句话",
+  "目标用户",
+  "核心痛点",
+  "MVP 功能",
+  "进阶功能",
+  "技术栈建议",
+  "为什么适合 vibe coding",
+  "开发难度",
+  "展示价值",
+  "第一条开发提示词",
+}
 PROMPT_SECTION_NAME = "第一条开发提示词"
 STAMP_RE = re.compile(r"^\d{8}-\d{6}$")
+
+
+def normTitle(title: str) -> str:
+  return re.sub(r"\s+", "", title).strip().lower()
+
+
+KNOWN_SECTION_KEYS = {normTitle(title) for title in KNOWN_SECTIONS}
 
 
 def parseArgs() -> argparse.Namespace:
@@ -57,20 +77,21 @@ def splitProjects(markdown: str) -> List[Dict[str, object]]:
     buffer = []
 
   for line in markdown.splitlines():
-    projectMatch = PROJECT_HEADING_RE.match(line)
-    if projectMatch:
+    headingMatch = HEADING_RE.match(line)
+    if headingMatch:
+      title = headingMatch.group(2).strip()
+      if normTitle(title) in KNOWN_SECTION_KEYS:
+        flushSection()
+        if current is not None:
+          currentSection = title
+          buffer = []
+        continue
+
       flushSection()
       if current is not None:
         projects.append(current)
-      current = {"name": projectMatch.group(1).strip(), "sections": {}}
+      current = {"name": title, "sections": {}}
       currentSection = ""
-      buffer = []
-      continue
-
-    sectionMatch = SECTION_HEADING_RE.match(line)
-    if sectionMatch and current is not None:
-      flushSection()
-      currentSection = sectionMatch.group(1).strip()
       buffer = []
       continue
 
@@ -147,6 +168,7 @@ def renderProjectCard(project: Dict[str, object], index: int) -> str:
   assert isinstance(sections, dict)
   prompt = str(sections.get(PROMPT_SECTION_NAME, "")).strip()
   promptHtml = renderMarkdownBlock(prompt) if prompt else "<p>未提供开发提示词。</p>"
+  detailSectionCount = len([sectionName for sectionName in sections if sectionName != PROMPT_SECTION_NAME])
 
   sectionHtml: List[str] = []
   for sectionName, content in sections.items():
@@ -164,16 +186,25 @@ def renderProjectCard(project: Dict[str, object], index: int) -> str:
   return f"""
   <article class="project-card">
     <header class="project-header">
-      <span class="project-index">{index:02d}</span>
-      <h2>{html.escape(name)}</h2>
+      <div class="project-heading">
+        <span class="project-index">{index:02d}</span>
+        <div>
+          <p class="project-label">项目 {index:02d}</p>
+          <h2>{html.escape(name)}</h2>
+        </div>
+      </div>
+      <span class="section-count">{detailSectionCount} 个小节</span>
     </header>
     <div class="section-grid">
       {''.join(sectionHtml)}
     </div>
-    <section class="dev-prompt">
+    <section class="dev-prompt" aria-labelledby="prompt-title-{index}">
       <div class="prompt-title">
-        <h3>第一条开发提示词</h3>
-        <button type="button" data-copy-target="prompt-{index}">复制</button>
+        <div>
+          <p class="prompt-kicker">可复制给 Agent</p>
+          <h3 id="prompt-title-{index}">第一条开发提示词</h3>
+        </div>
+        <button type="button" data-copy-target="prompt-{index}" aria-label="复制第 {index:02d} 个项目的开发提示词">复制提示词</button>
       </div>
       <div id="prompt-{index}" class="prompt-body">{promptHtml}</div>
     </section>
@@ -183,6 +214,12 @@ def renderProjectCard(project: Dict[str, object], index: int) -> str:
 
 def buildHtml(title: str, markdown: str, stamp: str) -> str:
   projects = splitProjects(markdown)
+  if projects and all(not project.get("sections") for project in projects):
+    raise SystemExit(
+      f"解析失败：识别到 {len(projects)} 个标题，但所有项目都没有小节。"
+      "请检查 Markdown 是否使用了项目标题 + 已知小节标题结构，例如 '### 项目名' + '#### 小节'。"
+    )
+
   generatedAt = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
   cards = "\n".join(renderProjectCard(project, index + 1) for index, project in enumerate(projects))
 
@@ -207,95 +244,146 @@ def buildHtml(title: str, markdown: str, stamp: str) -> str:
   <style>
     :root {{
       color-scheme: light;
-      --bg: #f5f7fb;
-      --panel: #ffffff;
-      --ink: #162033;
-      --muted: #627086;
-      --line: #dce3ee;
-      --accent: #0f766e;
-      --accent-soft: #e0f2f1;
-      --prompt-bg: #111827;
-      --prompt-ink: #f8fafc;
+      --bg: #eef2ec;
+      --panel: #fffef9;
+      --ink: #181512;
+      --muted: #687064;
+      --line: #d8ded2;
+      --accent: #087f68;
+      --accent-strong: #c2410c;
+      --accent-warm: #f4c430;
+      --accent-soft: #dff3eb;
+      --prompt-bg: #171812;
+      --prompt-ink: #fff8e8;
+      --shadow: rgba(24, 21, 18, 0.18);
+      --focus: #0b84d8;
     }}
     * {{
       box-sizing: border-box;
     }}
+    html {{
+      scroll-behavior: smooth;
+    }}
     body {{
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "Microsoft YaHei", serif;
       color: var(--ink);
-      background: var(--bg);
+      background:
+        linear-gradient(90deg, rgba(24, 21, 18, 0.05) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(rgba(24, 21, 18, 0.04) 1px, transparent 1px) 0 0 / 36px 36px,
+        var(--bg);
     }}
     .app-header {{
-      padding: 36px 24px 22px;
-      border-bottom: 1px solid var(--line);
+      position: relative;
+      padding: 38px 24px 28px;
+      border-bottom: 2px solid var(--ink);
       background: var(--panel);
     }}
+    .app-header::after {{
+      position: absolute;
+      right: 0;
+      bottom: -2px;
+      left: 0;
+      height: 6px;
+      content: "";
+      background: linear-gradient(90deg, var(--accent), var(--accent-strong), var(--accent-warm));
+    }}
     .app-header-inner {{
-      max-width: 1180px;
+      max-width: 1220px;
       margin: 0 auto;
     }}
     h1 {{
-      margin: 0 0 10px;
-      font-size: 30px;
-      line-height: 1.2;
+      max-width: 820px;
+      margin: 0 0 14px;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.05;
       letter-spacing: 0;
     }}
     .summary {{
       margin: 0;
       color: var(--muted);
-      line-height: 1.7;
+      font-size: 15px;
+      line-height: 1.8;
     }}
     main {{
-      max-width: 1180px;
+      max-width: 1220px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 28px 24px 42px;
     }}
     .project-card {{
-      margin-bottom: 22px;
-      padding: 22px;
+      margin-bottom: 28px;
+      padding: 24px;
       background: var(--panel);
-      border: 1px solid var(--line);
+      border: 2px solid var(--ink);
       border-radius: 8px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      box-shadow: 8px 8px 0 var(--shadow);
     }}
     .project-header {{
       display: flex;
-      gap: 12px;
+      justify-content: space-between;
+      gap: 18px;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }}
+    .project-heading {{
+      display: flex;
+      min-width: 0;
+      gap: 14px;
+      align-items: center;
     }}
     .project-index {{
       display: inline-flex;
-      width: 38px;
-      height: 38px;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 46px;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      background: var(--accent-soft);
-      color: var(--accent);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      background: var(--accent-warm);
+      color: var(--ink);
       font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }}
+    .project-label, .prompt-kicker {{
+      margin: 0 0 4px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
     }}
     .project-header h2 {{
       margin: 0;
-      font-size: 22px;
+      font-size: clamp(21px, 2vw, 30px);
       line-height: 1.25;
+    }}
+    .section-count {{
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
     }}
     .section-grid {{
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 26px;
+      border-top: 1px solid var(--line);
     }}
     .section {{
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfcfe;
+      min-width: 0;
+      padding: 16px 0 14px;
+      border-bottom: 1px solid var(--line);
     }}
     .section h3, .dev-prompt h3 {{
       margin: 0 0 8px;
-      font-size: 14px;
-      color: var(--muted);
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.35;
     }}
     .section p, .section li {{
       font-size: 14px;
@@ -309,10 +397,10 @@ def buildHtml(title: str, markdown: str, stamp: str) -> str:
       padding-left: 20px;
     }}
     .dev-prompt {{
-      margin-top: 16px;
+      margin-top: 20px;
       border-radius: 8px;
       overflow: hidden;
-      border: 1px solid #1f2937;
+      border: 2px solid var(--prompt-bg);
       background: var(--prompt-bg);
       color: var(--prompt-ink);
     }}
@@ -321,24 +409,38 @@ def buildHtml(title: str, markdown: str, stamp: str) -> str:
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      padding: 12px 14px;
-      border-bottom: 1px solid #374151;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 248, 232, 0.2);
     }}
     .prompt-title h3 {{
-      color: #cbd5e1;
       margin: 0;
+      color: var(--prompt-ink);
+    }}
+    .prompt-kicker {{
+      color: #f4c430;
     }}
     button {{
-      border: 1px solid #64748b;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 248, 232, 0.55);
       border-radius: 6px;
-      background: #f8fafc;
-      color: #111827;
-      padding: 6px 10px;
+      background: #fff8e8;
+      color: var(--ink);
+      padding: 8px 12px;
       cursor: pointer;
-      font-size: 13px;
+      font: inherit;
+      font-size: 14px;
+      transition: transform 160ms ease, background-color 160ms ease;
+    }}
+    button:hover {{
+      background: #f4c430;
+      transform: translateY(-1px);
+    }}
+    button:focus-visible {{
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
     }}
     .prompt-body {{
-      padding: 14px;
+      padding: 16px;
     }}
     .prompt-body p, .prompt-body li {{
       color: var(--prompt-ink);
@@ -346,16 +448,22 @@ def buildHtml(title: str, markdown: str, stamp: str) -> str:
       line-height: 1.8;
     }}
     code {{
-      background: rgba(148, 163, 184, 0.18);
+      background: rgba(8, 127, 104, 0.12);
       border-radius: 4px;
       padding: 2px 4px;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
     }}
     pre {{
       overflow: auto;
       padding: 12px;
       border-radius: 6px;
-      background: #0b1120;
-      color: #e5e7eb;
+      background: #0f100c;
+      color: var(--prompt-ink);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      line-height: 1.7;
+    }}
+    .raw-markdown {{
+      border-top: 0;
     }}
     @media (max-width: 680px) {{
       .app-header {{
@@ -367,8 +475,27 @@ def buildHtml(title: str, markdown: str, stamp: str) -> str:
       .project-card {{
         padding: 16px;
       }}
+      .project-header {{
+        align-items: flex-start;
+        flex-direction: column;
+      }}
       .section-grid {{
         grid-template-columns: 1fr;
+      }}
+      .prompt-title {{
+        align-items: flex-start;
+        flex-direction: column;
+      }}
+    }}
+    @media (prefers-reduced-motion: reduce) {{
+      html {{
+        scroll-behavior: auto;
+      }}
+      button {{
+        transition: none;
+      }}
+      button:hover {{
+        transform: none;
       }}
     }}
   </style>
@@ -377,7 +504,7 @@ def buildHtml(title: str, markdown: str, stamp: str) -> str:
   <header class="app-header">
     <div class="app-header-inner">
       <h1>{html.escape(title)}</h1>
-      <p class="summary">生成时间：{generatedAt} · 文件时间戳：{html.escape(stamp)} · 项目数：{len(projects)} · 每张卡片底部突出展示可复制的第一条开发提示词。</p>
+      <p class="summary">生成时间：{generatedAt} · 文件时间戳：{html.escape(stamp)} · 项目数：{len(projects)}</p>
     </div>
   </header>
   <main>
@@ -389,12 +516,20 @@ def buildHtml(title: str, markdown: str, stamp: str) -> str:
         const target = document.getElementById(button.dataset.copyTarget)
         const text = target ? target.innerText.trim() : ""
         if (!text) return
-        await navigator.clipboard.writeText(text)
         const original = button.textContent
-        button.textContent = "已复制"
-        setTimeout(() => {{
-          button.textContent = original
-        }}, 1200)
+        try {{
+          if (!navigator.clipboard) {{
+            throw new Error("clipboard unavailable")
+          }}
+          await navigator.clipboard.writeText(text)
+          button.textContent = "已复制"
+        }} catch (error) {{
+          button.textContent = "复制失败"
+        }} finally {{
+          setTimeout(() => {{
+            button.textContent = original
+          }}, 1200)
+        }}
       }})
     }})
   </script>
