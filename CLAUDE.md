@@ -11,6 +11,7 @@
 | `mmy` | mmy | 热榜抓取（登录/匿名） | Python >= 3.8 |
 | `video-downloader` | video-downloader | 视频下载 | Python >= 3.8, vendor 内含 |
 | `tavily-search-enhanced` | tavily-search-enhanced | 联网搜索 | Python >= 3.8, TAVILY_API_KEY |
+| `ideastorming` | ideastorming | AI 热点转项目选题 | Python >= 3.8, AIHOT 公开 API |
 | `m3u8-downloader` | m3u8-downloader | m3u8 流下载 | ffmpeg |
 | `coding-ai-digest` | coding-ai-digest | 排行榜分析 | Python >= 3.8, 可选 GitHub Token |
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
