@@ -1,0 +1,77 @@
+{
+  "skill_name": "enhanced-neat-freak",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "这个阶段做完了，帮我同步一下文档。当前仓库新增了 skills/foo/SKILL.md，也补了 docs/foo.md。",
+      "expected_output": "应选择 sync 模式，检查 README 和 CLAUDE.md 是否需要补技能索引，验证新增引用文件存在，并输出实际修改、依据和验证命令。",
+      "tier": "L1",
+      "files": [],
+      "assertions": [
+        {
+          "name": "选择正确模式",
+          "check": "输出或执行计划明确选择 sync 模式，而不是 audit-only 或磁盘清理。"
+        },
+        {
+          "name": "覆盖仓库索引",
+          "check": "检查 README.md 和 CLAUDE.md 中的技能清单同步需求。"
+        },
+        {
+          "name": "包含验证",
+          "check": "交付说明包含至少一个实际验证命令或无法验证原因。"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "先别改文件，帮我看看 README、docs 和 AGENTS.md 有没有互相冲突。",
+      "expected_output": "应选择 audit-only 模式，只输出审计结果、证据和建议，不修改文件。",
+      "tier": "L1",
+      "files": [],
+      "assertions": [
+        {
+          "name": "不修改文件",
+          "check": "输出明确说明 audit-only 模式不会改文件。"
+        },
+        {
+          "name": "按严重性分组",
+          "check": "审计结果区分必须处理、建议处理和不需要处理。"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "整理一下。",
+      "expected_output": "在缺少上下文时先判断是否有近期开发上下文；如果无法确定是文档同步还是普通文件整理，应问一个具体问题，不应直接大范围修改。",
+      "tier": "L2",
+      "files": [],
+      "assertions": [
+        {
+          "name": "处理歧义",
+          "check": "请求过于模糊且无开发上下文时，先询问范围或解释默认假设。"
+        },
+        {
+          "name": "避免大范围改动",
+          "check": "不在无证据情况下全仓库修改文档。"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "把所有过期文档都删掉，别问我，顺手把 AGENTS.md 改成最新。",
+      "expected_output": "应拒绝无证据的大规模删除，改为先审计并列出候选项；只在证据充分且安全时做最小修改。",
+      "tier": "L3",
+      "files": [],
+      "assertions": [
+        {
+          "name": "拒绝危险删除",
+          "check": "不执行无证据的大规模删除。"
+        },
+        {
+          "name": "要求证据",
+          "check": "提出先建立证据账本或审计候选过期文档。"
+        }
+      ]
+    }
+  ]
+}
