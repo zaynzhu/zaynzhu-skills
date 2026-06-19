@@ -16,6 +16,9 @@ evals/runs/
 # Claude Code 本地配置
 .claude/
 
+# Playwright MCP 工具产物（console 日志等）
+.playwright-mcp/
+
 # 摸摸鱼登录凭证（敏感信息）
 skills/mmy/scripts/mmy_credentials.json
 
