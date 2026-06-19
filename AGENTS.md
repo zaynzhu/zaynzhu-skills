@@ -29,4 +29,4 @@
 - **新增/删除 skill 时，README.md 技能索引表和本文件清单必须同步**
 - **所有 skill 的 scripts 中涉及外部 API 调用必须做频率限制**，间隔不低于 2 秒
 - **SKILL.md 控制在 500 行以内**，复杂逻辑拆到 references 或 agents
-- **发布 = 将 skill 目录复制到目标项目的 `.claude/skills/`**
+- **发布 = 将 skill 目录复制到目标项目的 `.codex/skills/`**
