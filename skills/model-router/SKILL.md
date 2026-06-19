@@ -65,6 +65,23 @@ python skills/model-router/scripts/model_config.py setting
 
 配置完成后，告知用户协议、URL、模型名和默认优先状态，但不要显示 Key。后续路由必须优先尝试这个模型；只有调用失败时才进入原有 fallback。
 
+### nohup 模式：agent 直接写入（非交互）
+
+当四项已在对话中收集齐全（包括用户直接在对话里发来的 API Key），不想让用户开终端手动输入时，用 `setting nohup` 一次性写入。协议/URL/模型名走命令行参数，Key 走 stdin（不进命令行参数、不进 `ps`）：
+
+```bash
+python skills/model-router/scripts/model_config.py setting nohup \
+  --protocol openai \
+  --endpoint https://api.xiaomimimo.com/v1/chat/completions \
+  --model mimo-v2.5 <<'EOF'
+用户在对话中提供的 API Key
+EOF
+```
+
+效果与交互式 `setting` 完全一致：写 `default` profile、设 `default_profile`、放所有路由规则首位、Key 写入被 Git 忽略的 `.env`。Key 不得出现在命令行参数、后续回复或配置摘要中。缺任一参数会报错并列出缺项；stdin 为空或为 tty 时也会报错。
+
+典型流程：agent 仍按上面四项顺序在对话里逐项询问协议/URL/模型名，最后一项让用户把 Key 直接发在对话里，agent 收到后用上面的 nohup 命令一次性写好配置，无需用户切到终端。
+
 当用户说"添加模型"，且不是要替换默认模型时，才使用完整的高级配置向导：
 
 ```bash

@@ -423,26 +423,76 @@ def _prompt_required(label):
         print("该项不能为空")
 
 
+def _parse_nohup_setting(rest):
+    """解析 setting nohup 的参数。Key 从 stdin 读，不进命令行参数。
+
+    用法：python model_config.py setting nohup --protocol <openai|anthropic> \\
+            --endpoint <URL> --model <name>
+    然后通过 stdin 传入 API Key，例如：
+        printf '%s' "$KEY" | python model_config.py setting nohup --protocol ... --endpoint ... --model ...
+    """
+    protocol = endpoint = model = None
+    i = 0
+    while i < len(rest):
+        a = rest[i]
+        if a in ("--protocol", "--endpoint", "--model") and i + 1 < len(rest):
+            if a == "--protocol":
+                protocol = rest[i + 1]
+            elif a == "--endpoint":
+                endpoint = rest[i + 1]
+            else:
+                model = rest[i + 1]
+            i += 2
+        else:
+            raise SystemExit(
+                f"nohup 模式未知参数: {a}\n"
+                "用法: setting nohup --protocol <openai|anthropic> "
+                "--endpoint <URL> --model <name>，Key 通过 stdin 传入"
+            )
+    missing = [k for k, v in [("--protocol", protocol), ("--endpoint", endpoint), ("--model", model)] if not v]
+    if missing:
+        raise SystemExit(f"nohup 模式缺少参数: {', '.join(missing)}")
+    if sys.stdin.isatty():
+        raise SystemExit(
+            "nohup 模式需要通过 stdin 传入 API Key，例如:\n"
+            f"  printf '%s' \"$KEY\" | python {Path(sys.argv[0]).name} setting nohup "
+            f"--protocol openai --endpoint <URL> --model <name>"
+        )
+    api_key = sys.stdin.read().strip()
+    if not api_key:
+        raise SystemExit("nohup 模式：stdin 未读到 API Key")
+    return protocol.strip().lower(), endpoint.strip(), model.strip(), api_key
+
+
 def cmd_setting():
-    """配置后续路由默认使用的模型。"""
-    print("\n=== 配置默认模型 ===\n")
+    """配置后续路由默认使用的模型。
 
-    while True:
-        protocol = input("协议 (openai/anthropic): ").strip().lower()
-        if protocol in SETTING_PROTOCOLS:
-            break
-        print("无效协议，请输入 openai 或 anthropic")
+    交互模式（默认）：逐项询问协议/URL/模型名，Key 走 getpass 不回显。
+    nohup 模式：通过命令行参数传入协议/URL/模型名，Key 从 stdin 读，
+    适合 agent 在对话中收集好四项后一次性写入，无需用户开终端交互。
+    """
+    args = sys.argv[2:]
+    if args and args[0] in ("nohup", "--nohup"):
+        protocol, endpoint, model, api_key = _parse_nohup_setting(args[1:])
+    else:
+        print("\n=== 配置默认模型 ===\n")
 
-    endpoint = _prompt_required("模型 URL: ")
-    while not endpoint.startswith(("http://", "https://")):
-        print("模型 URL 必须以 http:// 或 https:// 开头")
+        while True:
+            protocol = input("协议 (openai/anthropic): ").strip().lower()
+            if protocol in SETTING_PROTOCOLS:
+                break
+            print("无效协议，请输入 openai 或 anthropic")
+
         endpoint = _prompt_required("模型 URL: ")
+        while not endpoint.startswith(("http://", "https://")):
+            print("模型 URL 必须以 http:// 或 https:// 开头")
+            endpoint = _prompt_required("模型 URL: ")
 
-    model = _prompt_required("模型名: ")
-    api_key = getpass("API Key（输入不会显示）: ").strip()
-    while not api_key:
-        print("API Key 不能为空")
+        model = _prompt_required("模型名: ")
         api_key = getpass("API Key（输入不会显示）: ").strip()
+        while not api_key:
+            print("API Key 不能为空")
+            api_key = getpass("API Key（输入不会显示）: ").strip()
 
     config = apply_default_profile(load_config(), protocol, endpoint, model)
     update_env_value(ENV_PATH, DEFAULT_API_KEY_ENV, api_key)
