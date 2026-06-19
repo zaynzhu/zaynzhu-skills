@@ -252,6 +252,33 @@ class TestSelectCandidates(unittest.TestCase):
         self.assertIn("a", names)
         self.assertIn("b", names)
 
+    @patch.dict(os.environ, {"MODEL_ROUTER_API_KEY": "configured-key"})
+    def test_default_profile_stays_first_in_best_mode(self):
+        config = {
+            "default_profile": "default",
+            "profiles": {
+                "expensive": {
+                    "provider": "anthropic",
+                    "model": "expensive",
+                    "api_key_env": None,
+                    "cost": {"input_per_1m": 20, "output_per_1m": 80},
+                },
+                "default": {
+                    "provider": "openai",
+                    "model": "configured",
+                    "api_key_env": "MODEL_ROUTER_API_KEY",
+                },
+            },
+            "routing": [
+                {"match": "complex_reasoning", "prefer": ["expensive", "default"], "cost_mode": "best"},
+            ],
+        }
+
+        candidates = select_candidates(config, task_type="complex_reasoning")
+
+        self.assertEqual(candidates[0][0], "default")
+        self.assertEqual(candidates[1][0], "expensive")
+
 
 class TestBuildRequest(unittest.TestCase):
     """Test API request construction for all providers."""

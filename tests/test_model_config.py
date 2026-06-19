@@ -3,7 +3,9 @@
 Tests only pure functions. No API calls, no interactive input.
 """
 
+import os
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -11,7 +13,14 @@ from pathlib import Path
 SCRIPTS_DIR = Path(__file__).parent.parent / "skills" / "model-router" / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from model_config import parse_yaml_simple, _parse_value, yaml_to_str, _format_val
+from model_config import (
+    _format_val,
+    _parse_value,
+    apply_default_profile,
+    parse_yaml_simple,
+    update_env_value,
+    yaml_to_str,
+)
 
 
 class TestParseValue(unittest.TestCase):
@@ -235,6 +244,54 @@ class TestYamlRoundtrip(unittest.TestCase):
         self.assertEqual(parsed["profiles"]["gpt4o"]["max_tokens"], 4096)
         self.assertEqual(parsed["routing"][0]["match"], "quick_task")
         self.assertEqual(parsed["routing"][0]["cost_mode"], "cheapest")
+
+
+class TestDefaultProfileSetting(unittest.TestCase):
+    """测试 setting 流程中不含敏感信息的逻辑。"""
+
+    def test_apply_default_profile_prioritizes_all_routes(self):
+        config = {
+            "profiles": {"existing": {"provider": "openai", "model": "old"}},
+            "routing": [
+                {"match": "has_image_input", "prefer": ["existing"], "cost_mode": "cheapest"},
+                {"match": "complex_reasoning", "prefer": ["existing"], "cost_mode": "best"},
+            ],
+        }
+
+        result = apply_default_profile(
+            config,
+            protocol="anthropic",
+            endpoint="https://example.com/v1/messages",
+            model="vision-model",
+        )
+
+        self.assertEqual(result["default_profile"], "default")
+        self.assertEqual(result["profiles"]["default"]["provider"], "anthropic")
+        self.assertEqual(result["profiles"]["default"]["model"], "vision-model")
+        self.assertEqual(result["profiles"]["default"]["api_key_env"], "MODEL_ROUTER_API_KEY")
+        self.assertNotIn("api_key", result["profiles"]["default"])
+        for rule in result["routing"]:
+            self.assertEqual(rule["prefer"][0], "default")
+
+    def test_update_env_value_replaces_key_without_duplicates(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text("OTHER=value\nMODEL_ROUTER_API_KEY=old\n", encoding="utf-8")
+
+            update_env_value(env_path, "MODEL_ROUTER_API_KEY", "new-secret")
+
+            content = env_path.read_text(encoding="utf-8")
+            self.assertIn("OTHER=value", content)
+            self.assertIn("MODEL_ROUTER_API_KEY=new-secret", content)
+            self.assertNotIn("old", content)
+            self.assertEqual(content.count("MODEL_ROUTER_API_KEY="), 1)
+            self.assertEqual(os.stat(env_path).st_mode & 0o777, 0o600)
+
+    def test_update_env_value_rejects_newlines(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            with self.assertRaises(ValueError):
+                update_env_value(env_path, "MODEL_ROUTER_API_KEY", "secret\nINJECTED=value")
 
 
 if __name__ == "__main__":

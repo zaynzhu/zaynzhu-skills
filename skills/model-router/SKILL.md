@@ -6,9 +6,8 @@ description: |
   当用户需要图片识别、验证码识别、图表分析、多模态处理，或需要切换到更强/更快的模型时触发。
   当项目指令说明当前主模型不支持图片输入、不得直接发送图片内容、必须使用 model-router 时，也应触发此技能并执行图片中转工作流。
   即使用户只说"用视觉模型看看这个"、"识别一下这个图片"、"这个验证码帮我处理一下"、"配置模型"、"添加模型"，也应该使用此技能。
+  用户输入"model-router setting"、"model router setting"、"设置 model-router"时，必须触发分步配置问答。
   支持 Claude Code、Gemini CLI、OpenCode、Codex 等多平台。
-compatibility:
-  tools: [bash, python]
 ---
 
 # Model Router — 动态模型切换
@@ -33,29 +32,44 @@ compatibility:
 ```
 
 **脚本位置**：`skills/model-router/scripts/`
-- `model_config.py` — 交互式配置管理（add/list/test/remove/edit）
+- `model_config.py` — 交互式配置管理（setting/add/list/test/remove/edit）
 - `model_router.py` — 路由引擎（根据任务类型调用模型）
 
 **跨平台指南**：`skills/model-router/references/cross-platform-guide.md`
 
 ---
 
-## 场景一：配置模型（交互式）
+## 场景一：配置默认模型（分步问答）
 
-当用户说"配置模型"、"添加模型"、"设置 API key" 时：
+当用户说 `model-router setting`、`model router setting`、"设置 model-router"时，不要立刻运行脚本，也不要一次列出所有问题。先从当前对话提取已经给出的配置项，然后一次只询问一个缺失项，每次询问后等待用户回答。
+
+按以下顺序补齐四项：
+
+1. 协议：只接受 `openai` 或 `anthropic`；用户写成 `athropic` 时按 `anthropic` 理解并简短确认
+2. 模型 URL：完整的 `http://` 或 `https://` endpoint
+3. 模型名：API 请求中 `model` 字段的值
+4. API Key：最后询问；收到后不得在后续回复、命令摘要或配置摘要中复述
+
+已经从对话中得到的项目不要重复询问。若客户端提供结构化提问工具，可以用于协议选择，但每次仍只问一个问题。四项齐全后，在交互式终端中运行：
+
+```bash
+python skills/model-router/scripts/model_config.py setting
+```
+
+依次向终端输入已收集的协议、URL、模型名和 Key。不要把 Key 放进命令行参数。该命令会：
+
+- 将模型保存为 `default` profile
+- 将 `default_profile` 设为 `default`
+- 把 `default` 放到所有路由规则首位
+- 仅把 Key 写入被 Git 忽略的 `.env`，YAML/JSON 只保存 `MODEL_ROUTER_API_KEY` 环境变量名
+
+配置完成后，告知用户协议、URL、模型名和默认优先状态，但不要显示 Key。后续路由必须优先尝试这个模型；只有调用失败时才进入原有 fallback。
+
+当用户说"添加模型"，且不是要替换默认模型时，才使用完整的高级配置向导：
 
 ```bash
 python skills/model-router/scripts/model_config.py add
 ```
-
-交互式引导用户：
-1. 选择 provider（OpenAI/Google/Anthropic/Ollama/自定义）
-2. 选择或输入模型名称
-3. 设置 API Key 环境变量
-4. 确认 endpoint
-5. 选择能力标签（text/image/reasoning）
-6. 配置成本（$/1M tokens，用于成本感知路由）
-7. 自动更新路由规则
 
 其他配置命令：
 ```bash
@@ -234,8 +248,8 @@ CLI 的 `--cost` 参数会覆盖配置文件中的 cost_mode。
 
 | 错误场景 | 处理方式 |
 |---------|---------|
-| 配置文件不存在 | 运行 `model_config.py add` 创建 |
-| API key 未设置 | 运行 `model_config.py add`，脚本会引导设置 |
+| 配置文件不存在 | 运行 `model_config.py setting` 创建默认配置 |
+| API key 未设置 | 运行 `model_config.py setting`，脚本会引导设置 |
 | 某个模型调用失败 | 自动尝试 prefer 列表中的下一个模型 |
 | HTTP 429/5xx | 自动重试下一个候选（可重试错误） |
 | HTTP 400/401 | 不重试，直接换下一个（不可重试错误） |

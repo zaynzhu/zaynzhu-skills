@@ -6,16 +6,18 @@
 
 ```
 skills/model-router/scripts/
-├── model_config.py   ← 交互式配置管理（add/list/test/remove/edit）
+├── model_config.py   ← 交互式配置管理（setting/add/list/test/remove/edit）
 └── model_router.py   ← 路由引擎（根据任务类型调用模型）
 ```
 
 ## 快速使用（任意 CLI）
 
-### 配置模型
+### 配置默认模型
 ```bash
-python skills/model-router/scripts/model_config.py add
+python skills/model-router/scripts/model_config.py setting
 ```
+
+依次输入 `openai` 或 `anthropic` 协议、模型 URL、模型名和 API Key。配置完成后，后续路由会优先使用该模型。
 
 ### 列出已配置模型
 ```bash
@@ -96,8 +98,8 @@ python skills/model-router/scripts/model_router.py route --task has_image_input 
 
 直接在终端使用：
 ```bash
-# 添加模型
-python skills/model-router/scripts/model_config.py add
+# 配置默认模型
+python skills/model-router/scripts/model_config.py setting
 
 # 识别验证码
 python skills/model-router/scripts/model_router.py prepare
@@ -114,6 +116,7 @@ API Key 通过环境变量设置：
 export OPENAI_API_KEY=sk-xxx
 export GOOGLE_API_KEY=AIzaSy-xxx
 export ANTHROPIC_API_KEY=sk-ant-xxx
+export MODEL_ROUTER_API_KEY=your-default-model-key
 ```
 
 或通过配置脚本交互式设置（会写入 `.env` 文件）。

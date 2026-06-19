@@ -2,6 +2,7 @@
 """Model Router - 交互式模型配置管理器
 
 用法:
+    python model_config.py setting   # 配置默认模型
     python model_config.py add       # 交互式添加模型
     python model_config.py list      # 列出已配置模型
     python model_config.py test      # 测试模型连接
@@ -13,6 +14,7 @@ import json
 import os
 import sys
 import subprocess
+from getpass import getpass
 from pathlib import Path
 
 # --- 加载 .env 文件 ---
@@ -39,6 +41,10 @@ def load_env():
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_PATH = SCRIPT_DIR.parent / "model-router.yaml"
 CONFIG_JSON_PATH = SCRIPT_DIR.parent / "model-router.json"
+ENV_PATH = SCRIPT_DIR.parent / ".env"
+DEFAULT_PROFILE_NAME = "default"
+DEFAULT_API_KEY_ENV = "MODEL_ROUTER_API_KEY"
+SETTING_PROTOCOLS = ("openai", "anthropic")
 
 # --- 预设模板 ---
 PROVIDER_TEMPLATES = {
@@ -338,6 +344,117 @@ def save_config(config):
     with open(CONFIG_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
     print(f"配置已保存到:\n  {CONFIG_PATH}\n  {CONFIG_JSON_PATH}")
+
+
+def update_env_value(env_path, key, value):
+    """更新 .env 中的单个值，并限制文件权限。"""
+    if "\n" in value or "\r" in value:
+        raise ValueError("API Key 不能包含换行符")
+
+    path = Path(env_path)
+    lines = []
+    if path.exists():
+        lines = path.read_text(encoding="utf-8").splitlines()
+
+    prefix = f"{key}="
+    updated = False
+    result = []
+    for line in lines:
+        if line.startswith(prefix):
+            if not updated:
+                result.append(f"{prefix}{value}")
+                updated = True
+            continue
+        result.append(line)
+
+    if not updated:
+        result.append(f"{prefix}{value}")
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(result) + "\n", encoding="utf-8")
+    path.chmod(0o600)
+
+
+def apply_default_profile(config, protocol, endpoint, model):
+    """写入默认模型，并把它放到所有路由规则首位。"""
+    if protocol not in SETTING_PROTOCOLS:
+        raise ValueError("协议必须是 openai 或 anthropic")
+    if not endpoint.startswith(("http://", "https://")):
+        raise ValueError("模型 URL 必须以 http:// 或 https:// 开头")
+    if not model:
+        raise ValueError("模型名不能为空")
+
+    profiles = config.setdefault("profiles", {})
+    profiles[DEFAULT_PROFILE_NAME] = {
+        "provider": protocol,
+        "model": model,
+        "api_key_env": DEFAULT_API_KEY_ENV,
+        "capabilities": ["text", "image", "reasoning"],
+        "endpoint": endpoint,
+        "max_tokens": 4096,
+    }
+    config["default_profile"] = DEFAULT_PROFILE_NAME
+
+    routing = config.setdefault("routing", [])
+    existing_matches = {rule.get("match") for rule in routing}
+    for default_rule in DEFAULT_ROUTING:
+        if default_rule["match"] not in existing_matches:
+            routing.append({
+                "match": default_rule["match"],
+                "prefer": [],
+                "cost_mode": default_rule["cost_mode"],
+            })
+
+    for rule in routing:
+        prefer = rule.setdefault("prefer", [])
+        rule["prefer"] = [DEFAULT_PROFILE_NAME] + [
+            name for name in prefer if name != DEFAULT_PROFILE_NAME
+        ]
+
+    return config
+
+
+def _prompt_required(label):
+    """持续询问，直到获得非空输入。"""
+    while True:
+        value = input(label).strip()
+        if value:
+            return value
+        print("该项不能为空")
+
+
+def cmd_setting():
+    """配置后续路由默认使用的模型。"""
+    print("\n=== 配置默认模型 ===\n")
+
+    while True:
+        protocol = input("协议 (openai/anthropic): ").strip().lower()
+        if protocol in SETTING_PROTOCOLS:
+            break
+        print("无效协议，请输入 openai 或 anthropic")
+
+    endpoint = _prompt_required("模型 URL: ")
+    while not endpoint.startswith(("http://", "https://")):
+        print("模型 URL 必须以 http:// 或 https:// 开头")
+        endpoint = _prompt_required("模型 URL: ")
+
+    model = _prompt_required("模型名: ")
+    api_key = getpass("API Key（输入不会显示）: ").strip()
+    while not api_key:
+        print("API Key 不能为空")
+        api_key = getpass("API Key（输入不会显示）: ").strip()
+
+    config = apply_default_profile(load_config(), protocol, endpoint, model)
+    update_env_value(ENV_PATH, DEFAULT_API_KEY_ENV, api_key)
+    os.environ[DEFAULT_API_KEY_ENV] = api_key
+    save_config(config)
+
+    print("\n默认模型配置完成")
+    print(f"  protocol: {protocol}")
+    print(f"  model: {model}")
+    print(f"  endpoint: {endpoint}")
+    print(f"  api_key_env: {DEFAULT_API_KEY_ENV}")
+    print("后续路由会优先使用该模型，失败时再尝试原有 fallback。")
 
 
 # --- 交互式命令 ---
@@ -812,6 +929,7 @@ def main():
 
     cmd = sys.argv[1].lower()
     commands = {
+        "setting": cmd_setting,
         "add": cmd_add,
         "list": cmd_list,
         "test": cmd_test,

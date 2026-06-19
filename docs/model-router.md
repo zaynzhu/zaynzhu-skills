@@ -11,13 +11,13 @@
 
 ## 快速开始
 
-### 1. 添加模型（交互式）
+### 1. 配置默认模型（交互式）
 
 ```bash
-python skills/model-router/scripts/model_config.py add
+python skills/model-router/scripts/model_config.py setting
 ```
 
-按提示选择 provider、模型、设置 API Key。
+按提示依次输入 OpenAI/Anthropic 协议、模型 URL、模型名和 API Key。配置完成后，所有路由都会优先使用该模型，失败时再进入原有 fallback。
 
 ### 2. 列出已配置模型
 
@@ -86,6 +86,8 @@ python skills/model-router/scripts/model_router.py classify \
 ## 在对话中使用
 
 在 Claude Code 对话中说"识别这个图片"、"看看这个验证码"即可触发。
+
+说 `model-router setting` 时，Skill 会一次询问一个缺失配置项；四项收集完成后写入默认模型配置。API Key 只保存在被 Git 忽略的 `.env` 中。
 
 在 Playwright 测试场景中，skill 会自动检测图片需求并调用视觉模型。
 

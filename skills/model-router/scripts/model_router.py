@@ -165,6 +165,7 @@ def select_candidates(config, task_type=None, profile_name=None, cost_mode=None)
 
     candidates = []
     effective_cost_mode = cost_mode
+    default_profile_name = config.get("default_profile")
 
     if task_type:
         for rule in routing:
@@ -193,6 +194,13 @@ def select_candidates(config, task_type=None, profile_name=None, cost_mode=None)
     elif effective_cost_mode == "best":
         candidates.sort(key=lambda c: -_profile_cost(c[1]))
     # balanced: 保持原始顺序
+
+    # setting 配置的默认模型始终先尝试，不受成本排序影响
+    if default_profile_name:
+        for index, candidate in enumerate(candidates):
+            if candidate[0] == default_profile_name:
+                candidates.insert(0, candidates.pop(index))
+                break
 
     return candidates
 

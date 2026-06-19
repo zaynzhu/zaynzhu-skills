@@ -135,7 +135,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 >
 > **trending-search** 依赖 Tavily API Key，关键词可自定义（不仅限于 NanoBanana Pro，也支持 gemini3、OpenAI image 2.0 等任意关键词）
 >
-> **model-router** 支持 OpenAI/Google/Anthropic/Ollama 及兼容 OpenAI 协议的自定义模型（如 MiMo-V2.5），通过 `model_config.py add` 交互式配置
+> **model-router** 支持 OpenAI/Google/Anthropic/Ollama 及兼容 OpenAI 协议的自定义模型（如 MiMo-V2.5）；输入 `model-router setting` 可分步配置默认的 OpenAI/Anthropic 协议模型
 
 ---
 
