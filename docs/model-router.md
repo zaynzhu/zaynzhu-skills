@@ -19,6 +19,19 @@ python skills/model-router/scripts/model_config.py setting
 
 按提示依次输入 OpenAI/Anthropic 协议、模型 URL、模型名和 API Key。配置完成后，所有路由都会优先使用该模型，失败时再进入原有 fallback。
 
+### 配置默认模型（非交互 nohup，适合 agent 调用）
+
+协议、URL、模型名走命令行参数，API Key 从 stdin 读（不进命令行参数、不进 ps）。四项齐全后一次性写入，无需开终端交互输入：
+
+```bash
+printf '%s' "$KEY" | python skills/model-router/scripts/model_config.py setting nohup \
+  --protocol openai \
+  --endpoint https://api.example.com/v1/chat/completions \
+  --model example-model
+```
+
+效果与交互式 `setting` 一致：写 `default` profile、设为默认、放所有路由规则首位、Key 写入被 Git 忽略的 `.env`。缺任一参数会报错并列出缺项；stdin 为空或为 tty 也会报错。适合 agent 在对话里收集好四项后直接写好配置。
+
 ### 2. 列出已配置模型
 
 ```bash
