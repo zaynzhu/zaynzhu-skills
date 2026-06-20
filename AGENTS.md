@@ -23,6 +23,7 @@
 | `article-creater` | 公众号写作 | 公众号文章创作（长文/短内容/续写/改写） | 无（可选 MCP 搜索工具） |
 | `model-router` | model-router | 动态模型切换（图片识别/验证码/多模型路由） | Python >= 3.8, curl, 模型 API Key |
 | `TMPI` | TMPI | 文本主模型项目初始化（图片输入安全规则） | Python >= 3.8, 配合 model-router |
+| `TMR` | TMR | 文本模型会话急救（清理 transcript 图片污染） | Python >= 3.8, 标准库, 配合 TMPI |
 
 ## 强制规则
 
