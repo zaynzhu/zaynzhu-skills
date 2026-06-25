@@ -37,12 +37,19 @@ python skills/TMR/scripts/tmr.py list --project .
 # 只扫描，不修改
 python skills/TMR/scripts/tmr.py scan --project .
 
+# 主动存档：为最近 transcript 创建带时间戳的快照（.tmr.snap.<timestamp>）
+# 建议在调用 Playwright / Chrome DevTools / Superpowers Chrome 等截图工具之前执行
+python skills/TMR/scripts/tmr.py save --project .
+
 # 备份并净化 transcript
 python skills/TMR/scripts/tmr.py rescue --project .
 
-# 恢复备份
+# 恢复备份或快照
 python skills/TMR/scripts/tmr.py restore --backup /path/to/session.jsonl.tmr.bak.<timestamp>
+python skills/TMR/scripts/tmr.py restore --backup /path/to/session.jsonl.tmr.snap.<timestamp>
 ```
+
+在 Claude Code 中也可通过 `/TMR <action>` 触发：`/TMR` 或 `/TMR scan` 体检、`/TMR save` 主动存档、`/TMR rescue` 急救、`/TMR restore` 恢复、`/TMR list` 列出。
 
 ## 支持清理的污染类型
 
@@ -56,17 +63,19 @@ python skills/TMR/scripts/tmr.py restore --backup /path/to/session.jsonl.tmr.bak
 ## 安全策略
 
 - `scan` 默认不修改任何文件
+- `save` 只复制原文件到快照，不修改原 transcript
 - `rescue` 自动创建 `.tmr.bak.<timestamp>` 备份
 - 默认只处理最近的 transcript
 - 不修改项目代码，不删除整条消息，只递归替换图片内容
-- 处理失败可用 `restore` 恢复备份
+- 处理失败可用 `restore` 恢复备份或快照
 
 ## 与 TMPI 的关系
 
-- **TMPI**：开局预防，把「文本模型禁止接收图片内容」的规则写入 `CLAUDE.md`
-- **TMR**：事后急救，清理已经污染的 transcript
+- **TMPI**：事前预防，把「文本模型禁止接收图片内容」的规则写入 `CLAUDE.md`
+- **TMR save**：事前存档，在调用截图类工具之前给 transcript 留一个物理存档点
+- **TMR rescue**：事后急救，清理已经污染的 transcript
 
-两者建议一起使用。
+三者建议配套：先 TMPI 写规则，调截图工具前 `/TMR save` 留档，万一污染用 `restore` 回到存档点（比 `rescue` 在脏数据上替换更干净），污染已发生再 `rescue`。
 
 ## 注意
 
