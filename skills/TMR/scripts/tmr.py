@@ -444,6 +444,30 @@ def cmd_rescue(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_save(args: argparse.Namespace) -> int:
+    """Create a timestamped snapshot of the most recent transcript (proactive checkpoint).
+
+    Unlike rescue (which sanitizes an already-polluted transcript), save copies the
+    current transcript verbatim to a .tmr.snap.<timestamp> file so the user can
+    restore back to this exact point if a later tool call injects image blocks.
+    """
+    target = choose_target(args)
+    if not target or not target.exists():
+        print("未找到可存档的 transcript。可先执行 list，或用 --file 指定 JSONL 文件。")
+        return 1
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    snap = target.with_name(target.name + f".tmr.snap.{timestamp}")
+    shutil.copy2(target, snap)
+    size_kb = snap.stat().st_size / 1024
+    print(f"已创建 transcript 快照：{snap}")
+    print(f"源文件：{target}")
+    print(f"大小：{size_kb:.1f} KB")
+    print("\n用途：当会话被图片污染后，用此快照覆盖回原文件即可回到存档点。")
+    print(f"恢复命令：python {Path(__file__).name} restore --backup \"{snap}\"")
+    return 0
+
+
 def cmd_restore(args: argparse.Namespace) -> int:
     backup = Path(args.backup).expanduser()
     if not backup.exists():
@@ -451,15 +475,18 @@ def cmd_restore(args: argparse.Namespace) -> int:
         return 1
 
     name = backup.name
-    marker = ".tmr.bak."
-    if marker not in name:
+    markers = (".tmr.bak.", ".tmr.snap.")
+    target: Optional[Path] = None
+    for marker in markers:
+        if marker in name:
+            target = backup.with_name(name.split(marker, 1)[0])
+            break
+    if target is None:
         if not args.force:
-            print("这个文件名不像 TMR 备份。若确认要恢复，请加 --force。")
+            print("这个文件名不像 TMR 备份或快照。若确认要恢复，请加 --force。")
             return 1
         # Fallback: remove final suffix if any.
         target = backup.with_name(name.rsplit(".", 1)[0])
-    else:
-        target = backup.with_name(name.split(marker, 1)[0])
 
     if target.exists() and not args.force:
         safety = target.with_name(target.name + ".before-tmr-restore." + datetime.now().strftime("%Y%m%d_%H%M%S"))
@@ -504,10 +531,14 @@ def build_parser() -> argparse.ArgumentParser:
     p_rescue.add_argument("--max-items", type=int, default=20, help="dry-run 最多显示发现项。")
     p_rescue.set_defaults(func=cmd_rescue)
 
-    p_restore = sub.add_parser("restore", help="从 TMR 备份恢复 transcript。")
-    p_restore.add_argument("--backup", required=True, help="备份文件路径。")
+    p_restore = sub.add_parser("restore", help="从 TMR 备份或快照恢复 transcript。")
+    p_restore.add_argument("--backup", required=True, help="备份或快照文件路径。")
     p_restore.add_argument("--force", action="store_true", help="强制恢复非标准备份名，或跳过部分保护。")
     p_restore.set_defaults(func=cmd_restore)
+
+    p_save = sub.add_parser("save", help="为最近 transcript 创建时间戳快照（主动存档，预防图片污染）。")
+    add_common(p_save)
+    p_save.set_defaults(func=cmd_save)
 
     return parser
 

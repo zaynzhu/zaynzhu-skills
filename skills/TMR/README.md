@@ -75,10 +75,24 @@ python scripts/tmr.py rescue --project .
 
 ### restore
 
-恢复备份。
+恢复备份或快照。
 
 ```bash
 python scripts/tmr.py restore --backup /path/to/session.jsonl.tmr.bak.20260620_153012
+```
+
+### save
+
+主动存档：为最近活跃的 transcript 创建一份带时间戳的快照（`.tmr.snap.<timestamp>`）。建议在调用 Playwright / Chrome DevTools / Superpowers Chrome 等可能产生截图的工具**之前**执行。一旦会话被图片污染，可用 `restore` 直接回到这个存档点，比 `rescue` 在脏数据上替换更干净。
+
+```bash
+python scripts/tmr.py save --project .
+```
+
+恢复到存档点：
+
+```bash
+python scripts/tmr.py restore --backup /path/to/session.jsonl.tmr.snap.20260625_120000
 ```
 
 ## 支持清理的污染类型

@@ -58,17 +58,35 @@ python <TMR技能目录>/scripts/tmr.py scan --project .
 python <TMR技能目录>/scripts/tmr.py rescue --project .
 ```
 
+主动存档（在调用截图类工具之前使用，创建当前 transcript 的时间戳快照）：
+
+```bash
+python <TMR技能目录>/scripts/tmr.py save --project .
+```
+
 列出可疑 transcript：
 
 ```bash
 python <TMR技能目录>/scripts/tmr.py list --project .
 ```
 
-恢复备份：
+恢复备份或快照：
 
 ```bash
-python <TMR技能目录>/scripts/tmr.py restore --backup <backup-file>
+python <TMR技能目录>/scripts/tmr.py restore --backup <backup-or-snap-file>
 ```
+
+## /TMR 的参数化触发
+
+用户通过 `/TMR <action>` 调用本 skill 时，按 action 自动选择子命令，无需追问：
+
+- `/TMR` 或 `/TMR scan` → 立即执行 `tmr.py scan --project .`（只读体检）
+- `/TMR save` → **立即执行 `tmr.py save --project .`**（主动存档，创建带时间戳的 transcript 快照）。不要先 scan，不要追问，直接存档并回报快照路径。
+- `/TMR rescue` → 立即执行 `tmr.py rescue --project .`（备份并净化）
+- `/TMR restore` → 询问要恢复哪个备份/快照路径，再执行 `tmr.py restore --backup <path>`
+- `/TMR list` → 立即执行 `tmr.py list --project .`
+
+说明：`save` 是事前预防动作，目的是在即将调用可能产生截图的工具（Playwright、Chrome DevTools、Superpowers Chrome 等）之前留一个物理存档点；一旦后续会话被图片污染，可用 `restore` 直接回到这个存档点，比 `rescue` 在脏数据上替换更干净。
 
 ## 推荐工作流
 
