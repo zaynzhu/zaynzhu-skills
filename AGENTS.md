@@ -27,6 +27,7 @@
 | `grill-me` | grill-me | 提问计划/设计（人机对齐） | 无（依赖 grilling） |
 | `grilling` | grilling | 人机提问迭代循环（grill-me 核心实现） | 无 |
 | `adversarial-review` | adversarial-review | 对抗性审查（红队审查），对任意内容找出致命弱点并给出改进建议 | 无 |
+| `first-principles` | first-principles | 第一性原理推导，穷举现有假设→提炼底层公理→从公理重新推导无约束方案 | 无 |
 
 ## 强制规则
 

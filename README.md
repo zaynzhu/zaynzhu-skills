@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-19-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-20-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -46,6 +46,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 💬 | [**grill-me**](./skills/grill-me/) | 提问计划与设计（人机对齐）。在准备动手编码前启动，由 AI 针对当前方案进行刨根问底式追问，暴露隐含盲区，建立充分的共识与确定性 | `stable` |
 | 🔄 | [**grilling**](./skills/grilling/) | 人机提问迭代循环。作为 grill-me 和 grill-with-docs 背后底层的重用问答逻辑，以一问一答、推荐方案的形式不断逼近细节 | `stable` |
 | 🔴 | [**adversarial-review**](./skills/adversarial-review/) | 对抗性审查（红队审查）。对任意内容（代码、文章、计划、方案、架构）进行最尖锐的批判性审查，自动识别内容类型并切换审查角色，输出致命弱点分级、改进建议和审查总结 | `stable` |
+| 🔬 | [**first-principles**](./skills/first-principles/) | 第一性原理推导。对任意问题/决策/方案穷举现有假设，提炼真正不可再分解的底层公理，再从公理出发重新推导出无约束的新方案，打破惯性思维 | `stable` |
 
 ---
 
@@ -74,6 +75,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | grill-me | [使用文档](./docs/grill-me.md) |
 | grilling | [使用文档](./docs/grilling.md) |
 | adversarial-review | [使用文档](./docs/adversarial-review.md) |
+| first-principles | [使用文档](./docs/first-principles.md) |
 
 ---
 
@@ -134,6 +136,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `grill-me` | 通用 | 无 | grilling skill（核心依赖） |
 | `grilling` | 通用 | 无 | 无 |
 | `adversarial-review` | 通用 | 无 | 无 |
+| `first-principles` | 通用 | 无 | 无 |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
