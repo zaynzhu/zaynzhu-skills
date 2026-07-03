@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-16-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-18-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -42,7 +42,9 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🔀 | [**model-router**](./skills/model-router/) | 动态模型切换。在任务执行中根据上下文自动路由到合适的 AI 模型（如遇验证码切换视觉模型），支持 OpenAI/Google/Anthropic/Ollama/自定义，交互式配置，跨平台调用 | `stable` |
 | 🤔 | [**model-debate**](./skills/model-debate/) | 多模型辩论。将同一问题丢给多个 AI 模型，各自回答后合成共识或多轮互相批评修正，适用于代码审查、架构决策、方案对比等需要多角度分析的场景 | `stable` |
 | 🖼️ | [**TMPI**](./skills/TMPI/) | 文本主模型项目初始化工具。为纯文本/代码主模型（glm/deepseek/kimi/qwen-code 等）把图片输入安全规则写入 CLAUDE.md，禁止截图/验证码/UI 截图作为 image payload 直发主模型，视觉任务改由 model-router 处理 | `experimental` |
-| 🆘 | [**TMR**](./skills/TMR/) | 文本模型会话急救工具。当文本主模型会话被图片/截图/base64 image block 污染后持续报 `this model does not support image input`，TMR 扫描并净化 Claude Code 本地 JSONL transcript，把图片块替换为纯文本占位、保留文字上下文，与 TMPI 配套（TMPI 预防、TMR 急救） | `experimental` |
+| 🆘 | [**TMR**](./skills/TMR/) | 文本模型会话急救工具。当文本主模型会话被图片/截图/base64 image block 污染后持续报错时，TMR 扫描并净化 Claude Code 本地 JSONL transcript，把图片块替换为纯文本占位、保留文字上下文，与 TMPI 配套 | `experimental` |
+| 💬 | [**grill-me**](./skills/grill-me/) | 提问计划与设计（人机对齐）。在准备动手编码前启动，由 AI 针对当前方案进行刨根问底式追问，暴露隐含盲区，建立充分的共识与确定性 | `stable` |
+| 🔄 | [**grilling**](./skills/grilling/) | 人机提问迭代循环。作为 grill-me 和 grill-with-docs 背后底层的重用问答逻辑，以一问一答、推荐方案的形式不断逼近细节 | `stable` |
 
 ---
 
@@ -68,6 +70,8 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | model-debate | [使用文档](./docs/model-debate.md) |
 | TMPI | [使用文档](./docs/tmpi.md) |
 | TMR | [使用文档](./docs/tmr.md) |
+| grill-me | [使用文档](./docs/grill-me.md) |
+| grilling | [使用文档](./docs/grilling.md) |
 
 ---
 
@@ -125,6 +129,8 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `model-router` | Python ≥ 3.8 | `curl` | 模型 API Key（OPENAI_API_KEY / GOOGLE_API_KEY / ANTHROPIC_API_KEY 等） |
 | `TMPI` | Python ≥ 3.8 | 无 | model-router skill（视觉任务路由） |
 | `TMR` | Python ≥ 3.8 | 无（标准库实现） | TMPI skill（配套预防） |
+| `grill-me` | 通用 | 无 | grilling skill（核心依赖） |
+| `grilling` | 通用 | 无 | 无 |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -152,6 +158,8 @@ zaynzhu-skills/
 │   ├── coding-ai-digest.md
 │   ├── enhanced-skill-creator.md
 │   ├── enhanced-neat-freak.md
+│   ├── grill-me.md
+│   ├── grilling.md
 │   ├── ideastorming.md
 │   ├── m3u8-downloader.md
 │   ├── mmy.md
