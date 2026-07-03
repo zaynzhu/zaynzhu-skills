@@ -26,6 +26,7 @@
 | `TMR` | TMR | 文本模型会话急救（清理 transcript 图片污染） | Python >= 3.8, 标准库, 配合 TMPI |
 | `grill-me` | grill-me | 提问计划/设计（人机对齐） | 无（依赖 grilling） |
 | `grilling` | grilling | 人机提问迭代循环（grill-me 核心实现） | 无 |
+| `adversarial-review` | adversarial-review | 对抗性审查（红队审查），对任意内容找出致命弱点并给出改进建议 | 无 |
 
 ## 强制规则
 

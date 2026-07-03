@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-18-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-19-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -45,6 +45,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🆘 | [**TMR**](./skills/TMR/) | 文本模型会话急救工具。当文本主模型会话被图片/截图/base64 image block 污染后持续报错时，TMR 扫描并净化 Claude Code 本地 JSONL transcript，把图片块替换为纯文本占位、保留文字上下文，与 TMPI 配套 | `experimental` |
 | 💬 | [**grill-me**](./skills/grill-me/) | 提问计划与设计（人机对齐）。在准备动手编码前启动，由 AI 针对当前方案进行刨根问底式追问，暴露隐含盲区，建立充分的共识与确定性 | `stable` |
 | 🔄 | [**grilling**](./skills/grilling/) | 人机提问迭代循环。作为 grill-me 和 grill-with-docs 背后底层的重用问答逻辑，以一问一答、推荐方案的形式不断逼近细节 | `stable` |
+| 🔴 | [**adversarial-review**](./skills/adversarial-review/) | 对抗性审查（红队审查）。对任意内容（代码、文章、计划、方案、架构）进行最尖锐的批判性审查，自动识别内容类型并切换审查角色，输出致命弱点分级、改进建议和审查总结 | `stable` |
 
 ---
 
@@ -72,6 +73,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | TMR | [使用文档](./docs/tmr.md) |
 | grill-me | [使用文档](./docs/grill-me.md) |
 | grilling | [使用文档](./docs/grilling.md) |
+| adversarial-review | [使用文档](./docs/adversarial-review.md) |
 
 ---
 
@@ -131,6 +133,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `TMR` | Python ≥ 3.8 | 无（标准库实现） | TMPI skill（配套预防） |
 | `grill-me` | 通用 | 无 | grilling skill（核心依赖） |
 | `grilling` | 通用 | 无 | 无 |
+| `adversarial-review` | 通用 | 无 | 无 |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
