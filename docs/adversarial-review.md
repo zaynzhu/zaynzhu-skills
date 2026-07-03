@@ -45,6 +45,5 @@
 
 ## 关联技能
 
-- `grill-me`：侧重提问对齐，适合编码前的方案确认
 - `first-principles`：侧重从底层公理重新推导，适合打破惯性思维
 - `adversarial-review`：侧重批判性审查，适合找问题和弱点

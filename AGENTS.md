@@ -24,8 +24,6 @@
 | `model-router` | model-router | 动态模型切换（图片识别/验证码/多模型路由） | Python >= 3.8, curl, 模型 API Key |
 | `TMPI` | TMPI | 文本主模型项目初始化（图片输入安全规则） | Python >= 3.8, 配合 model-router |
 | `TMR` | TMR | 文本模型会话急救（清理 transcript 图片污染） | Python >= 3.8, 标准库, 配合 TMPI |
-| `grill-me` | grill-me | 提问计划/设计（人机对齐） | 无（依赖 grilling） |
-| `grilling` | grilling | 人机提问迭代循环（grill-me 核心实现） | 无 |
 | `adversarial-review` | adversarial-review | 对抗性审查（红队审查），对任意内容找出致命弱点并给出改进建议 | 无 |
 | `first-principles` | first-principles | 第一性原理推导，穷举现有假设→提炼底层公理→从公理重新推导无约束方案 | 无 |
 
