@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-20-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-18-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -158,6 +158,8 @@ zaynzhu-skills/
 │   ├── coding-ai-digest.md
 │   ├── enhanced-skill-creator.md
 │   ├── enhanced-neat-freak.md
+│   ├── adversarial-review.md
+│   ├── first-principles.md
 │   ├── ideastorming.md
 │   ├── m3u8-downloader.md
 │   ├── mmy.md
