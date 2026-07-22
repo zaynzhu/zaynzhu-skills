@@ -68,6 +68,7 @@ python scripts/skill_protector.py encrypt <target_skill_dir> <output_dir>
 - 生成随机 AES-256 key 加密 payload，把公钥和 AES key 内嵌进产物的 `load.py`。
 - `scripts/`、`assets/`、`commands/` 等其他文件原样明文复制。
 - 打印 `skill_id`（取自 frontmatter 的 name），下一步签发 license 要用。
+- **产物目录约定（默认行为，定死）**：`<output_dir>` 一律用 `<原 skill 同级目录>/.encrypted/<原 skill 目录名>`。产物目录名必须与原 skill 一致，**禁止**起 `xxx-encrypted` 这类带后缀的新名——用一层 `.encrypted/` 目录来隔离明文版与加密版即可。例：原 skill 在 `skills/my-skill`，则输出到 `skills/.encrypted/my-skill`。若用户另行明确指定 output_dir，按用户指定，但仍建议产物目录名保持原名。
 
 ### 3. license —— 签发授权码
 
@@ -89,14 +90,14 @@ pip install cryptography
 # 1. 一次性生成密钥
 python scripts/skill_protector.py init
 
-# 2. 加密某个 skill（产物写到 ./dist/<skill-name>）
-python scripts/skill_protector.py encrypt skills/my-secret-skill ./dist/my-secret-skill
+# 2. 加密某个 skill（产物写到同级 .encrypted/<skill-name>，目录名保持原名）
+python scripts/skill_protector.py encrypt skills/my-secret-skill skills/.encrypted/my-secret-skill
 
 # 3. 为每个用户签发 license
 python scripts/skill_protector.py license alice@example.com my-secret-skill
 # → 把输出的 license 串发给 alice
 
-# 4. 把 dist/my-secret-skill 整个目录发给用户/公司
+# 4. 把 .encrypted/my-secret-skill 整个目录发给用户/公司
 #    用户复制到自己的 .claude/skills/ 或 .codex/skills/ 即可
 ```
 

@@ -28,16 +28,20 @@ pip install cryptography
 # 1. 一次性生成 Ed25519 密钥对（存到 ~/.skill-protect/）
 python skills/skill-protector/scripts/skill_protector.py init
 
-# 2. 加密目标 skill，产物写到 ./dist/<skill-name>
-python skills/skill-protector/scripts/skill_protector.py encrypt skills/my-secret-skill ./dist/my-secret-skill
+# 2. 加密目标 skill，产物写到同级 .encrypted/<skill-name>（目录名保持原名）
+python skills/skill-protector/scripts/skill_protector.py encrypt skills/my-secret-skill skills/.encrypted/my-secret-skill
 
 # 3. 为用户签发 license（user_id 用邮箱/订单号，skill_id 是上一步打印的 name）
 python skills/skill-protector/scripts/skill_protector.py license alice@example.com my-secret-skill
 # → 把输出的 license 串发给 alice
 
-# 4. 把 dist/my-secret-skill 整个目录发给用户
+# 4. 把 .encrypted/my-secret-skill 整个目录发给用户
 #    用户复制到自己的 .claude/skills/ 或 .codex/skills/ 即可
 ```
+
+## 产物目录约定
+
+`<output_dir>` 默认用 `<原 skill 同级目录>/.encrypted/<原 skill 目录名>`，用一层 `.encrypted/` 隔离明文版与加密版。产物目录名必须与原 skill 一致，禁止起 `xxx-encrypted` 这类带后缀的新名。若另行明确指定 output_dir，按指定路径，但仍建议目录名保持原名。例：原 skill 在 `skills/my-skill` → 输出到 `skills/.encrypted/my-skill`。
 
 终端用户首次运行加密 skill 时，智能体会运行 `scripts/load.py`，检测到无 license 后转告用户填入，用户把作者发的 license 贴出，智能体以 `python scripts/load.py --license <code>` 重跑即激活。
 
