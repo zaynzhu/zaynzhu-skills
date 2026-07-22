@@ -24,3 +24,6 @@ skills/mmy/scripts/mmy_credentials.json
 
 # Model Router 本地 API Key
 skills/model-router/.env
+
+# skill-protector 加密产物（构建输出，含内嵌 AES key，勿提交；分发用 git add -f 或打包外发）
+skills/.encrypted/
