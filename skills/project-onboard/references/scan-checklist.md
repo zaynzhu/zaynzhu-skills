@@ -1,150 +1,194 @@
 # 扫描 Checklist
 
-这是 `project-onboard` Phase 1 的扫描清单。AI 逐项用 Glob/Grep/Read 查证，查到就填证据账本，查不到标 `未发现`。**不先识别技术栈**——所有语言的配置文件名都扫一遍，扫到啥算啥，这样多语言 monorepo 不会漏。
+用于 Phase 1 的只读取证。先发现仓库实际使用的生态，再加载相关配置；不要把所有语言的文件逐项读一遍。
 
-## 配置文件 Checklist
+## 目录
 
-### Node / JS / TS
+- 仓库级发现
+- 生态配置清单
+- 安全读取规则
+- 源码扫描方法
+- 排除与截断
+- 证据账本
 
-- `package.json` — 项目名、description、scripts（开发命令的核心来源）、main/bin（入口）、依赖、包管理器（看 lock 文件判断 npm/yarn/pnpm）
-- `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml` — 判断包管理器
-- `tsconfig.json` / `jsconfig.json` — TS 配置、路径别名
-- `.eslintrc.{js,cjs,json,yml}` / `eslint.config.{js,mjs}` — 代码约定
-- `.prettierrc{,.json,.js,.yml}` / `prettier.config.{js,mjs}` — 格式约定
-- `.editorconfig` — 缩进/换行约定（跨语言通用）
-- `vite.config.{js,ts}` / `webpack.config.{js,ts}` / `next.config.{js,mjs,ts}` / `nuxt.config.{js,ts}` — 构建框架
-- `jest.config.{js,ts,json}` / `vitest.config.{js,ts}` / `playwright.config.{js,ts}` — 测试框架
-- `.env.example` / `.env.sample` — 环境变量清单
-- `.nvmrc` / `.node-version` — Node 版本
+## 仓库级发现
+
+### 1. 规则与协作文档
+
+发现但不要自动改动：
+
+- 根目录和嵌套的 `AGENTS.md`、`CLAUDE.md`
+- `.cursorrules`、`.windsurfrules`、`.coderc`、`.aider*`
+- `.github/copilot-instructions.md`
+- `README*`、`CONTRIBUTING*`
+
+根目录两份规则文件是输出目标。嵌套规则只用于理解作用域，除非用户另行授权，否则不要修改。
+
+### 2. Manifest 与 workspace
+
+先列出仓库内 manifest 和 workspace 文件，据此决定读取哪些生态配置：
+
+- Node：`package.json`、`pnpm-workspace.yaml`、`turbo.json`、`nx.json`、`lerna.json`
+- Python：`pyproject.toml`、`setup.py`、`setup.cfg`
+- Go：`go.mod`、`go.work`
+- Rust：`Cargo.toml`
+- JVM：`pom.xml`、`settings.gradle`、`settings.gradle.kts`
+- .NET：`*.sln`、`*.csproj`
+- Ruby：`Gemfile`
+- PHP：`composer.json`
+- Swift：`Package.swift`、`*.xcodeproj`、`*.xcworkspace`
+- Dart / Flutter：`pubspec.yaml`
+- Elixir：`mix.exs`
+- C / C++：`CMakeLists.txt`、`meson.build`
+
+发现多个 manifest 时识别 monorepo/workspace 边界，不只分析仓库根目录。
+
+### 3. 通用工程配置
+
+- 命令：`Makefile`、`justfile`、`Taskfile.yml`、`Taskfile.yaml`
+- 容器：`Dockerfile*`、`compose.yml`、`compose.yaml`、`docker-compose.yml`、`docker-compose.yaml`
+- CI：`.github/workflows/*.yml`、`.github/workflows/*.yaml`、`.gitlab-ci.yml`、`Jenkinsfile`、`.circleci/`
+- 编辑器：`.editorconfig`
+- 提交：`.commitlintrc*`、`commitlint.config.*`、`.husky/`
+- 环境变量示例：`.env.example`、`.env.sample`、`.env.template`
+
+## 生态配置清单
+
+只读取已发现生态对应的小节。
+
+### Node / JavaScript / TypeScript
+
+- `package.json`：项目描述、scripts、engines、packageManager、main/bin、workspaces
+- `package-lock.json`、`yarn.lock`、`pnpm-lock.yaml`、`bun.lock`、`bun.lockb`：包管理器和依赖锁
+- `tsconfig*.json`、`jsconfig.json`：语言配置和路径别名
+- `eslint.config.*`、`.eslintrc*`、`.prettierrc*`、`prettier.config.*`：代码约定
+- `vite.config.*`、`webpack.config.*`、`next.config.*`、`nuxt.config.*`：构建入口
+- `jest.config.*`、`vitest.config.*`、`playwright.config.*`：测试
+- `.nvmrc`、`.node-version`：运行时版本
+- `deno.json`、`deno.jsonc`：Deno 项目
 
 ### Python
 
-- `pyproject.toml` — 现代 Python 项目元数据、依赖、scripts（[project.scripts]）、工具配置（ruff/black/mypy/pytest）
-- `setup.py` / `setup.cfg` — 老式包元数据、entry_points
-- `requirements.txt` / `requirements*.txt` — 依赖
-- `Pipfile` / `Pipfile.lock` — pipenv
-- `poetry.lock` — poetry
-- `ruff.toml` / `.ruff.toml` — 代码约定
-- `.flake8` / `setup.cfg[flake8]` — 代码约定
-- `.pylintrc` / `pylintrc` — 代码约定
-- `mypy.ini` / `.mypy.ini` / `pyproject.toml[mypy]` — 类型检查
-- `pytest.ini` / `pyproject.toml[tool.pytest]` / `tox.ini` / `conftest.py` — 测试
-- `manage.py` / `asgi.py` / `wsgi.py` — Django 入口
-- `.python-version` / `runtime.txt` — Python 版本
-- `environment.yml` / `conda.yml` — conda 环境
+- `pyproject.toml`：元数据、依赖、scripts、ruff/black/mypy/pytest 配置
+- `setup.py`、`setup.cfg`：老式元数据和 entry points
+- `requirements*.txt`、`Pipfile*`、`poetry.lock`、`uv.lock`：依赖管理
+- `ruff.toml`、`.ruff.toml`、`.flake8`、`.pylintrc`、`mypy.ini`、`.mypy.ini`：代码约定
+- `pytest.ini`、`tox.ini`、`conftest.py`：测试
+- `manage.py`、`asgi.py`、`wsgi.py`、`app.py`、`main.py`：入口线索
+- `.python-version`、`runtime.txt`：运行时版本
 
 ### Go
 
-- `go.mod` — module 名、Go 版本、依赖
-- `go.sum` — 依赖校验
-- `Makefile` / `justfile` — 命令
-- `.golangci.{yml,yaml}` — lint
-- `main.go` — 入口
+- `go.mod`、`go.work`：module、workspace、Go 版本
+- `.golangci.yml`、`.golangci.yaml`：lint
+- 根目录或 `cmd/` 下的 `main.go`：入口
 
 ### Rust
 
-- `Cargo.toml` — 包元数据、依赖、[[bin]] 入口
-- `Cargo.lock` — 依赖
-- `clippy.toml` / `.clippy.toml` — lint
-- `rustfmt.toml` / `.rustfmt.toml` — 格式
-- `src/main.rs` / `src/lib.rs` — 入口
+- `Cargo.toml`：package、workspace、依赖、bin
+- `Cargo.lock`：依赖锁
+- `clippy.toml`、`.clippy.toml`、`rustfmt.toml`：代码约定
+- `src/main.rs`、`src/lib.rs`：入口
 
 ### Java / Kotlin / JVM
 
-- `pom.xml` — Maven 元数据、依赖、插件、build 命令
-- `build.gradle` / `build.gradle.kts` — Gradle
-- `settings.gradle{,.kts}` — Gradle 项目结构
-- `gradlew` / `gradlew.bat` — Gradle wrapper（存在即用 `./gradlew`）
-- `checkstyle.xml` / `.editorconfig` — 代码约定
-- `mvnw` / `mvnw.cmd` — Maven wrapper
+- `pom.xml`、`mvnw*`：Maven module、插件和命令
+- `build.gradle*`、`settings.gradle*`、`gradlew*`：Gradle module 和 wrapper
+- `checkstyle.xml`、`.editorconfig`：代码约定
+- `@SpringBootApplication`、`mainClass`：入口线索
 
-### Ruby
+### 其他生态
 
-- `Gemfile` / `Gemfile.lock` — 依赖
-- `Rakefile` — 命令
-- `.rubocop.yml` — 代码约定
-- `.rspec` — 测试
-- `.ruby-version` — Ruby 版本
+- Ruby：`Gemfile*`、`Rakefile`、`.rubocop.yml`、`.rspec`
+- .NET：`*.sln`、`*.csproj`、`Directory.Build.props`、`global.json`
+- PHP：`composer.json`、`composer.lock`、`phpunit.xml*`
+- Swift：`Package.swift`、Xcode project/workspace、`.swiftlint.yml`
+- Dart / Flutter：`pubspec.yaml`、`analysis_options.yaml`
+- Elixir：`mix.exs`、`mix.lock`、`.formatter.exs`
+- C / C++：`CMakeLists.txt`、`meson.build`、`Makefile`、`.clang-format`
 
-### C# / .NET
+## 安全读取规则
 
-- `*.csproj` / `*.sln` — 项目结构
-- `Directory.Build.props` — 构建配置
-- `global.json` — SDK 版本
+### 允许读取
 
-### 通用 / CI / 文档
+- manifest、lockfile、CI、lint、format、test 和公开示例配置
+- `.env.example`、`.env.sample`、`.env.template` 中的变量名和注释
+- 配置文件里的 `${ENV_NAME}`、键路径和非敏感结构
+- `git status --short`、`git log --oneline -20`
 
-- `README{,.md,.rst,.txt}` — 项目定位、描述
-- `CONTRIBUTING{,.md}` — 贡献流程（提交规范线索）
-- `LICENSE{,.md,.txt}` — 许可证
-- `Makefile` / `justfile` / `Taskfile.{yml,yaml}` — 命令（跨语言通用）
-- `docker-compose.{yml,yaml}` / `Dockerfile` — 部署/环境
-- `.github/workflows/*.yml` — CI（构建/测试命令线索）
-- `.gitlab-ci.yml` / `Jenkinsfile` / `.circleci/` — CI
-- `.commitlintrc{,.js,.json}` / `commitlint.config.{js,ts}` / `.husky/` — 提交规范
-- `.env.example` — 环境变量（任何语言都常见）
+### 禁止读取或展示
 
-## 源码扫描方法论（门面文件策略）
+- 真实 `.env`、`.env.local`、`.env.production` 等运行配置
+- `*.pem`、`*.key`、`*.p12`、`id_rsa*`、认证缓存、cookie、keychain
+- 原始 token、密码、连接串、私钥、证书正文
+- `git remote` URL
 
-### 第一步：骨架
+不要整段输出可能包含值的配置文件。优先使用只返回变量名、键名或 `${ENV_NAME}` 引用的搜索；不可避免看到疑似秘密值时，不复制到证据账本或回复，只写“键名（已脱敏）”。
 
-Glob 拿排除后的目录树，限深 3 层。用 `Glob` 模式 `*`、`*/*`、`*/*/*`（在项目根依次扫），排除清单已写在 SKILL.md。不无限递归——超过 3 层的深目录靠门面文件覆盖即可。
+## 源码扫描方法
+
+### 第一步：骨架与 workspace
+
+1. 获取排除生成物后的全仓文件清单。
+2. 识别 workspace/package 根。
+3. 相对仓库根和各 workspace 根展示限深 3 层的关键目录，不照搬完整 tree。
+
+深度限制只用于展示，不用于 manifest 和入口发现。
 
 ### 第二步：门面文件
 
-对每个含源码的目录，按优先级找门面文件。门面文件通常 re-export 或聚合模块公共接口，读它就懂目录职责，不用读实现。
+对关键源码目录按顺序选择：
 
-| 优先级 | 文件 | 读取 |
-|--------|------|------|
-| 1 | `index.{ts,js,tsx,jsx}`、`__init__.py`、`mod.rs`、`lib.rs`、`main.go`、`main.{py,js,ts}`、barrel 文件 | 全文 |
-| 2 | 目录名最能代表的文件（如 `user.controller.ts` 之于 `user/`，`parser.py` 之于 `parser/`） | 全文 |
-| 3 | 无门面文件时 | 列文件名 + 最大文件前 50 行 |
+| 优先级 | 文件 | 读取方式 |
+|--------|------|----------|
+| 1 | `index.*`、`__init__.py`、`mod.rs`、`lib.rs`、`main.*`、barrel 文件 | 全文 |
+| 2 | 与目录同名或职责明确的 controller/service/model/handler/api/server/app 文件 | 全文 |
+| 3 | 无门面文件 | 文件名清单 + 最大文件前 50 行 |
 
-判断"目录名最能代表的文件"：文件名包含目录名、或文件名是该目录下唯一的主文件、或文件名暗示核心职责（controller/service/model/handler/api/server/app 等关键词）。
+不要假定所有目录都有门面文件；目录职责必须由文件名、导出或调用关系支持。
 
-### 第三步：入口深读 + 一层 import 链
+### 第三步：入口与一层调用链
 
-从配置推断关键入口：
-- Node：`package.json` 的 `main`/`bin`/`scripts.start` 指向的文件
-- Python：`pyproject.toml` 的 `[project.scripts]`、`manage.py`、`app.py`、`main.py`
-- Go：`main.go`（通常在根或 `cmd/`）
-- Rust：`Cargo.toml` 的 `[[bin]]` 或 `src/main.rs`
-- Java：`pom.xml` 的 `mainClass`、`@SpringBootApplication` 标注的类
+从 manifest、scripts 和框架配置识别关键入口。完整读取入口，只跟随它直接引用的一层模块；不继续追第二层。
 
-关键入口**完整读**，顺 import/require/include 链**走一层**——读它直接引用的模块的门面文件。这理解"项目怎么启动、核心模块怎么连起来"。不追第二层，避免无限蔓延。
+### 第四步：代码风格抽样
 
-### 防爆护栏
+只有缺少 lint/format 配置时才抽样现有源码。把结果记为“弱证据”，使用“现有代码多数……”之类描述，不生成强制规范。
 
-- 目录树 glob 限深 3 层
-- 门面文件读全文；非门面文件只读前 50 行
-- 源码总读取软上限 **40 个文件**。超了按目录重要性截断（根目录 > 一级 > 二级），在证据账本标注"已截断，X 个目录未深读"
-- 配置文件不计数（通常就二三十个，全读）
+## 排除与截断
 
-## 证据账本格式
+### 始终排除
 
-Phase 1 Step 4 展示给用户的账本表格：
+- `.git/`
+- 明确缓存目录，如 `__pycache__/`、`.cache/`、`coverage/`
+- manifest 已确认的依赖目录，如 Node 的 `node_modules/`
+- manifest 已确认的构建产物，如 Next.js 的 `.next/`、Rust/Maven 的 `target/`
 
-```markdown
+### 不得全局排除
+
+`bin/`、`env/`、`target/`、`vendor/`、`dist/`、`build/` 可能是正式源码或手写资产。只有配置、忽略规则或生态约定明确证明它们是生成物/第三方目录时才排除。
+
+源码读取软上限为 40 个文件，配置文件不计数。超过上限时按入口、workspace 根、一级模块、二级模块的顺序保留，并在账本记录截断范围。
+
 ## 证据账本
 
-| 维度 | 证据来源 | 内容摘要 | 状态 |
-|------|---------|---------|------|
-| 项目定位 | README.md:1-10 | "XXX 是一个 YYY 工具" | ✅ |
-| 技术栈 | package.json | Node 18 / TypeScript / React / pnpm | ✅ |
-| 开发命令 | package.json:scripts | dev=`vite`、build=`tsc&&vite build`、test=`vitest` | ✅ |
-| 测试 | vitest.config.ts | vitest，测试在 `test/` | ✅ |
-| 代码约定 | .eslintrc.cjs, .prettierrc | 2空格/无分号/single quote | ✅ |
-| 提交规范 | .commitlintrc.json | conventional commits (feat/fix/docs) | ✅ |
-| 提交规范 | git log --oneline -20 | 参差，多数带前缀但不统一 | ⚠️弱 |
-| 目录约定 | dist/, .next/ 存在 | 生成物，别碰 | ✅ |
-| 环境变量 | .env.example | VITE_API_URL, DATABASE_URL | ✅ |
-| 关键入口 | src/main.tsx | React 挂载入口 | ✅ |
-| 目录结构 | Glob 限深3层 | src/{components,hooks,lib,routes}/ | ✅ |
-| 代码约定 | .editorconfig | (未发现) | ❌未发现 |
+按工程维度汇总，不为每个未使用语言生成一行：
+
+```markdown
+| 维度 | 证据来源 | 摘要 | 可信度 | 冲突 |
+|------|----------|------|--------|------|
+| 技术栈 | package.json:engines、pnpm-lock.yaml | Node 20 / TypeScript / pnpm | 强事实 | 无 |
+| 开发命令 | package.json:scripts | dev、build、test | 强事实 | 无 |
+| 包管理器 | AGENTS.md、package-lock.json | 规则要求 pnpm，但存在 npm lockfile | 冲突 | 待确认 |
+| 提交规范 | git log --oneline -20 | 多数使用 feat/fix 前缀 | 弱证据 | 无 |
+| 环境变量 | .env.example | DATABASE_URL、API_BASE_URL | 强事实 | 值未读取 |
 ```
 
-状态取值：
-- `✅` — 有明确证据
-- `⚠️弱` — 证据参差（如 git log）
-- `❌未发现` — 扫了但没扫到，保留 section 写"未发现"
-- `—` — 该语言不适用（如 Python 项目不查 Cargo.toml）
+只展示：
+
+- 已发现且会影响规则的证据
+- 影响执行的关键缺失项，如没有测试命令
+- 需要用户裁决的冲突
+- 扫描截断或未覆盖范围
+
+缺失信息留在交付报告，不写入受管规则区块。

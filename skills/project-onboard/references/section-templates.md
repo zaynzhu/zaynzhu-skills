@@ -1,280 +1,199 @@
 # Section 写作模板
 
-`project-onboard` 生成的 `CLAUDE.md` / `AGENTS.md` 严格按 11 个固定 section 顺序写。每节从证据账本提炼，不许凭空编。下面是每节的模板、示例和"未发现"写法。
+生成高信号共享规则区块。以下 11 个 section 是推荐顺序，不是必须保留的空骨架；没有可靠证据时省略，并在交付报告列出缺失项。
+
+## 目录
+
+- 受管区块外壳
+- 项目定位
+- 技术栈
+- 目录结构
+- 开发命令
+- 测试
+- 代码约定
+- 提交规范
+- 目录约定
+- 环境变量
+- 关键入口
+- 给 agent 的工作指引
+- 交付报告
+
+## 受管区块外壳
+
+```markdown
+<!-- project-onboard:begin -->
+<!-- 此区块由 project-onboard 维护；区块外可保留平台专属规则 -->
+
+{{已验证的 section}}
+
+<!-- project-onboard:end -->
+```
+
+新建文件时可在受管区块前写：
+
+```markdown
+# 项目工程规则
+```
+
+不要在受管区块中加入“与另一份文件保持整份同步”的提示；只同步受管区块。
 
 ## 1. 项目定位
 
-**写什么**：一句话这个项目是干嘛的。
+依据 README 首段或 manifest description，用一到两句说明项目用途。来源互相冲突时省略并报告。
 
 ```markdown
 ## 项目定位
 
-{{一句话}}。{{可选：核心能力或适用场景的一句补充}}
+VibeCalc 是一个本地优先的命令行计算器，支持单位换算和变量定义。
 ```
-
-示例：
-```markdown
-## 项目定位
-
-VibeCalc 是一个本地优先的命令行计算器，支持单位换算和变量定义。适合需要快速计算又不想开浏览器的人。
-```
-
-未发现：
-```markdown
-## 项目定位
-
-未发现 README 或包描述。请补充一句话项目定位。
-```
-
-证据来源：`README.md` 首段、`package.json` 的 `description`、`pyproject.toml` 的 `description`。
 
 ## 2. 技术栈
 
-**写什么**：语言、框架、运行时、包管理器，列表式。
+只列 manifest、lockfile 或运行时版本文件能证明的项目。
 
 ```markdown
 ## 技术栈
 
-- 语言：{{}}
-- 框架：{{}}
-- 运行时：{{版本}}
-- 包管理器：{{}}
-```
-
-示例：
-```markdown
-## 技术栈
-
-- 语言：TypeScript 5.3
+- 语言：TypeScript
 - 框架：React 18 + Vite 5
-- 运行时：Node 18（见 .nvmrc）
-- 包管理器：pnpm 8（见 pnpm-lock.yaml）
+- 运行时：Node 20（见 `.nvmrc`）
+- 包管理器：pnpm（见 `pnpm-lock.yaml`）
 ```
 
-证据来源：`package.json`、`pyproject.toml`、`go.mod`、`Cargo.toml`、`*.csproj`、lock 文件判断包管理器、`.nvmrc`/`.python-version` 判断运行时版本。
+版本没有证据时不猜版本；某个字段不适用时直接省略。
 
 ## 3. 目录结构
 
-**写什么**：关键目录职责，不照搬整棵 tree，只标注有意义的目录。
+只列关键目录和由门面文件、入口或 manifest 支持的职责。
 
-```markdown
-## 目录结构
-
-- `{{dir}}/` — {{职责}}
-- `{{dir}}/` — {{职责}}
-```
-
-示例：
 ```markdown
 ## 目录结构
 
 - `src/components/` — React 组件
 - `src/hooks/` — 自定义 hook
-- `src/lib/` — 工具函数
 - `src/routes/` — 路由页面
 - `test/` — 测试用例
 ```
 
-职责从门面文件提炼。未发现（空项目）：写"项目几乎无源码，目录结构暂不适用"。
+monorepo 先按 workspace 分组。不要照搬整棵 tree。
 
 ## 4. 开发命令
 
-**写什么**：确切命令 + 各自作用。从 `package.json` scripts / Makefile / pyproject `[project.scripts]` 提取，不许编。
+只列 manifest scripts、Makefile、Taskfile、CI 等声明的确切命令，不根据生态常识补写。
 
 ```markdown
 ## 开发命令
 
-- \`{{cmd}}\` — {{作用}}
+- `pnpm dev` — 启动开发服务器
+- `pnpm build` — 执行生产构建
+- `pnpm lint` — 执行静态检查
 ```
 
-示例：
-```markdown
-## 开发命令
-
-- `pnpm dev` — 启动开发服务器（Vite）
-- `pnpm build` — 类型检查 + 生产构建
-- `pnpm lint` — ESLint 检查
-- `pnpm format` — Prettier 格式化
-```
-
-未发现（无 scripts/Makefile）：写"未发现声明式命令。直接 {{怎么跑}}（如 `python main.py` / `go run .`）。"
+不要在规则文件中声称这些命令已经验证；统一在交付报告注明“本次只读取配置，未实际执行项目命令”。
 
 ## 5. 测试
 
-**写什么**：怎么跑、测试在哪、框架。
+至少有测试命令、测试配置或测试目录证据之一时才生成。
 
-```markdown
-## 测试
-
-- 框架：{{}}
-- 命令：`{{}}`
-- 测试目录：`{{}}`
-```
-
-示例：
 ```markdown
 ## 测试
 
 - 框架：Vitest
-- 命令：`pnpm test`（watch 模式 `pnpm test -- --watch`）
-- 测试目录：`test/` 和 `src/**/*.test.ts`
+- 命令：`pnpm test`
+- 测试位置：`test/`、`src/**/*.test.ts`
 ```
 
-未发现：写"未发现测试配置。请确认是否有测试。"
+某个字段未知时省略该字段，不写占位符。
 
 ## 6. 代码约定
 
-**写什么**：缩进、分号、命名、语言规则。从 lint/prettier/editorconfig 提取。
+优先使用 lint、format、editorconfig 等强事实。
 
 ```markdown
 ## 代码约定
 
-- 缩进：{{N 空格}}
-- 分号：{{用/不用}}
-- 引号：{{single/double}}
-- 命名：{{camelCase/snake_case/...}}
-- {{语言特定规则}}
-```
-
-示例：
-```markdown
-## 代码约定
-
-- 缩进：2 空格（见 .editorconfig）
-- 分号：不用（见 .prettierrc）
+- 缩进：2 空格（见 `.editorconfig`）
+- 分号：不用（见 `.prettierrc`）
 - 引号：single
-- 命名：变量 camelCase，常量 UPPER_SNAKE_CASE，类型 PascalCase
-- React 组件用函数式 + hooks，不用 class
 ```
 
-未发现（无 lint 配置）：写"未发现 lint/格式化配置。建议参考现有代码风格。"
+没有配置时可以抽样源码，但必须写成观察性描述，例如“现有 TypeScript 文件多数使用无分号风格”，不要升级成强制规则。命名和框架习惯只有明确配置或现有规则支持时才写。
 
 ## 7. 提交规范
 
-**写什么**：commit 风格 + 是否有 commitlint。commitlint 是强证据，git log 是弱证据。
+commitlint、贡献文档或用户确认属于明确证据。
 
 ```markdown
 ## 提交规范
 
-- 格式：{{}}
-- {{有/无}} commitlint 强制校验
+- 使用 Conventional Commits：`feat: ...`、`fix: ...`、`docs: ...`
+- commitlint 和 husky 会校验提交信息
 ```
 
-示例（有 commitlint）：
-```markdown
-## 提交规范
-
-- 格式：Conventional Commits（`feat: ...` / `fix: ...` / `docs: ...`）
-- 有 commitlint + husky 强制校验（见 .commitlintrc.json）
-```
-
-示例（仅 git log 弱推断）：
-```markdown
-## 提交规范
-
-- 现有 commit 多数带 `feat:`/`fix:` 前缀但不统一（git log 观察，仅供参考）
-- 无 commitlint 强制校验
-```
-
-未发现：写"未发现提交规范配置。"
+仅从 git log 观察到风格时，写成“历史提交多数……，未发现强制配置”，不要要求 agent 必须遵循。
 
 ## 8. 目录约定
 
-**写什么**：生成物/第三方目录明示"别碰"。
+只有配置、忽略规则或生态 manifest 能证明目录是生成物/第三方时才写“不要手动修改”。
 
 ```markdown
 ## 目录约定
 
-以下为生成物或第三方，**不要手动改**：
-- `{{dir}}/` — {{生成物/第三方}}
+以下目录为生成物或第三方内容，不要手动修改：
+
+- `.next/` — Next.js 构建产物
+- `node_modules/` — pnpm 安装的第三方依赖
 ```
 
-示例：
-```markdown
-## 目录约定
-
-以下为生成物或第三方，**不要手动改**：
-- `dist/` — 构建产物
-- `node_modules/` — 第三方依赖
-- `vendor/` — vendored 第三方代码
-```
-
-未发现（无明显生成物目录）：写"未发现典型生成物目录。"
+不要把 `bin/`、`env/`、`target/`、`vendor/`、`dist/`、`build/` 一概视为生成物。
 
 ## 9. 环境变量
 
-**写什么**：必需 env 清单，或项目依赖的外部服务/配置项。从 `.env.example`、`application.yml`、`config.toml` 等配置文件提取——不只看 `.env`，Java Spring 等项目用 profile 配置文件管配置。
+只列变量名和用途，不复制任何值。
 
-**不要附加凭据安全提示**：只客观列"依赖哪些服务/变量名"，不写"不要把凭据提交到外部仓库"之类的主观警告。凭据是否该进仓库是项目自己的事，skill 不替它下判断——很多公司内部仓库本来就允许存凭据，写死的安全提示反而是噪音。
-
-```markdown
-## 环境变量
-
-- \`{{NAME}}\` — {{作用}}
-```
-
-示例：
 ```markdown
 ## 环境变量
 
 - `VITE_API_URL` — 后端 API 地址
-- `DATABASE_URL` — 数据库连接串
+- `DATABASE_URL` — 数据库连接配置
 ```
 
-未发现：写"未发现 `.env.example`。如需环境变量请补充示例文件。"
+来源可以是安全示例文件、`${ENV_NAME}` 引用或用户确认。不要读取真实 `.env`，也不要在生成文件中附加与项目无关的通用凭据说教。
 
 ## 10. 关键入口
 
-**写什么**：入口文件 + 职责。
+列出 manifest、scripts、框架配置或调用关系能证明的入口。
 
 ```markdown
 ## 关键入口
 
-- `{{file}}` — {{职责}}
+- `src/main.tsx` — React 挂载入口
+- `src/App.tsx` — 根组件和路由结构
+- `src/lib/api.ts` — API 客户端入口
 ```
-
-示例：
-```markdown
-## 关键入口
-
-- `src/main.tsx` — React 挂载入口，渲染 App 到 #root
-- `src/App.tsx` — 根组件，定义路由结构
-- `src/lib/api.ts` — API 客户端，所有后端调用入口
-```
-
-未发现：写"未发现明确入口。请补充。"
 
 ## 11. 给 agent 的工作指引
 
-**核心差异点**——这是 init 粗版没有的。一段话告诉 agent 在这个项目干活前先看啥、改完怎么自测、怎么提交。综合前面所有 section 提炼。
+只组合前面已经确认的可执行信息，不重复整份文档。
 
 ```markdown
 ## 给 agent 的工作指引
 
-开工前先读 `{{入口}}` 理解项目结构。改完代码跑 `{{测试命令}}` 自测，`{{lint}}` 检查风格。提交用 `{{commit 格式}}` 格式。{{项目特定注意事项}}
+开工前先读 `src/main.tsx` 和 `src/App.tsx` 理解入口与路由。改完代码运行 `pnpm test` 和 `pnpm lint`。新增组件放在 `src/components/`，不要手动修改 `.next/`。
 ```
 
-示例：
-```markdown
-## 给 agent 的工作指引
+测试、lint、提交格式或入口缺失时，删掉对应句子；不要写“请确认”“未发现”或模板占位。
 
-开工前先读 `src/main.tsx` 和 `src/App.tsx` 理解项目结构和路由。改完代码跑 `pnpm test` 自测，`pnpm lint` 检查风格。提交用 `feat: ...` / `fix: ...` 等 Conventional Commits 格式（有 commitlint 校验）。新增组件放 `src/components/`，新增 hook 放 `src/hooks/`，别动 `dist/` 和 `node_modules/`。
-```
+## 交付报告
 
-未发现（信息不全时仍要写，但标注缺失）：
-```markdown
-## 给 agent 的工作指引
-
-开工前先读 {{已知入口或"主要源码目录"}}。改完代码 {{已知测试命令或"未发现测试命令，请确认"}}。提交 {{已知格式或"未发现规范"}}。{{其他已知注意事项}}
-```
-
-## 文件末尾
-
-两份文件末尾都加同步提示：
+缺失信息和验证边界放在回复中，不写进受管区块：
 
 ```markdown
+本次更新：
 
----
-
-<!-- 本文件与 CLAUDE.md / AGENTS.md 保持同步，修改任一份请同步另一份 -->
+- 已写入：项目定位、技术栈、目录、开发命令、关键入口
+- 未发现：测试命令、强制提交规范
+- 待确认冲突：现有规则要求 pnpm，但仓库存在 package-lock.json
+- 验证边界：只读取配置，未执行测试、构建或安装命令
+- 自审：受管区块一致、脱敏检查通过、第二次生成无 diff
 ```

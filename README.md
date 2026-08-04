@@ -46,7 +46,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🔴 | [**adversarial-review**](./skills/adversarial-review/) | 对抗性审查（红队审查）。对任意内容（代码、文章、计划、方案、架构）进行最尖锐的批判性审查，自动识别内容类型并切换审查角色，输出致命弱点分级、改进建议和审查总结 | `stable` |
 | 🔬 | [**first-principles**](./skills/first-principles/) | 第一性原理推导。对任意问题/决策/方案穷举现有假设，提炼真正不可再分解的底层公理，再从公理出发重新推导出无约束的新方案，打破惯性思维 | `stable` |
 | 🔒 | [**skill-protector**](./skills/skill-protector/) | 给 skill 加密并加 license 门禁。用 AES-256-GCM 加密目标 skill 的 SKILL.md 和 references，Ed25519 签发授权码，终端用户填 license 才解密加载，防小白白嫖 | `stable` |
-| 🧭 | [**project-onboard**](./skills/project-onboard/) | 跨平台已有项目引导器。扫描已有项目，基于文件系统证据生成 CLAUDE.md + AGENTS.md 两份可执行工程规则，让任意 agent 进入项目即可 vibe coding | `experimental` |
+| 🧭 | [**project-onboard**](./skills/project-onboard/) | 跨平台已有项目规则引导器。基于文件系统证据首次生成或持续合并 CLAUDE.md + AGENTS.md，用受管区块同步共享规则并保留平台专属内容 | `experimental` |
 
 ---
 

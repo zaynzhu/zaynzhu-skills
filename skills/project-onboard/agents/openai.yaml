@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Onboard"
+  short_description: "扫描已有项目并生成可持续合并的跨平台 Agent 工程规则"
+  default_prompt: "使用 $project-onboard 扫描当前已有项目，基于证据生成或更新 CLAUDE.md 和 AGENTS.md。"
