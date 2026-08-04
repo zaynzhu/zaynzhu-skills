@@ -26,6 +26,8 @@
 | `TMR` | TMR | 文本模型会话急救（清理 transcript 图片污染） | Python >= 3.8, 标准库, 配合 TMPI |
 | `adversarial-review` | adversarial-review | 对抗性审查（红队审查），对任意内容找出致命弱点并给出改进建议 | 无 |
 | `first-principles` | first-principles | 第一性原理推导，穷举现有假设→提炼底层公理→从公理重新推导无约束方案 | 无 |
+| `skill-protector` | skill-protector | skill 加密 + license 门禁（AES-256-GCM + Ed25519 签名） | Python >= 3.8, cryptography |
+| `project-onboard` | project-onboard | 已有项目规则引导（证据生成 + 受管区块同步 CLAUDE.md/AGENTS.md） | 无（可选 git） |
 
 ## 强制规则
 
