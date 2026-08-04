@@ -25,6 +25,7 @@
 | `TMPI` | TMPI | 文本主模型项目初始化（图片输入安全规则） | Python >= 3.8, 配合 model-router |
 | `TMR` | TMR | 文本模型会话急救（清理 transcript 图片污染） | Python >= 3.8, 标准库, 配合 TMPI |
 | `skill-protector` | skill-protector | skill 加密 + license 门禁（AES-256-GCM + Ed25519 签名） | Python >= 3.8, cryptography |
+| `project-onboard` | project-onboard | 已有项目引导（扫描取证 + 生成 CLAUDE.md/AGENTS.md） | 无（可选 git） |
 
 ## 强制规则
 

@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-19-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-20-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -46,6 +46,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🔴 | [**adversarial-review**](./skills/adversarial-review/) | 对抗性审查（红队审查）。对任意内容（代码、文章、计划、方案、架构）进行最尖锐的批判性审查，自动识别内容类型并切换审查角色，输出致命弱点分级、改进建议和审查总结 | `stable` |
 | 🔬 | [**first-principles**](./skills/first-principles/) | 第一性原理推导。对任意问题/决策/方案穷举现有假设，提炼真正不可再分解的底层公理，再从公理出发重新推导出无约束的新方案，打破惯性思维 | `stable` |
 | 🔒 | [**skill-protector**](./skills/skill-protector/) | 给 skill 加密并加 license 门禁。用 AES-256-GCM 加密目标 skill 的 SKILL.md 和 references，Ed25519 签发授权码，终端用户填 license 才解密加载，防小白白嫖 | `stable` |
+| 🧭 | [**project-onboard**](./skills/project-onboard/) | 跨平台已有项目引导器。扫描已有项目，基于文件系统证据生成 CLAUDE.md + AGENTS.md 两份可执行工程规则，让任意 agent 进入项目即可 vibe coding | `experimental` |
 
 ---
 
@@ -74,6 +75,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | adversarial-review | [使用文档](./docs/adversarial-review.md) |
 | first-principles | [使用文档](./docs/first-principles.md) |
 | skill-protector | [使用文档](./docs/skill-protector.md) |
+| project-onboard | [使用文档](./docs/project-onboard.md) |
 
 ---
 
@@ -134,6 +136,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `adversarial-review` | 通用 | 无 | 无 |
 | `first-principles` | 通用 | 无 | 无 |
 | `skill-protector` | Python ≥ 3.8 | `cryptography` 库 | 无 |
+| `project-onboard` | 通用 | 无 | git（可选，读取 commit 风格） |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -175,7 +178,8 @@ zaynzhu-skills/
 │   ├── tmpi.md
 │   ├── tmr.md
 │   ├── trending-search.md
-│   └── video-downloader.md
+│   ├── video-downloader.md
+│   └── project-onboard.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
