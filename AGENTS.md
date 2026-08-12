@@ -28,6 +28,7 @@
 | `first-principles` | first-principles | 第一性原理推导，穷举现有假设→提炼底层公理→从公理重新推导无约束方案 | 无 |
 | `skill-protector` | skill-protector | skill 加密 + license 门禁（AES-256-GCM + Ed25519 签名） | Python >= 3.8, cryptography |
 | `project-onboard` | project-onboard | 已有项目规则引导（证据生成 + 受管区块同步 CLAUDE.md/AGENTS.md） | 无（可选 git） |
+| `agentseo` | agentseo | 网站智能体可读性审计（agent 浏览器渲染抓取 + npx agentseo 5 维度规则审计 + agent 实证任务） | Node ≥ 22，可选浏览器 MCP |
 
 ## 强制规则
 
