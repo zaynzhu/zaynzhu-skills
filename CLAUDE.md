@@ -28,6 +28,7 @@
 | `first-principles` | first-principles | 第一性原理推导，穷举现有假设→提炼底层公理→从公理重新推导无约束方案 | 无 |
 | `skill-protector` | skill-protector | skill 加密 + license 门禁（AES-256-GCM + Ed25519 签名） | Python >= 3.8, cryptography |
 | `project-onboard` | project-onboard | 已有项目规则引导（证据生成 + 受管区块同步 CLAUDE.md/AGENTS.md） | 无（可选 git） |
+| `steel-man` | steel-man | 双向钢人论证（重述真问题+正反最强论证+找关键变量+只问一个问题+逼出明确判断） | 无 |
 
 ## 强制规则
 
