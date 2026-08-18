@@ -186,6 +186,7 @@ zaynzhu-skills/
 │   ├── trending-search.md
 │   ├── video-downloader.md
 │   ├── project-onboard.md
+│   ├── agentseo.md
 │   └── steel-man.md
 └── skills/
     └── <skill-name>/
