@@ -72,8 +72,8 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | readme-creater | [使用文档](./docs/readme-creater.md) |
 | model-router | [使用文档](./docs/model-router.md) |
 | model-debate | [使用文档](./docs/model-debate.md) |
-| TMPI | [使用文档](./docs/tmpi.md) |
-| TMR | [使用文档](./docs/tmr.md) |
+| TMPI | [使用文档](./docs/TMPI.md) |
+| TMR | [使用文档](./docs/TMR.md) |
 | adversarial-review | [使用文档](./docs/adversarial-review.md) |
 | first-principles | [使用文档](./docs/first-principles.md) |
 | skill-protector | [使用文档](./docs/skill-protector.md) |
@@ -181,8 +181,8 @@ zaynzhu-skills/
 │   ├── pet.md
 │   ├── readme-creater.md
 │   ├── tavily-search-enhanced.md
-│   ├── tmpi.md
-│   ├── tmr.md
+│   ├── TMPI.md
+│   ├── TMR.md
 │   ├── trending-search.md
 │   ├── video-downloader.md
 │   ├── project-onboard.md
