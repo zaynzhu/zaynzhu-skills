@@ -36,6 +36,7 @@
 | `enhanced-hv-analysis` | enhanced-hv-analysis | 增强版横纵分析（纵轴路径依赖/能力/包袱+横轴选择与放弃+未来3路径预警信号+证据规则可追溯+结论先行出PDF） | 联网搜索, WeasyPrint(可选) |
 | `fact-check` | fact-check | 事实核查（拆事实/结论/价值三层+事实5级核查+推理链5查+四件套输出+笛卡尔怀疑底色） | 联网搜索(无网降级) |
 | `expert-panel` | expert-panel | 专家会诊（3互补视角独立答4问+互相质疑挖分歧假设+综合方案保留分歧+退出条件挂钩假设） | 子Agent(无则降级内联) |
+| `cross-domain-borrowing` | cross-domain-borrowing | 跨领域借解（剥术语找底层结构+历史+3远领域结构同构借机制+3机制翻译方案+1可逆实验+案例标置信核实） | 联网搜索(核实非著名案例,可选) |
 
 ## 强制规则
 

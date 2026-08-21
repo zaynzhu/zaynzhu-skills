@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-28-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-29-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -55,6 +55,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 📈 | [**enhanced-hv-analysis**](./skills/enhanced-hv-analysis/) | 增强版横纵分析法。对产品/公司/人物/技术/行业/事件做可追溯深度研究：纵轴追生命历程收口于能力/路径依赖/包袱，横轴统一维度对比收口于选择与放弃，交汇判断未来3路径（前提+预警信号），严守证据规则（就近标来源+日期、事实推断观点分开、冲突并列、暂未核实），结论先行出1-3万字PDF报告 | `stable` |
 | 🔍 | [**fact-check**](./skills/fact-check/) | 事实核查。把说法拆成事实/结论/价值判断三层，事实联网核查来源样本时间上下文标5级（已证实/基本成立需收窄/存在争议/证据不足/明显错误），再假设事实成立审推理链（能否推出/隐藏假设/相关vs因果/遗漏解释/成立失效条件），最后出四件套（可信需修正/最关键漏洞/补强后最合理版本/可相信到什么程度），笛卡尔怀疑底色，专治AI和人类的幻觉 | `stable` |
 | 🏥 | [**expert-panel**](./skills/expert-panel/) | 专家会诊。替代单专家prompt，为问题选3种真正互补的专业视角，各视角独立答4问（重新定义/推荐路径/别人最易忽略的风险/什么证据改变判断），再互相质疑（共同事实/真正分歧/分歧背后假设），最后综合出方案+适用条件+最大风险+退出条件+第一步行动，保留未决分歧，子Agent独立默认+无子Agent降级内联，专治"信息都在分歧里"的多领域复杂决策 | `stable` |
+| 🧭 | [**cross-domain-borrowing**](./skills/cross-domain-borrowing/) | 跨领域借解。本行业第一性原理想透了还卡，就横向去别的领域找相通解法：剥术语抽象到底层结构（底层结构/核心矛盾/普通解法失效原因），从历史案例和至少3个彼此远的领域找结构同构的解机制（每案例5点），选3种机制翻译成当前处境方案+标协同+推荐1个低成本可逆实验，案例标置信非著名联网核实，专治"纵向想透还卡要横向灵光" | `stable` |
 
 ---
 
@@ -92,6 +93,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | enhanced-hv-analysis | [使用文档](./docs/enhanced-hv-analysis.md) |
 | fact-check | [使用文档](./docs/fact-check.md) |
 | expert-panel | [使用文档](./docs/expert-panel.md) |
+| cross-domain-borrowing | [使用文档](./docs/cross-domain-borrowing.md) |
 
 ---
 
@@ -161,6 +163,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `enhanced-hv-analysis` | Python ≥ 3.8 | 联网搜索（WebSearch/WebFetch/arXiv） | WeasyPrint（PDF 生成，无则降级只出 Markdown） |
 | `fact-check` | 通用 | 联网搜索（WebSearch/WebFetch/arXiv） | 无（无网时事实标"未能联网核实"，推理链照做） |
 | `expert-panel` | 通用 | 无 | 子 Agent（Agent 工具，默认 3 独立视角；无子 Agent 降级内联） |
+| `cross-domain-borrowing` | 通用 | 无 | 联网搜索（核实非著名案例，无网时通识案例照用） |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -211,7 +214,8 @@ zaynzhu-skills/
 │   ├── reverse-deconstruction.md
 │   ├── enhanced-hv-analysis.md
 │   ├── fact-check.md
-│   └── expert-panel.md
+│   ├── expert-panel.md
+│   └── cross-domain-borrowing.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
