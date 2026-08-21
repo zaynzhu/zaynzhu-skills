@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-31-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-32-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -58,6 +58,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🧭 | [**cross-domain-borrowing**](./skills/cross-domain-borrowing/) | 跨领域借解。本行业第一性原理想透了还卡，就横向去别的领域找相通解法：剥术语抽象到底层结构（底层结构/核心矛盾/普通解法失效原因），从历史案例和至少3个彼此远的领域找结构同构的解机制（每案例5点），选3种机制翻译成当前处境方案+标协同+推荐1个低成本可逆实验，案例标置信非著名联网核实，专治"纵向想透还卡要横向灵光" | `stable` |
 | 🧪 | [**minimum-experiment**](./skills/minimum-experiment/) | 用最小实验替代空想。纠结的决定继续想也不会更清晰时，找背后3个假设选最可能改变结论的1个，围绕它设计低成本/可逆/7天内的最小实验（做什么/投入/指标/支持继续/提醒停止/能学到什么）+给明天第一个动作，跑完带结果回来再解读判断继续/调方向/停止，不可逆的拒绝改可逆，专治"纸上谈兵无意义该问现实要答案" | `stable` |
 | 🪨 | [**talent-mining**](./skills/talent-mining/) | 挖掘隐藏天赋。多轮苏格拉底式深度对话（最多10主问一次一问），从童年废寝忘食与顽固缺点、无意识胜任区、能量模式、嫉妒羡慕四主线挖被忽视/压抑的底层天赋，出《个人天赋使用说明书》（底层天赋+经历链/阴影面/能量地图/发挥失效环境/工作合作职业方向/30天实验），反宿命论+能量审计+阴影即宝藏，专治想找天赋和怀疑自己没天赋的人，需耐心半小时+ | `stable` |
+| 🧭 | [**life-odyssey**](./skills/life-odyssey/) | 人生设计（斯坦福人生设计法）。多轮苏格拉底式对话（6-9主问）四阶段（你在这里/指南针/寻路/摆脱困境），看清位置、分清重力问题与可设计问题，生成三个完全不同的五年奥德赛计划+原型行动，出《个人人生设计蓝图》（8部分），看未来"我接下来往哪去"，与 talent-mining（看过去）互补，专治人生迷茫想重新设计的人，需耐心半小时+ | `stable` |
 
 ---
 
@@ -98,6 +99,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | cross-domain-borrowing | [使用文档](./docs/cross-domain-borrowing.md) |
 | minimum-experiment | [使用文档](./docs/minimum-experiment.md) |
 | talent-mining | [使用文档](./docs/talent-mining.md) |
+| life-odyssey | [使用文档](./docs/life-odyssey.md) |
 
 ---
 
@@ -170,6 +172,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `cross-domain-borrowing` | 通用 | 无 | 联网搜索（核实非著名案例，无网时通识案例照用） |
 | `minimum-experiment` | 通用 | 无 | 无 |
 | `talent-mining` | 通用 | 无 | 无 |
+| `life-odyssey` | 通用 | 无 | 无 |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -223,7 +226,8 @@ zaynzhu-skills/
 │   ├── expert-panel.md
 │   ├── cross-domain-borrowing.md
 │   ├── minimum-experiment.md
-│   └── talent-mining.md
+│   ├── talent-mining.md
+│   └── life-odyssey.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
