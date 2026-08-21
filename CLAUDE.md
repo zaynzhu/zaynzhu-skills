@@ -29,7 +29,7 @@
 | `skill-protector` | skill-protector | skill 加密 + license 门禁（AES-256-GCM + Ed25519 签名） | Python >= 3.8, cryptography |
 | `project-onboard` | project-onboard | 已有项目规则引导（证据生成 + 受管区块同步 CLAUDE.md/AGENTS.md） | 无（可选 git） |
 | `agentseo` | agentseo | 网站智能体可读性审计（浏览器渲染+5维度规则审计+实证任务） | Node ≥ 22, npx agentseo, 浏览器 MCP |
-| `steel-man` | steel-man | 双向钢人论证（重述真问题+正反最强论证+找关键变量+只问一个问题+逼出明确判断） | 无 |
+| `steel-man` | steel-man | 双向钢人论证（重述真问题+正反各5项钢人画像:最强理由/适用条件/收益/风险/反对意见+找分歧/关键变量/缺信息+只问一个+逼出判断+适用条件+下一步） | 无 |
 | `socratic-questioning` | socratic-questioning | 苏格拉底式提问（最多6问逐个追问+区分事实/解释/价值/目标+整理出真问题+确认后给判断） | 无 |
 | `dual-layer-explanation` | dual-layer-explanation | 双层解释法（小白版+专业版两层+三件套：对应关系/易错点/3检查问题） | 无 |
 | `reverse-deconstruction` | reverse-deconstruction | 反向拆解（一句话问题+五点分析+三件套：可复用规律/应用清单/小练习） | 无（URL抓取可选浏览器MCP） |

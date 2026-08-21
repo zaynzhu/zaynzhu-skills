@@ -48,7 +48,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🔒 | [**skill-protector**](./skills/skill-protector/) | 给 skill 加密并加 license 门禁。用 AES-256-GCM 加密目标 skill 的 SKILL.md 和 references，Ed25519 签发授权码，终端用户填 license 才解密加载，防小白白嫖 | `stable` |
 | 🧭 | [**project-onboard**](./skills/project-onboard/) | 跨平台已有项目规则引导器。基于文件系统证据首次生成或持续合并 CLAUDE.md + AGENTS.md，用受管区块同步共享规则并保留平台专属内容 | `experimental` |
 | 🤖 | [**agentseo**](./skills/agentseo/) | 网站智能体可读性审计。agent 用浏览器 MCP 渲染抓取页面，调 npx agentseo 跑 5 维度规则审计（语义化 HTML / 结构化数据 / 可访问性 / Agent 文件 / 可操作性），并可由 agent 真正上手完成一个任务来实证可操作性 | `experimental` |
-| ⚔️ | [**steel-man**](./skills/steel-man/) | 双向钢人论证。先重述真问题，再正反各构建到最强论证（钢人而非稻草人），找出决定结论的关键变量，只问一个最关键问题，等用户回答后再逼出明确判断、理由和下一步行动，专治 AI「不粘锅」式模棱两可 | `stable` |
+| ⚔️ | [**steel-man**](./skills/steel-man/) | 双向钢人论证。先重述真问题，再为正反各构建完整钢人画像（最强理由+适用条件+最大收益+最大风险+最难回答的反对意见），找出真正分歧、关键变量和还需补充的信息，只问一个最可能改变结论的问题，等用户回答后逼出明确判断、理由、适用条件和下一步行动，专治 AI「不粘锅」式模棱两可 | `stable` |
 | 🩺 | [**socratic-questioning**](./skills/socratic-questioning/) | 苏格拉底式提问。先别给建议，通过最多 6 个问题逐个追问、根据回答动态决定下一问，区分事实/解释/价值判断/目标，整理出真正值得回答的新问题，等用户确认后再给判断和行动建议，专治嘴上问的和心里想的不一样 | `stable` |
 | 📚 | [**dual-layer-explanation**](./skills/dual-layer-explanation/) | 双层解释法。把概念分两层讲——小白版（生活化语言+具体例子）和专业版（核心机制+适用边界+常见误解），再出三件套（小白说法↔专业术语对应、最容易理解错的地方、3 个检验真懂的检查问题），专治"把我当小学生解释"后的"好像懂了" | `stable` |
 | 🔬 | [**reverse-deconstruction**](./skills/reverse-deconstruction/) | 反向拆解。拿到优秀范例（产品页/网页/方案/流程/看板等成品），一句话说它解决什么问题，再拆它为什么有效（服务谁/结构/拉开差距的关键选择/完成标准/可迁移vs只适合本案例），最后给三件套（可复用规律+应用清单+一个最值得先试的小练习），专治"好牛但学不到" | `stable` |
