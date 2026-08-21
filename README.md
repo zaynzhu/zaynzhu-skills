@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-26-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-27-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -53,6 +53,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 📚 | [**dual-layer-explanation**](./skills/dual-layer-explanation/) | 双层解释法。把概念分两层讲——小白版（生活化语言+具体例子）和专业版（核心机制+适用边界+常见误解），再出三件套（小白说法↔专业术语对应、最容易理解错的地方、3 个检验真懂的检查问题），专治"把我当小学生解释"后的"好像懂了" | `stable` |
 | 🔬 | [**reverse-deconstruction**](./skills/reverse-deconstruction/) | 反向拆解。拿到优秀范例（产品页/网页/方案/流程/看板等成品），一句话说它解决什么问题，再拆它为什么有效（服务谁/结构/拉开差距的关键选择/完成标准/可迁移vs只适合本案例），最后给三件套（可复用规律+应用清单+一个最值得先试的小练习），专治"好牛但学不到" | `stable` |
 | 📈 | [**enhanced-hv-analysis**](./skills/enhanced-hv-analysis/) | 增强版横纵分析法。对产品/公司/人物/技术/行业/事件做可追溯深度研究：纵轴追生命历程收口于能力/路径依赖/包袱，横轴统一维度对比收口于选择与放弃，交汇判断未来3路径（前提+预警信号），严守证据规则（就近标来源+日期、事实推断观点分开、冲突并列、暂未核实），结论先行出1-3万字PDF报告 | `stable` |
+| 🔍 | [**fact-check**](./skills/fact-check/) | 事实核查。把说法拆成事实/结论/价值判断三层，事实联网核查来源样本时间上下文标5级（已证实/基本成立需收窄/存在争议/证据不足/明显错误），再假设事实成立审推理链（能否推出/隐藏假设/相关vs因果/遗漏解释/成立失效条件），最后出四件套（可信需修正/最关键漏洞/补强后最合理版本/可相信到什么程度），笛卡尔怀疑底色，专治AI和人类的幻觉 | `stable` |
 
 ---
 
@@ -88,6 +89,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | dual-layer-explanation | [使用文档](./docs/dual-layer-explanation.md) |
 | reverse-deconstruction | [使用文档](./docs/reverse-deconstruction.md) |
 | enhanced-hv-analysis | [使用文档](./docs/enhanced-hv-analysis.md) |
+| fact-check | [使用文档](./docs/fact-check.md) |
 
 ---
 
@@ -155,6 +157,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `dual-layer-explanation` | 通用 | 无 | 无 |
 | `reverse-deconstruction` | 通用 | 无 | 浏览器 MCP（URL 抓取可选，无则降级粘贴） |
 | `enhanced-hv-analysis` | Python ≥ 3.8 | 联网搜索（WebSearch/WebFetch/arXiv） | WeasyPrint（PDF 生成，无则降级只出 Markdown） |
+| `fact-check` | 通用 | 联网搜索（WebSearch/WebFetch/arXiv） | 无（无网时事实标"未能联网核实"，推理链照做） |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -203,7 +206,8 @@ zaynzhu-skills/
 │   ├── socratic-questioning.md
 │   ├── dual-layer-explanation.md
 │   ├── reverse-deconstruction.md
-│   └── enhanced-hv-analysis.md
+│   ├── enhanced-hv-analysis.md
+│   └── fact-check.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
