@@ -31,6 +31,7 @@
 | `agentseo` | agentseo | 网站智能体可读性审计（浏览器渲染+5维度规则审计+实证任务） | Node ≥ 22, npx agentseo, 浏览器 MCP |
 | `steel-man` | steel-man | 双向钢人论证（重述真问题+正反最强论证+找关键变量+只问一个问题+逼出明确判断） | 无 |
 | `socratic-questioning` | socratic-questioning | 苏格拉底式提问（最多6问逐个追问+区分事实/解释/价值/目标+整理出真问题+确认后给判断） | 无 |
+| `dual-layer-explanation` | dual-layer-explanation | 双层解释法（小白版+专业版两层+三件套：对应关系/易错点/3检查问题） | 无 |
 
 ## 强制规则
 
