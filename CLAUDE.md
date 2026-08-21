@@ -32,6 +32,7 @@
 | `steel-man` | steel-man | 双向钢人论证（重述真问题+正反最强论证+找关键变量+只问一个问题+逼出明确判断） | 无 |
 | `socratic-questioning` | socratic-questioning | 苏格拉底式提问（最多6问逐个追问+区分事实/解释/价值/目标+整理出真问题+确认后给判断） | 无 |
 | `dual-layer-explanation` | dual-layer-explanation | 双层解释法（小白版+专业版两层+三件套：对应关系/易错点/3检查问题） | 无 |
+| `reverse-deconstruction` | reverse-deconstruction | 反向拆解（一句话问题+五点分析+三件套：可复用规律/应用清单/小练习） | 无（URL抓取可选浏览器MCP） |
 
 ## 强制规则
 
