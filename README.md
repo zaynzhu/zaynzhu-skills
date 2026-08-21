@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-22-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-23-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -49,6 +49,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🧭 | [**project-onboard**](./skills/project-onboard/) | 跨平台已有项目规则引导器。基于文件系统证据首次生成或持续合并 CLAUDE.md + AGENTS.md，用受管区块同步共享规则并保留平台专属内容 | `experimental` |
 | 🤖 | [**agentseo**](./skills/agentseo/) | 网站智能体可读性审计。agent 用浏览器 MCP 渲染抓取页面，调 npx agentseo 跑 5 维度规则审计（语义化 HTML / 结构化数据 / 可访问性 / Agent 文件 / 可操作性），并可由 agent 真正上手完成一个任务来实证可操作性 | `experimental` |
 | ⚔️ | [**steel-man**](./skills/steel-man/) | 双向钢人论证。先重述真问题，再正反各构建到最强论证（钢人而非稻草人），找出决定结论的关键变量，只问一个最关键问题，等用户回答后再逼出明确判断、理由和下一步行动，专治 AI「不粘锅」式模棱两可 | `stable` |
+| 🩺 | [**socratic-questioning**](./skills/socratic-questioning/) | 苏格拉底式提问。先别给建议，通过最多 6 个问题逐个追问、根据回答动态决定下一问，区分事实/解释/价值判断/目标，整理出真正值得回答的新问题，等用户确认后再给判断和行动建议，专治嘴上问的和心里想的不一样 | `stable` |
 
 ---
 
@@ -80,6 +81,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | project-onboard | [使用文档](./docs/project-onboard.md) |
 | agentseo | [使用文档](./docs/agentseo.md) |
 | steel-man | [使用文档](./docs/steel-man.md) |
+| socratic-questioning | [使用文档](./docs/socratic-questioning.md) |
 
 ---
 
@@ -143,6 +145,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `project-onboard` | 通用 | 无 | git（可选，读取 commit 风格） |
 | `agentseo` | Node ≥ 22 | `npx agentseo`（agentseo-core） | 任一浏览器 MCP（chrome-devtools / playwright / superpowers-chrome，缺失时降级静态抓取） |
 | `steel-man` | 通用 | 无 | 无 |
+| `socratic-questioning` | 通用 | 无 | 无 |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -187,7 +190,8 @@ zaynzhu-skills/
 │   ├── video-downloader.md
 │   ├── project-onboard.md
 │   ├── agentseo.md
-│   └── steel-man.md
+│   ├── steel-man.md
+│   └── socratic-questioning.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
