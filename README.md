@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-25-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-26-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -52,6 +52,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🩺 | [**socratic-questioning**](./skills/socratic-questioning/) | 苏格拉底式提问。先别给建议，通过最多 6 个问题逐个追问、根据回答动态决定下一问，区分事实/解释/价值判断/目标，整理出真正值得回答的新问题，等用户确认后再给判断和行动建议，专治嘴上问的和心里想的不一样 | `stable` |
 | 📚 | [**dual-layer-explanation**](./skills/dual-layer-explanation/) | 双层解释法。把概念分两层讲——小白版（生活化语言+具体例子）和专业版（核心机制+适用边界+常见误解），再出三件套（小白说法↔专业术语对应、最容易理解错的地方、3 个检验真懂的检查问题），专治"把我当小学生解释"后的"好像懂了" | `stable` |
 | 🔬 | [**reverse-deconstruction**](./skills/reverse-deconstruction/) | 反向拆解。拿到优秀范例（产品页/网页/方案/流程/看板等成品），一句话说它解决什么问题，再拆它为什么有效（服务谁/结构/拉开差距的关键选择/完成标准/可迁移vs只适合本案例），最后给三件套（可复用规律+应用清单+一个最值得先试的小练习），专治"好牛但学不到" | `stable` |
+| 📈 | [**enhanced-hv-analysis**](./skills/enhanced-hv-analysis/) | 增强版横纵分析法。对产品/公司/人物/技术/行业/事件做可追溯深度研究：纵轴追生命历程收口于能力/路径依赖/包袱，横轴统一维度对比收口于选择与放弃，交汇判断未来3路径（前提+预警信号），严守证据规则（就近标来源+日期、事实推断观点分开、冲突并列、暂未核实），结论先行出1-3万字PDF报告 | `stable` |
 
 ---
 
@@ -86,6 +87,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | socratic-questioning | [使用文档](./docs/socratic-questioning.md) |
 | dual-layer-explanation | [使用文档](./docs/dual-layer-explanation.md) |
 | reverse-deconstruction | [使用文档](./docs/reverse-deconstruction.md) |
+| enhanced-hv-analysis | [使用文档](./docs/enhanced-hv-analysis.md) |
 
 ---
 
@@ -152,6 +154,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `socratic-questioning` | 通用 | 无 | 无 |
 | `dual-layer-explanation` | 通用 | 无 | 无 |
 | `reverse-deconstruction` | 通用 | 无 | 浏览器 MCP（URL 抓取可选，无则降级粘贴） |
+| `enhanced-hv-analysis` | Python ≥ 3.8 | 联网搜索（WebSearch/WebFetch/arXiv） | WeasyPrint（PDF 生成，无则降级只出 Markdown） |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -199,7 +202,8 @@ zaynzhu-skills/
 │   ├── steel-man.md
 │   ├── socratic-questioning.md
 │   ├── dual-layer-explanation.md
-│   └── reverse-deconstruction.md
+│   ├── reverse-deconstruction.md
+│   └── enhanced-hv-analysis.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
