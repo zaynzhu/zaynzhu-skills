@@ -35,6 +35,7 @@
 | `reverse-deconstruction` | reverse-deconstruction | 反向拆解（一句话问题+五点分析+三件套：可复用规律/应用清单/小练习） | 无（URL抓取可选浏览器MCP） |
 | `enhanced-hv-analysis` | enhanced-hv-analysis | 增强版横纵分析（纵轴路径依赖/能力/包袱+横轴选择与放弃+未来3路径预警信号+证据规则可追溯+结论先行出PDF） | 联网搜索, WeasyPrint(可选) |
 | `fact-check` | fact-check | 事实核查（拆事实/结论/价值三层+事实5级核查+推理链5查+四件套输出+笛卡尔怀疑底色） | 联网搜索(无网降级) |
+| `expert-panel` | expert-panel | 专家会诊（3互补视角独立答4问+互相质疑挖分歧假设+综合方案保留分歧+退出条件挂钩假设） | 子Agent(无则降级内联) |
 
 ## 强制规则
 
