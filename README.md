@@ -32,7 +32,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 📥 | [**video-downloader**](./skills/video-downloader/) | Bilibili / 抖音 / TikTok 视频下载与元数据查看。核心实现已 vendored 在 `vendor/video-downloader/`，开箱即用；也可通过 `--project-root` 或环境变量指向外部安装 | `stable` |
 | 📊 | [**coding-ai-digest**](./skills/coding-ai-digest/) | 实时抓取 star-history.com Coding AI 排行榜，对每个项目进行 GitHub API 查询 + 网络搜索，生成「能不能用上」速查卡报告，包含核心机制、适用场景、真实评价与注意事项 | `stable` |
 | 💡 | [**ideastorming**](./skills/ideastorming/) | 从 AIHOT 最近 AI 热点生成适合个人开发者和 vibe coding 的项目选题，输出目标用户、痛点、MVP、技术栈、展示价值和第一条开发提示词，并生成 Markdown + 静态 HTML 报告 | `stable` |
-| 🔎 | [**tavily-search-enhanced**](./skills/tavily-search-enhanced/) | Tavily 联网搜索增强版。把原始搜索响应整理成适合直接回答用户的 Markdown 摘要，支持新闻模式、时间过滤、域名限定、精确匹配和结果打分筛选 | `stable` |
+| 🔎 | [**enhanced-tavily-search**](./skills/enhanced-tavily-search/) | Tavily 联网搜索增强版。把原始搜索响应整理成适合直接回答用户的 Markdown 摘要，支持新闻模式、时间过滤、域名限定、精确匹配和结果打分筛选 | `stable` |
 | 🎬 | [**m3u8-downloader**](./skills/m3u8-downloader/) | M3U8 视频流下载工具。基于 ffmpeg 下载 m3u8 流并转换为 MP4/TS 格式，支持自定义 Header、代理、自动命名和进度显示 | `stable` |
 | 🐟 | [**mmy**](./skills/mmy/) | 基于 momoyu.cc 的热榜抓取工具，支持登录获取订阅源（游民、NGA等）和匿名公开源。通过 `commands/` 短命令操作：抓取热榜、列出平台、保存快照/日报、管理关注列表、登录管理、一键打开浏览器 | `stable` |
 | 🐾 | [**pet**](./skills/pet/) | CLI 编程伴侣宠物。7 种宠物可选（猫/狗/仓鼠/兔/鹦鹉/龟/鱼），支持进化系统（Lv.5/15/30）、25 个成就、装扮/训练/睡觉互动、接食物小游戏，Hook 自动互动，兼容 Claude Code / Codex CLI / OpenCode | `stable` |
@@ -73,7 +73,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | video-downloader | [使用文档](./docs/video-downloader.md) |
 | coding-ai-digest | [使用文档](./docs/coding-ai-digest.md) |
 | ideastorming | [使用文档](./docs/ideastorming.md) |
-| tavily-search-enhanced | [使用文档](./docs/tavily-search-enhanced.md) |
+| enhanced-tavily-search | [使用文档](./docs/enhanced-tavily-search.md) |
 | m3u8-downloader | [使用文档](./docs/m3u8-downloader.md) |
 | mmy | [使用文档](./docs/mmy.md) |
 | pet | [使用文档](./docs/pet.md) |
@@ -146,12 +146,12 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `video-downloader` | Python ≥ 3.8 | 无（vendor 内含完整实现） | `playwright`（是否需要取决于底层实现） |
 | `coding-ai-digest` | Python ≥ 3.8 | 无（搜索服务自动选择） | GitHub Token（速率提升 80x） |
 | `ideastorming` | Python ≥ 3.8 | 可访问 AIHOT 公开 API | 无需 API Key |
-| `tavily-search-enhanced` | Python ≥ 3.8 | `TAVILY_API_KEY` 环境变量 | Tavily Search API |
+| `enhanced-tavily-search` | Python ≥ 3.8 | `TAVILY_API_KEY` 环境变量 | Tavily Search API |
 | `m3u8-downloader` | Bash | `ffmpeg` | 无 |
 | `mmy` | Python ≥ 3.8 | 无 | momoyu.cc 账号（获取订阅源） |
 | `pet` | Bash + jq / Node.js | 无（Claude Code hooks 可选） | Claude Code / Codex CLI / OpenCode |
 | `model-debate` | Python ≥ 3.8 | `curl` | 模型 API Key（多模型配置） |
-| `trending-search` | Python ≥ 3.8 | `TAVILY_API_KEY` 环境变量 | tavily-search-enhanced skill |
+| `trending-search` | Python ≥ 3.8 | `TAVILY_API_KEY` 环境变量 | enhanced-tavily-search skill |
 | `readme-creater` | 通用 | 无 | Python ≥ 3.8（自动检测脚本） |
 | `article-creater` | 通用 | 无 | MCP 搜索工具（实时热点素材） |
 | `model-router` | Python ≥ 3.8 | `curl` | 模型 API Key（OPENAI_API_KEY / GOOGLE_API_KEY / ANTHROPIC_API_KEY 等） |
@@ -180,7 +180,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 >
 > **ideastorming** 使用 AIHOT 公开 API，脚本内置浏览器 User-Agent 和 2 秒请求间隔；收尾会生成带时间戳的 Markdown 和静态 HTML 报告，突出展示可复制的第一条开发提示词，避免覆盖上次结果；Windows GBK 终端直接打印中文可能显示乱码，重定向或由 Agent 读取不受影响
 >
-> **tavily-search-enhanced** 依赖 Tavily API Key，建议用环境变量方式注入
+> **enhanced-tavily-search** 依赖 Tavily API Key，建议用环境变量方式注入
 >
 > **m3u8-downloader** 依赖 ffmpeg，首次使用前请确认已安装
 >
@@ -210,7 +210,7 @@ zaynzhu-skills/
 │   ├── model-router.md
 │   ├── pet.md
 │   ├── readme-creater.md
-│   ├── tavily-search-enhanced.md
+│   ├── enhanced-tavily-search.md
 │   ├── TMPI.md
 │   ├── TMR.md
 │   ├── trending-search.md

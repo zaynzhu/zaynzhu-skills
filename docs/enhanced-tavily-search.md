@@ -1,4 +1,4 @@
-# tavily-search-enhanced
+# enhanced-tavily-search
 
 Tavily 联网搜索增强版——把原始搜索响应整理成可直接回答用户的 Markdown 摘要。
 
@@ -23,7 +23,7 @@ Tavily 联网搜索增强版——把原始搜索响应整理成可直接回答�
 $env:TAVILY_API_KEY="tvly-..."
 
 # 基本搜索
-cd skills/tavily-search-enhanced
+cd skills/enhanced-tavily-search
 python scripts/tavily_search.py "OpenAI API pricing"
 
 # 限定来源 + 时间范围
@@ -48,7 +48,7 @@ python scripts/tavily_search.py "query" --format json
 ## 文件结构
 
 ```
-tavily-search-enhanced/
+enhanced-tavily-search/
 ├── SKILL.md      ← 主指令
 ├── scripts/      ← 搜索脚本
 └── references/   ← 参考文档

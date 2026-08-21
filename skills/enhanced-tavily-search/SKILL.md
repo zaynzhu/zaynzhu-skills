@@ -1,5 +1,5 @@
 ---
-name: tavily-search-enhanced
+name: enhanced-tavily-search
 description: 使用 Tavily Search API 进行结构化联网检索，并把结果整理成适合直接回答用户的 Markdown 摘要。适用于需要最新信息、新闻检索、限定站点搜索、时间范围过滤、结果打分筛选、或需要同时返回摘要与来源列表的场景。用户提到 Tavily、联网搜索、查最新资讯、找资料、限定官网来源、需要引用链接时使用。
 ---
 
@@ -29,7 +29,7 @@ $env:TAVILY_API_KEY="tvly-..."
 然后执行：
 
 ```powershell
-cd skills/tavily-search-enhanced
+cd skills/enhanced-tavily-search
 python .\scripts\tavily_search.py "OpenAI API pricing"
 ```
 

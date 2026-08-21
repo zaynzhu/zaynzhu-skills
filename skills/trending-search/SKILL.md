@@ -10,7 +10,7 @@ compatibility:
     - TAVILY_API_KEY
     - Python >= 3.8
   recommends:
-    - tavily-search-enhanced skill
+    - enhanced-tavily-search skill
 ---
 
 # Trending Search — X/Twitter 热词搜索

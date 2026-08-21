@@ -13,7 +13,7 @@ X/Twitter 热词搜索工具——搜索最近 24 小时内指定关键词的高
 
 - Python ≥ 3.8
 - `TAVILY_API_KEY` 环境变量
-- 推荐：tavily-search-enhanced skill
+- 推荐：enhanced-tavily-search skill
 
 ## 快速开始
 
