@@ -78,4 +78,4 @@ AI 有幻觉，人类的幻觉往往更大——"AI 帮人走上愚昧之巅"。
 
 ## 依赖
 
-- 联网搜索（WebSearch/WebFetch/arXiv）。无网时降级：事实标"未能联网核实"，推理链照做。核心无依赖。
+- 联网搜索：优先 `enhanced-tavily-search` skill（结构化检索+带来源摘要），配合 WebSearch/WebFetch/arXiv。无网时降级：事实标"未能联网核实"，推理链照做。核心无依赖。

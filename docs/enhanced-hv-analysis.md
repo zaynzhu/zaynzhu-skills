@@ -58,7 +58,7 @@
 
 ## 依赖
 
-- 联网搜索（WebSearch/WebFetch/arXiv）
+- 联网搜索：优先 `enhanced-tavily-search` skill（结构化检索+带来源摘要），配合 WebSearch/WebFetch/arXiv
 - PDF 生成：`scripts/md_to_pdf.py`（WeasyPrint + markdown）。无 WeasyPrint 时降级只交付 Markdown。
 - 写作风格指南、PDF 输出指南、结构 schema 在 `references/` 下。
 

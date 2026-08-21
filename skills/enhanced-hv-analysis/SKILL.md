@@ -65,7 +65,7 @@ description: |
 
 ## 第一步：联网信息收集
 
-质量取决于信息的丰富度和准确性。**必须联网搜索**，不能仅靠已有知识。宁可多搜，不要因信息不够导致后面分析浮于表面。
+质量取决于信息的丰富度和准确性。**必须联网搜索**，不能仅靠已有知识——优先用 `enhanced-tavily-search` skill（结构化检索 + 带来源摘要，可按时间/域名/打分筛选），配合 WebSearch/WebFetch 和 arXiv。宁可多搜，不要因信息不够导致后面分析浮于表面。
 
 ### 并行搜索策略
 
@@ -76,7 +76,7 @@ description: |
 - **子 Agent 3（复杂对象才需要）**：创始人深度背景、行业环境变化、用户社区真实声音（GitHub Issues / Reddit / X / 知乎）
 
 **每个子 Agent 的 prompt 必须写入联网指引**：
-> 你需要联网获取信息。WebSearch 发现来源、WebFetch 定向提取；已知 URL 用 WebFetch。多次搜索、多关键词组合，不要只搜一次。一手来源优于二手。学术/技术类必查 arXiv：`curl -s "https://export.arxiv.org/api/query?search_query=all:关键词&max_results=10"`。每个关键事实记下来源 URL 和日期。搜不到的写"暂未核实"，不编造。
+> 你需要联网获取信息。**优先用 `enhanced-tavily-search` skill 做结构化检索**（Tavily API，返回带来源的 Markdown 摘要，适合按时间/域名/打分筛选）；再用 WebSearch 发现来源、WebFetch 定向提取已知 URL。多次搜索、多关键词组合，不要只搜一次。一手来源优于二手。学术/技术类必查 arXiv：`curl -s "https://export.arxiv.org/api/query?search_query=all:关键词&max_results=10"`。每个关键事实记下来源 URL 和日期。搜不到的写"暂未核实"，不编造。
 
 prompt 用"获取/调研/了解"等目标动词，不用"搜索/爬取"等手段动词，让子 Agent 自主判断最佳获取方式。
 
