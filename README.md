@@ -44,7 +44,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🖼️ | [**TMPI**](./skills/TMPI/) | 文本主模型项目初始化工具。为纯文本/代码主模型（glm/deepseek/kimi/qwen-code 等）把图片输入安全规则写入 CLAUDE.md，禁止截图/验证码/UI 截图作为 image payload 直发主模型，视觉任务改由 model-router 处理 | `experimental` |
 | 🆘 | [**TMR**](./skills/TMR/) | 文本模型会话急救工具。当文本主模型会话被图片/截图/base64 image block 污染后持续报错时，TMR 扫描并净化 Claude Code 本地 JSONL transcript，把图片块替换为纯文本占位、保留文字上下文，与 TMPI 配套 | `experimental` |
 | 🔴 | [**adversarial-review**](./skills/adversarial-review/) | 对抗性审查（红队审查）。对任意内容（代码、文章、计划、方案、架构）进行最尖锐的批判性审查，自动识别内容类型并切换审查角色，输出致命弱点分级、改进建议和审查总结 | `stable` |
-| 🔬 | [**first-principles**](./skills/first-principles/) | 第一性原理推导。对任意问题/决策/方案穷举现有假设，提炼真正不可再分解的底层公理，再从公理出发重新推导出无约束的新方案，打破惯性思维 | `stable` |
+| 🔬 | [**first-principles**](./skills/first-principles/) | 第一性原理推导。把问题拆回最底层分四类（基本事实/习惯假设/真正目标/资源约束），从基本事实提炼不可再分解的底层公理，放下行业惯例只从基本事实+目标+约束重新推导，输出原方案修补表面的部分、新路径、成立前提、验证第一步，打破惯性思维 | `stable` |
 | 🔒 | [**skill-protector**](./skills/skill-protector/) | 给 skill 加密并加 license 门禁。用 AES-256-GCM 加密目标 skill 的 SKILL.md 和 references，Ed25519 签发授权码，终端用户填 license 才解密加载，防小白白嫖 | `stable` |
 | 🧭 | [**project-onboard**](./skills/project-onboard/) | 跨平台已有项目规则引导器。基于文件系统证据首次生成或持续合并 CLAUDE.md + AGENTS.md，用受管区块同步共享规则并保留平台专属内容 | `experimental` |
 | 🤖 | [**agentseo**](./skills/agentseo/) | 网站智能体可读性审计。agent 用浏览器 MCP 渲染抓取页面，调 npx agentseo 跑 5 维度规则审计（语义化 HTML / 结构化数据 / 可访问性 / Agent 文件 / 可操作性），并可由 agent 真正上手完成一个任务来实证可操作性 | `experimental` |
