@@ -1,0 +1,28 @@
+name: timeline-consistency
+version: 0.1.0
+manifest_version: 2
+api_version: 1
+description: 原始消息时间锚定与可修订事件账本
+license: MIT
+homepage: https://github.com/zaynzhu/zaynzhu-skills
+tags: [timeline, memory, productivity]
+provides_tools:
+  - timeline_resolve
+  - timeline_query
+  - timeline_revise
+  - timeline_forget
+provides_hooks:
+  - pre_llm_call
+config_schema:
+  timezone:
+    type: str
+    default: ""
+    description: 可选 IANA 时区；留空时使用 Hermes 配置，再退回系统时区
+  retention_days:
+    type: int
+    default: 0
+    description: 已完成、已取消或历史事件的保留天数；0 表示不自动删除
+  trust_remote_timestamps:
+    type: bool
+    default: false
+    description: 仅在确认远程平台 adapter 提供原始发送时间而非接收时间后启用
