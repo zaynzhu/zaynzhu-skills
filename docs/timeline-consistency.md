@@ -41,6 +41,24 @@ python3 skills/timeline-consistency/scripts/install_hermes.py \
 hermes plugins enable timeline-consistency
 ```
 
+安装并启用后，用 Hermes 自带的检查命令确认 manifest、导入和注册都通过，并核对 Plugin 已启用：
+
+```bash
+hermes plugins doctor timeline-consistency --ci
+hermes plugins show timeline-consistency
+hermes plugins list --enabled --plain
+```
+
+开发或修改本仓库实现后，运行对应测试：
+
+```bash
+python3 -m unittest discover \
+  -s skills/timeline-consistency/tests \
+  -v
+```
+
+如果安装器报告目标内容不同，它会在写入前整体停止，不会完成半套安装。先比较并备份 profile 下已有的 `skills/timeline-consistency/` 与 `plugins/timeline-consistency/`，确认需要保留的本地修改后再更新；不要删除 `plugin-data/timeline-consistency/`，其中包含事件账本。
+
 建议在当前 Hermes profile 的 `config.yaml` 中明确用户时区；否则远程平台或无法确认本机时区的高风险日期会进入确认流程：
 
 ```yaml
