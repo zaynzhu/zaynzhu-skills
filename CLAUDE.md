@@ -28,7 +28,6 @@
 | `first-principles` | first-principles | 第一性原理（拆四类:基本事实/习惯假设/目标/资源约束→提炼公理→重新推导→输出表面修补/新路径/前提/验证第一步） | 无 |
 | `skill-protector` | skill-protector | skill 加密 + license 门禁（AES-256-GCM + Ed25519 签名） | Python >= 3.8, cryptography |
 | `project-onboard` | project-onboard | 已有项目规则引导（证据生成 + 受管区块同步 CLAUDE.md/AGENTS.md） | 无（可选 git） |
-| `timeline-consistency` | timeline-consistency | 时间线一致性（相对时间锚定 + 可修订事件账本，Hermes 默认适配） | 通用；Hermes 完整模式需 Python 3.11–3.13 |
 | `agentseo` | agentseo | 网站智能体可读性审计（agent 浏览器渲染抓取 + npx agentseo 5 维度规则审计 + agent 实证任务） | Node ≥ 22，可选浏览器 MCP |
 | `steel-man` | steel-man | 双向钢人论证（重述真问题+正反各5项钢人画像:最强理由/适用条件/收益/风险/反对意见+找分歧/关键变量/缺信息+只问一个+逼出判断+适用条件+下一步） | 无 |
 | `socratic-questioning` | socratic-questioning | 苏格拉底式提问（最多6问逐个追问+区分事实/解释/价值/目标+整理出真问题+确认后给判断） | 无 |

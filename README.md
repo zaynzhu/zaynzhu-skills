@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-33-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-32-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -47,7 +47,6 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🔬 | [**first-principles**](./skills/first-principles/) | 第一性原理推导。把问题拆回最底层分四类（基本事实/习惯假设/真正目标/资源约束），从基本事实提炼不可再分解的底层公理，放下行业惯例只从基本事实+目标+约束重新推导，输出原方案修补表面的部分、新路径、成立前提、验证第一步，打破惯性思维 | `stable` |
 | 🔒 | [**skill-protector**](./skills/skill-protector/) | 给 skill 加密并加 license 门禁。用 AES-256-GCM 加密目标 skill 的 SKILL.md 和 references，Ed25519 签发授权码，终端用户填 license 才解密加载，防小白白嫖 | `stable` |
 | 🧭 | [**project-onboard**](./skills/project-onboard/) | 跨平台已有项目规则引导器。基于文件系统证据首次生成或持续合并 CLAUDE.md + AGENTS.md，用受管区块同步共享规则并保留平台专属内容 | `experimental` |
-| 🕰️ | [**timeline-consistency**](./skills/timeline-consistency/) | 对话时间线一致性工具。把“明天、下周五”等表达绑定到原始消息发送时间，维护可修订事件账本；通用 Skill 可降级运行，Hermes Plugin 默认提供 timestamp、跨 session 持久化和压缩隔离 | `experimental` |
 | 🤖 | [**agentseo**](./skills/agentseo/) | 网站智能体可读性审计。agent 用浏览器 MCP 渲染抓取页面，调 npx agentseo 跑 5 维度规则审计（语义化 HTML / 结构化数据 / 可访问性 / Agent 文件 / 可操作性），并可由 agent 真正上手完成一个任务来实证可操作性 | `experimental` |
 | ⚔️ | [**steel-man**](./skills/steel-man/) | 双向钢人论证。先重述真问题，再为正反各构建完整钢人画像（最强理由+适用条件+最大收益+最大风险+最难回答的反对意见），找出真正分歧、关键变量和还需补充的信息，只问一个最可能改变结论的问题，等用户回答后逼出明确判断、理由、适用条件和下一步行动，专治 AI「不粘锅」式模棱两可 | `stable` |
 | 🩺 | [**socratic-questioning**](./skills/socratic-questioning/) | 苏格拉底式提问。先别给建议，通过最多 6 个问题逐个追问、根据回答动态决定下一问，区分事实/解释/价值判断/目标，整理出真正值得回答的新问题，等用户确认后再给判断和行动建议，专治嘴上问的和心里想的不一样 | `stable` |
@@ -89,7 +88,6 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | first-principles | [使用文档](./docs/first-principles.md) |
 | skill-protector | [使用文档](./docs/skill-protector.md) |
 | project-onboard | [使用文档](./docs/project-onboard.md) |
-| timeline-consistency | [使用文档](./docs/timeline-consistency.md) |
 | agentseo | [使用文档](./docs/agentseo.md) |
 | steel-man | [使用文档](./docs/steel-man.md) |
 | socratic-questioning | [使用文档](./docs/socratic-questioning.md) |
@@ -163,7 +161,6 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `first-principles` | 通用 | 无 | 无 |
 | `skill-protector` | Python ≥ 3.8 | `cryptography` 库 | 无 |
 | `project-onboard` | 通用 | 无 | git（可选，读取 commit 风格） |
-| `timeline-consistency` | 通用；Hermes 完整模式需 Python 3.11–3.13 | 无 | Hermes Agent Plugin API v1、SQLite（标准库） |
 | `agentseo` | Node ≥ 22 | `npx agentseo`（agentseo-core） | 任一浏览器 MCP（chrome-devtools / playwright / superpowers-chrome，缺失时降级静态抓取） |
 | `steel-man` | 通用 | 无 | 无 |
 | `socratic-questioning` | 通用 | 无 | 无 |
@@ -219,7 +216,6 @@ zaynzhu-skills/
 │   ├── trending-search.md
 │   ├── video-downloader.md
 │   ├── project-onboard.md
-│   ├── timeline-consistency.md
 │   ├── agentseo.md
 │   ├── steel-man.md
 │   ├── socratic-questioning.md
