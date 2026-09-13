@@ -13,4 +13,4 @@
 - 当前安装的 enhanced-skill-creator 缺少其引用的聚合、查看器和描述优化脚本。本轮使用本地静态评审页展示产物，未运行自动描述优化。
 - 跨 Codex、Claude Code、zcode 及真实不同模型的行为尚未验证；技能保持 experimental。
 
-独立测试产物位于仓库忽略的 `enhanced-handoff-workspace/iteration-1/`。用户评审后再依据反馈迭代；不会把缺失反馈当成认可。
+独立测试产物位于仓库忽略的 `enhanced-handoff-workspace/iteration-1/`，不会随 Git 克隆分发；可按 `README.md` 的评测方法与已提交 fixtures 复测。第一版已交付，评审页仅供可选反馈，不构成使用前置条件。后续根据实际反馈迭代，不将缺失反馈视为测试认可。
