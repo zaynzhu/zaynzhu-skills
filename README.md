@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-32-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-33-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -29,6 +29,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 |:------:|------|------|:----:|
 | 🛠️ | [**enhanced-skill-creator**](./skills/enhanced-skill-creator/) | Skill 全生命周期管理工具。支持需求收集、草稿自审、分层测试（L1/L2/L3）、量化评测、描述优化和打包交付，内置 5 类技能模板库 | `stable` |
 | 🧹 | [**enhanced-neat-freak**](./skills/enhanced-neat-freak/) | 知识库收尾、文档同步和交接清理工具。通过工作模式、证据账本、反膨胀规则和兼容性降级，让 README、docs、CLAUDE/AGENTS 与代码事实保持一致 | `stable` |
+| 🤝 | [**enhanced-handoff**](./skills/enhanced-handoff/) | 双端任务交接。发送、接收与交回时保留决策依据、核对状态和验收，明确执行/审查角色；接收端无需安装技能 | `experimental` |
 | 📥 | [**video-downloader**](./skills/video-downloader/) | Bilibili / 抖音 / TikTok 视频下载与元数据查看。核心实现已 vendored 在 `vendor/video-downloader/`，开箱即用；也可通过 `--project-root` 或环境变量指向外部安装 | `stable` |
 | 📊 | [**coding-ai-digest**](./skills/coding-ai-digest/) | 实时抓取 star-history.com Coding AI 排行榜，对每个项目进行 GitHub API 查询 + 网络搜索，生成「能不能用上」速查卡报告，包含核心机制、适用场景、真实评价与注意事项 | `stable` |
 | 💡 | [**ideastorming**](./skills/ideastorming/) | 从 AIHOT 最近 AI 热点生成适合个人开发者和 vibe coding 的项目选题，输出目标用户、痛点、MVP、技术栈、展示价值和第一条开发提示词，并生成 Markdown + 静态 HTML 报告 | `stable` |
@@ -70,6 +71,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 |------|------|
 | enhanced-skill-creator | [使用文档](./docs/enhanced-skill-creator.md) |
 | enhanced-neat-freak | [使用文档](./docs/enhanced-neat-freak.md) |
+| enhanced-handoff | [使用文档](./docs/enhanced-handoff.md) |
 | video-downloader | [使用文档](./docs/video-downloader.md) |
 | coding-ai-digest | [使用文档](./docs/coding-ai-digest.md) |
 | ideastorming | [使用文档](./docs/ideastorming.md) |

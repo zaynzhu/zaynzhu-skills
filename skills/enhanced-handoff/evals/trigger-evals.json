@@ -1,0 +1,82 @@
+[
+  {
+    "query": "使用 enhanced-handoff，发送这次设计到 docs/handoffs/search.md",
+    "should_trigger": true
+  },
+  {
+    "query": "在 Claude Code 写了一半，出文档让别的模型继续",
+    "should_trigger": true
+  },
+  {
+    "query": "接收 docs/handoffs/import.md，继续完成实现",
+    "should_trigger": true
+  },
+  {
+    "query": "用 enhanced-handoff 接收本次交接，只读审查",
+    "should_trigger": true
+  },
+  {
+    "query": "把执行结果交回原模型审查，列出没测的内容",
+    "should_trigger": true
+  },
+  {
+    "query": "更新当前任务交接，我要换个会话",
+    "should_trigger": true
+  },
+  {
+    "query": "模型建议和我确认的决定分开，整理交接给 GLM",
+    "should_trigger": true
+  },
+  {
+    "query": "没安装 skill 的 agent 要接手，给我自包含交接",
+    "should_trigger": true
+  },
+  {
+    "query": "把这次架构分析交给下一位实现，不要马上写代码",
+    "should_trigger": true
+  },
+  {
+    "query": "请按已有交接补充完成结果，下一位负责审查",
+    "should_trigger": true
+  },
+  {
+    "query": "总结这篇文章的观点",
+    "should_trigger": false
+  },
+  {
+    "query": "把 README 中的安装命令更新",
+    "should_trigger": false
+  },
+  {
+    "query": "为整个仓库同步 CLAUDE.md 和 AGENTS.md",
+    "should_trigger": false
+  },
+  {
+    "query": "同时启动两个 agent 改同一个模块并自动协调",
+    "should_trigger": false
+  },
+  {
+    "query": "帮我安装 Claude Code",
+    "should_trigger": false
+  },
+  {
+    "query": "只解释什么是任务交接，不创建文档",
+    "should_trigger": false
+  },
+  {
+    "query": "修复 search.py 的空指针错误",
+    "should_trigger": false
+  },
+  {
+    "query": "润色 docs/handoffs/import.md 的措辞，不改变内容",
+    "should_trigger": false
+  },
+  {
+    "query": "把下载目录中的 PDF 按时间整理",
+    "should_trigger": false
+  },
+  {
+    "query": "审查这段 SQL 是否有注入风险",
+    "should_trigger": false
+  }
+]

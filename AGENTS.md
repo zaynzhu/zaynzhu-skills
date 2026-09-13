@@ -16,6 +16,7 @@
 | `coding-ai-digest` | coding-ai-digest | 排行榜分析 | Python >= 3.8, 可选 GitHub Token |
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
 | `enhanced-neat-freak` | enhanced-neat-freak | 知识库同步/交接清理 | 无（可选 shell、git、rg） |
+| `enhanced-handoff` | enhanced-handoff | 双端任务交接（发送/接收/交回，决策依据、状态核对、角色边界与验收，无技能接收端可用） | 无（项目读取/Git 可选） |
 | `pet` | pet | CLI 编程宠物（7种宠物/进化/成就/装扮） | Bash + jq / Node.js |
 | `model-debate` | model-debate | 多模型辩论 | Python ≥ 3.8, curl, 模型 API Key |
 | `trending-search` | trending-search | 热词搜索 | Python >= 3.8, TAVILY_API_KEY |
