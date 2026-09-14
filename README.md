@@ -28,7 +28,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | &nbsp; | 技能 | 简介 | 状态 |
 |:------:|------|------|:----:|
 | 🛠️ | [**enhanced-skill-creator**](./skills/enhanced-skill-creator/) | Skill 全生命周期管理工具。支持需求收集、草稿自审、分层测试（L1/L2/L3）、量化评测、描述优化和打包交付，内置 5 类技能模板库 | `stable` |
-| 🧹 | [**enhanced-neat-freak**](./skills/enhanced-neat-freak/) | 知识库收尾、文档同步和交接清理工具。通过工作模式、证据账本、反膨胀规则和兼容性降级，让 README、docs、CLAUDE/AGENTS 与代码事实保持一致 | `stable` |
+| 🧹 | [**enhanced-neat-freak**](./skills/enhanced-neat-freak/) | 知识库收尾、文档同步和交接清理工具。强制尺寸体检与记忆全量逐条时效审查，结合证据账本和反膨胀规则同步项目知识，并保持同作用域 CLAUDE/AGENTS 内容一致 | `stable` |
 | 🤝 | [**enhanced-handoff**](./skills/enhanced-handoff/) | 双端任务交接。发送、接收与交回时保留决策依据、核对状态和验收，明确执行/审查角色；接收端无需安装技能 | `experimental` |
 | 📥 | [**video-downloader**](./skills/video-downloader/) | Bilibili / 抖音 / TikTok 视频下载与元数据查看。核心实现已 vendored 在 `vendor/video-downloader/`，开箱即用；也可通过 `--project-root` 或环境变量指向外部安装 | `stable` |
 | 📊 | [**coding-ai-digest**](./skills/coding-ai-digest/) | 实时抓取 star-history.com Coding AI 排行榜，对每个项目进行 GitHub API 查询 + 网络搜索，生成「能不能用上」速查卡报告，包含核心机制、适用场景、真实评价与注意事项 | `stable` |
