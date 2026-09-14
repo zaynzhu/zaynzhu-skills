@@ -11,7 +11,6 @@
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![License](https://img.shields.io/badge/License-MIT-0ea5e9?style=flat&logo=opensourceinitiative&logoColor=white)](./LICENSE)
 
 </div>
 
@@ -147,6 +146,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 |-------|---------|---------|------|
 | `enhanced-skill-creator` | 通用 | 无 | Python（描述优化脚本） |
 | `enhanced-neat-freak` | 通用 | 无 | shell、git、rg（用于文档审计和验证） |
+| `enhanced-handoff` | 通用 | 无 | 项目文件读取、git（用于接手时核对状态） |
 | `video-downloader` | Python ≥ 3.8 | 无（vendor 内含完整实现） | `playwright`（是否需要取决于底层实现） |
 | `coding-ai-digest` | Python ≥ 3.8 | 无（搜索服务自动选择） | GitHub Token（速率提升 80x） |
 | `ideastorming` | Python ≥ 3.8 | 可访问 AIHOT 公开 API | 无需 API Key |
@@ -177,6 +177,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `minimum-experiment` | 通用 | 无 | 无 |
 | `talent-mining` | 通用 | 无 | 无 |
 | `life-odyssey` | 通用 | 无 | 无 |
+| `source-first` | 通用 | 可用联网工具（无网时降级为手动验证指南） | enhanced-tavily-search、WebSearch/WebFetch、浏览器 MCP；使用 Tavily 时需 TAVILY_API_KEY |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -204,6 +205,7 @@ zaynzhu-skills/
 │   ├── coding-ai-digest.md
 │   ├── enhanced-skill-creator.md
 │   ├── enhanced-neat-freak.md
+│   ├── enhanced-handoff.md
 │   ├── adversarial-review.md
 │   ├── first-principles.md
 │   ├── skill-protector.md
@@ -231,7 +233,8 @@ zaynzhu-skills/
 │   ├── cross-domain-borrowing.md
 │   ├── minimum-experiment.md
 │   ├── talent-mining.md
-│   └── life-odyssey.md
+│   ├── life-odyssey.md
+│   └── source-first.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
@@ -254,7 +257,9 @@ mkdir skills/my-new-skill
 # 2. 创建 SKILL.md（含 YAML frontmatter）
 touch skills/my-new-skill/SKILL.md
 
-# 3. 在本文件的技能索引中补充一行记录
+# 3. 同步 README 技能索引、使用文档表、依赖表与目录树
+# 4. 同步 CLAUDE.md 和 AGENTS.md 的技能清单，两份保持全文一致
+# 5. 补充 docs/my-new-skill.md，验证引用路径与 SKILL.md 行数（500 行以内）
 ```
 
 ---
