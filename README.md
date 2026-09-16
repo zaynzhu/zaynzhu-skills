@@ -60,6 +60,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🪨 | [**talent-mining**](./skills/talent-mining/) | 挖掘隐藏天赋。多轮苏格拉底式深度对话（最多10主问一次一问），从童年废寝忘食与顽固缺点、无意识胜任区、能量模式、嫉妒羡慕四主线挖被忽视/压抑的底层天赋，出《个人天赋使用说明书》（底层天赋+经历链/阴影面/能量地图/发挥失效环境/工作合作职业方向/30天实验），反宿命论+能量审计+阴影即宝藏，专治想找天赋和怀疑自己没天赋的人，需耐心半小时+ | `stable` |
 | 🧭 | [**life-odyssey**](./skills/life-odyssey/) | 人生设计（斯坦福人生设计法）。多轮苏格拉底式对话（6-9主问）四阶段（你在这里/指南针/寻路/摆脱困境），看清位置、分清重力问题与可设计问题，生成三个完全不同的五年奥德赛计划+原型行动，出《个人人生设计蓝图》（8部分），看未来"我接下来往哪去"，与 talent-mining（看过去）互补，专治人生迷茫想重新设计的人，需耐心半小时+ | `stable` |
 | 🛡️ | [**source-first**](./skills/source-first/) | 搜索可信度决策层。官方域名三层发现（结构化数据直采/独立佐证/假官网负筛）+ 递归溯源穿透转载层 + GEO/SEO 垃圾快筛与五级源分级 + 独立交叉验证破循环印证；正常搜索自带预警层（快筛+关键结论自动补验+风险升级征求），防 GEO/SEO 污染和以讹传讹，backend-agnostic（Tavily/WebSearch/WebFetch/浏览器 MCP） | `experimental` |
+| 💬 | [**layman-explain**](./skills/layman-explain/) | 大白话解释。把当前对话中的模型回答/技术分析/日志/方案重译成直接不绕弯的人话：先说结论不铺垫、优先解释关系而非名词、强制区分已发生与可能发生、排障必答"改了什么+有没有额外影响"（无执行上下文不编造）、主动过滤噪声给下一步动作，专治"听完还是蒙/所以到底啥意思" | `stable` |
 
 ---
 
@@ -103,6 +104,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | talent-mining | [使用文档](./docs/talent-mining.md) |
 | life-odyssey | [使用文档](./docs/life-odyssey.md) |
 | source-first | [使用文档](./docs/source-first.md) |
+| layman-explain | [使用文档](./docs/layman-explain.md) |
 
 ---
 
@@ -178,6 +180,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `talent-mining` | 通用 | 无 | 无 |
 | `life-odyssey` | 通用 | 无 | 无 |
 | `source-first` | 通用 | 可用联网工具（无网时降级为手动验证指南） | enhanced-tavily-search、WebSearch/WebFetch、浏览器 MCP；使用 Tavily 时需 TAVILY_API_KEY |
+| `layman-explain` | 通用 | 无 | 无（与 dual-layer-explanation 按意图分工：重译已有内容触发本技能，学新概念触发双层解释） |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -234,7 +237,8 @@ zaynzhu-skills/
 │   ├── minimum-experiment.md
 │   ├── talent-mining.md
 │   ├── life-odyssey.md
-│   └── source-first.md
+│   ├── source-first.md
+│   └── layman-explain.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
