@@ -43,6 +43,7 @@
 | `life-odyssey` | life-odyssey | 人生设计斯坦福法（多轮对话6-9主问4阶段+分清重力问题/可设计问题+三个完全不同五年奥德赛计划+原型行动+出个人人生设计蓝图8部分+看未来与talent-mining互补+长度自适应） | 无 |
 | `source-first` | source-first | 搜索可信度决策层（官方域名三层发现+递归溯源主干+GEO/SEO垃圾快筛五级源分级+独立交叉验证破循环印证+正常搜索预警层，backend-agnostic） | 无脚本（复用 enhanced-tavily-search/WebSearch/WebFetch，可选 TAVILY_API_KEY、浏览器 MCP） |
 | `layman-explain` | layman-explain | 大白话解释（重译已有内容:模型回答/日志/方案→直接不绕弯人话+四问标准+排障必答影响范围无上下文不编造+与dual-layer-explanation按意图分工） | 无 |
+| `pan-115` | pan-115 | 115 网盘助手（扫码登录/cookies/目录浏览/搜索/离线下载，p115client，多 agent 二维码展示约定） | Python 3.12, p115client（requirements.txt 锁定） |
 
 ## 强制规则
 
