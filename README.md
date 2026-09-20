@@ -108,6 +108,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | source-first | [使用文档](./docs/source-first.md) |
 | layman-explain | [使用文档](./docs/layman-explain.md) |
 | pan-115 | [使用文档](./docs/pan-115.md) |
+| cloud-compose | [使用文档](./docs/cloud-compose.md) |
 
 ---
 
@@ -185,6 +186,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `source-first` | 通用 | 可用联网工具（无网时降级为手动验证指南） | enhanced-tavily-search、WebSearch/WebFetch、浏览器 MCP；使用 Tavily 时需 TAVILY_API_KEY |
 | `layman-explain` | 通用 | 无 | 无（与 dual-layer-explanation 按意图分工：重译已有内容触发本技能，学新概念触发双层解释） |
 | `pan-115` | Python 3.12（业务脚本） | `p115client`（requirements.txt 锁定，首次使用建技能目录 .venv） | 115 App（扫码登录）；登录/cookies 脚本仅标准库 |
+| `cloud-compose` | 通用（生成 Dockerfile/Compose/CI 配置） | 云端 Git / CLI / API（默认 GitHub Actions） | 无本地 Docker 依赖；云端受阻给出替代方案，仅用户明确授权才启用本地构建 |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -243,7 +245,8 @@ zaynzhu-skills/
 │   ├── life-odyssey.md
 │   ├── source-first.md
 │   ├── layman-explain.md
-│   └── pan-115.md
+│   ├── pan-115.md
+│   └── cloud-compose.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
