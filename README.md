@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-36-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-37-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -26,6 +26,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 
 | &nbsp; | 技能 | 简介 | 状态 |
 |:------:|------|------|:----:|
+| 🐳 | [**cloud-compose**](./skills/cloud-compose/) | 为不同项目生成 Dockerfile、Compose 与云端构建链路，默认交付离线镜像 tar、校验文件和部署说明；严格云端执行，受阻时给出替代方案，本地须明确授权 | `experimental` |
 | 🛠️ | [**enhanced-skill-creator**](./skills/enhanced-skill-creator/) | Skill 全生命周期管理工具。支持需求收集、草稿自审、分层测试（L1/L2/L3）、量化评测、描述优化和打包交付，内置 5 类技能模板库 | `stable` |
 | 🧹 | [**enhanced-neat-freak**](./skills/enhanced-neat-freak/) | 知识库收尾、文档同步和交接清理工具。强制尺寸体检与记忆全量逐条时效审查，结合证据账本和反膨胀规则同步项目知识，并保持同作用域 CLAUDE/AGENTS 内容一致 | `stable` |
 | 🤝 | [**enhanced-handoff**](./skills/enhanced-handoff/) | 双端任务交接。发送、接收与交回时保留决策依据、核对状态和验收，明确执行/审查角色；接收端无需安装技能 | `experimental` |
