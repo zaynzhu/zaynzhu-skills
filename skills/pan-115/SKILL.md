@@ -108,7 +108,7 @@ PowerShell 脚本会把二维码保存为本地 PNG 并输出绝对路径，然�
 
 ```powershell
 # 指定二维码图片保存位置
-pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1 -QrPath "D:\115-login-qrcode.png" -NoOpen
+pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1 -QrPath "<保存路径>\115-login-qrcode.png" -NoOpen
 
 # 允许脚本自动打开二维码图片
 pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1
@@ -117,7 +117,7 @@ pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1
 pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1 -NoSave
 
 # 保存到指定路径
-pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1 -CookiePath "D:\115-cookies.txt"
+pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1 -CookiePath "<保存路径>\115-cookies.txt"
 
 # 指定 app 类型，默认 tv
 pwsh -ExecutionPolicy Bypass -File scripts/get_cookie.ps1 -App web

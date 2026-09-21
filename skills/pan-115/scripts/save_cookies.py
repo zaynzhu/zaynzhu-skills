@@ -95,7 +95,7 @@ def main():
     # 格式校验
     if not validate_cookies_format(cookies):
         print("\n格式示例:")
-        print("  UID=309340478_I1_xxx; CID=bf8c61a3xxx; SEID=ad0e6a3bxxx; KID=c371f1d5xxx")
+        print("  UID=123456789_I1_SAMPLE; CID=SAMPLE_CID_VALUE; SEID=SAMPLE_SEID_VALUE; KID=SAMPLE_KID_VALUE")
         print("\n获取方式: 浏览器登录 115.com → F12 → Application → Cookies → 复制上述 4 个字段")
         sys.exit(1)
 

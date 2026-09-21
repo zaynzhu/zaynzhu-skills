@@ -22,6 +22,9 @@ evals/runs/
 # 摸摸鱼登录凭证（敏感信息）
 skills/mmy/scripts/mmy_credentials.json
 
+# 技能本地虚拟环境（pyvenv.cfg 内嵌创建机 Python 绝对路径，勿提交）
+.venv/
+
 # Model Router 本地 API Key
 skills/model-router/.env
 
