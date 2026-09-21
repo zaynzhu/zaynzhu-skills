@@ -264,6 +264,7 @@ touch skills/my-new-skill/SKILL.md
 # 3. 同步 README 技能索引、使用文档表、依赖表与目录树
 # 4. 同步 CLAUDE.md 和 AGENTS.md 的技能清单，两份保持全文一致
 # 5. 补充 docs/my-new-skill.md，验证引用路径与 SKILL.md 行数（500 行以内）
+# 6. 条文示例用通用等价物：不写单次测试项目的真实案例（发布物在 GitHub 公开）
 ```
 
 ---

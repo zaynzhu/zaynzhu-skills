@@ -52,3 +52,4 @@
 - **所有 skill 的 scripts 中涉及外部 API 调用必须做频率限制**，间隔不低于 2 秒
 - **SKILL.md 控制在 500 行以内**，复杂逻辑拆到 references 或 agents
 - **发布 = 将 skill 目录复制到目标项目的 `.claude/skills/` 或 `.codex/skills/`（取决于目标平台）**
+- **SKILL.md 与使用文档的条文示例必须用通用等价物，不写单次会话或真实项目案例（发布物在 GitHub 公开）；发现疑似残留先报告用户裁决再改**
