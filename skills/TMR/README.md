@@ -1,6 +1,6 @@
 # TMR - Text Model Rescue
 
-TMR 是一个用于 Claude Code 的会话急救 skill。当你使用 `glm-5.2:cloud`、`deepseek-v4-pro:cloud`、`kimi-k2.7-code:cloud` 等文本模型时，如果 Playwright、Chrome DevTools、Superpowers Chrome 或其他 MCP 工具把截图/image block 写入了 Claude Code 会话，后续请求可能持续报错：
+TMR 是一个用于 Claude Code 的会话急救 skill。当你使用 glm、deepseek、kimi 等不支持图片输入的文本模型时，如果 Playwright、Chrome DevTools、Superpowers Chrome 或其他 MCP 工具把截图/image block 写入了 Claude Code 会话，后续请求可能持续报错：
 
 ```text
 API Error: 400 this model does not support image input
