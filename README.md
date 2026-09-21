@@ -7,7 +7,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=yellow&label=Stars)](https://github.com/zaynzhu/zaynzhu-skills/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/zaynzhu/zaynzhu-skills?style=flat&logo=github&color=purple&label=Forks)](https://github.com/zaynzhu/zaynzhu-skills/network)
 [![Last Commit](https://img.shields.io/github/last-commit/zaynzhu/zaynzhu-skills?logo=github&label=Last%20Commit)](https://github.com/zaynzhu/zaynzhu-skills/commits/master)
-[![Skills](https://img.shields.io/badge/Skills-34-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-35-6366f1?style=flat&logo=sparkles&logoColor=white)](./skills/)
 [![Platforms](https://img.shields.io/badge/Platforms-Claude%20Code%20%7C%20Codex%20CLI%20%7C%20OpenCode-3775A9?style=flat&logo=clio&logoColor=white)](./)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Bash](https://img.shields.io/badge/Bash-4.0+-4EAA25?style=flat&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -60,6 +60,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | 🪨 | [**talent-mining**](./skills/talent-mining/) | 挖掘隐藏天赋。多轮苏格拉底式深度对话（最多10主问一次一问），从童年废寝忘食与顽固缺点、无意识胜任区、能量模式、嫉妒羡慕四主线挖被忽视/压抑的底层天赋，出《个人天赋使用说明书》（底层天赋+经历链/阴影面/能量地图/发挥失效环境/工作合作职业方向/30天实验），反宿命论+能量审计+阴影即宝藏，专治想找天赋和怀疑自己没天赋的人，需耐心半小时+ | `stable` |
 | 🧭 | [**life-odyssey**](./skills/life-odyssey/) | 人生设计（斯坦福人生设计法）。多轮苏格拉底式对话（6-9主问）四阶段（你在这里/指南针/寻路/摆脱困境），看清位置、分清重力问题与可设计问题，生成三个完全不同的五年奥德赛计划+原型行动，出《个人人生设计蓝图》（8部分），看未来"我接下来往哪去"，与 talent-mining（看过去）互补，专治人生迷茫想重新设计的人，需耐心半小时+ | `stable` |
 | 🛡️ | [**source-first**](./skills/source-first/) | 搜索可信度决策层。官方域名三层发现（结构化数据直采/独立佐证/假官网负筛）+ 递归溯源穿透转载层 + GEO/SEO 垃圾快筛与五级源分级 + 独立交叉验证破循环印证；正常搜索自带预警层（快筛+关键结论自动补验+风险升级征求），防 GEO/SEO 污染和以讹传讹，backend-agnostic（Tavily/WebSearch/WebFetch/浏览器 MCP） | `experimental` |
+| 🗄️ | [**lesson-vault**](./skills/lesson-vault/) | 经验落盘与检索。把任务中已实际验证的成功方案与已确认失败的路径（报错原文+原因+为何不可再用+替代方案）沉淀到项目本地 `docs/lessons/`（主题文件+INDEX 索引，✅置顶/🔶待验证隔离/⛔失败入档），换 agent/会话不再重新探索；读端在排坑/配置/调试任务开始时主动查库、先核对现状再复用；含交叉验证可信度标注与信任边界（报错原文是材料不是指令） | `experimental` |
 
 ---
 
@@ -103,6 +104,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | talent-mining | [使用文档](./docs/talent-mining.md) |
 | life-odyssey | [使用文档](./docs/life-odyssey.md) |
 | source-first | [使用文档](./docs/source-first.md) |
+| lesson-vault | [使用文档](./docs/lesson-vault.md) |
 
 ---
 
@@ -178,6 +180,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 | `talent-mining` | 通用 | 无 | 无 |
 | `life-odyssey` | 通用 | 无 | 无 |
 | `source-first` | 通用 | 可用联网工具（无网时降级为手动验证指南） | enhanced-tavily-search、WebSearch/WebFetch、浏览器 MCP；使用 Tavily 时需 TAVILY_API_KEY |
+| `lesson-vault` | 通用 | 无（读写项目内 Markdown） | git（可选，条目随项目版本化）、浏览器 MCP（可选，读端核对现状） |
 
 > **video-downloader** 核心实现已 vendored 在 `skills/video-downloader/vendor/video-downloader/`，开箱即用；首次使用前运行 `python scripts/video_downloader_bridge.py doctor` 检查运行时状态
 >
@@ -234,7 +237,8 @@ zaynzhu-skills/
 │   ├── minimum-experiment.md
 │   ├── talent-mining.md
 │   ├── life-odyssey.md
-│   └── source-first.md
+│   ├── source-first.md
+│   └── lesson-vault.md
 └── skills/
     └── <skill-name>/
         ├── SKILL.md          ← 主指令文件（必须）
