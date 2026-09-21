@@ -61,7 +61,7 @@ python skills/model-router/scripts/model_config.py setting
 - 将模型保存为 `default` profile
 - 将 `default_profile` 设为 `default`
 - 把 `default` 放到所有路由规则首位
-- 仅把 Key 写入被 Git 忽略的 `.env`，YAML/JSON 只保存 `MODEL_ROUTER_API_KEY` 环境变量名
+- 仅把 Key 写入被 Git 忽略的 `.env`，YAML/JSON 只保存 `MODEL_ROUTER_API_KEY` 环境变量名。`.env` 的读写路径固定在技能目录内，属设计内机制；**整目录复制或打包分发本技能前，先移除 `.env`**
 
 配置完成后，告知用户协议、URL、模型名和默认优先状态，但不要显示 Key。后续路由必须优先尝试这个模型；只有调用失败时才进入原有 fallback。
 
@@ -72,8 +72,8 @@ python skills/model-router/scripts/model_config.py setting
 ```bash
 python skills/model-router/scripts/model_config.py setting nohup \
   --protocol openai \
-  --endpoint https://api.xiaomimimo.com/v1/chat/completions \
-  --model mimo-v2.5 <<'EOF'
+  --endpoint https://api.example.com/v1/chat/completions \
+  --model example-vision-model <<'EOF'
 用户在对话中提供的 API Key
 EOF
 ```
