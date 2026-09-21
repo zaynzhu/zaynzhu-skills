@@ -14,6 +14,7 @@
 | `ideastorming` | ideastorming | AI 热点转项目选题 | Python >= 3.8, AIHOT 公开 API |
 | `m3u8-downloader` | m3u8-downloader | m3u8 流下载 | ffmpeg |
 | `coding-ai-digest` | coding-ai-digest | 排行榜分析 | Python >= 3.8, 可选 GitHub Token |
+| `cloud-compose` | cloud-compose | 云端 Docker/Compose 交付（默认离线 tar，云端验收，受阻替代方案，本地须明确授权） | 云端 CI + Git/CLI/API（无本地 Docker 依赖） |
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
 | `enhanced-neat-freak` | enhanced-neat-freak | 知识库同步/交接清理 | 无（可选 shell、git、rg） |
 | `enhanced-handoff` | enhanced-handoff | 双端任务交接（发送/接收/交回，决策依据、状态核对、角色边界与验收，无技能接收端可用） | 无（项目读取/Git 可选） |
@@ -43,6 +44,8 @@
 | `life-odyssey` | life-odyssey | 人生设计斯坦福法（多轮对话6-9主问4阶段+分清重力问题/可设计问题+三个完全不同五年奥德赛计划+原型行动+出个人人生设计蓝图8部分+看未来与talent-mining互补+长度自适应） | 无 |
 | `source-first` | source-first | 搜索可信度决策层（官方域名三层发现+递归溯源主干+GEO/SEO垃圾快筛五级源分级+独立交叉验证破循环印证+正常搜索预警层，backend-agnostic） | 无脚本（复用 enhanced-tavily-search/WebSearch/WebFetch，可选 TAVILY_API_KEY、浏览器 MCP） |
 | `lesson-vault` | lesson-vault | 经验落盘与检索（已验证成功方案/失败路径/待验证三层入 docs/lessons/ 主题文件+INDEX 索引；读写双端；交叉验证可信度标注；结论速览/条目/索引同步义务；信任边界防报错原文注入；与项目 runbook 分工单一权威源；本地 vault 模式带备份义务） | 无（读写项目内 Markdown；可选 git） |
+| `layman-explain` | layman-explain | 大白话解释（重译已有内容:模型回答/日志/方案→直接不绕弯人话+四问标准+排障必答影响范围无上下文不编造+与dual-layer-explanation按意图分工） | 无 |
+| `pan-115` | pan-115 | 115 网盘助手（扫码登录/cookies/目录浏览/搜索/离线下载，p115client，多 agent 二维码展示约定） | Python 3.12, p115client（requirements.txt 锁定） |
 
 ## 强制规则
 

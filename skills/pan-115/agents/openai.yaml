@@ -1,0 +1,7 @@
+interface:
+  display_name: "Pan 115"
+  short_description: "Scan login, browse 115 files, and manage offline tasks"
+  default_prompt: "Use $pan-115 to scan login to 115 Netdisk and save cookies."
+
+policy:
+  allow_implicit_invocation: true

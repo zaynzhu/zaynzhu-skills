@@ -1,0 +1,82 @@
+[
+  {
+    "query": "这个 FastAPI 项目帮我打 Docker，给群晖导入用",
+    "should_trigger": true
+  },
+  {
+    "query": "/repo/shop 不装本机 Docker，GitHub 上出 compose 包",
+    "should_trigger": true
+  },
+  {
+    "query": "给 Spring Boot + Redis 做云端离线镜像 tar",
+    "should_trigger": true
+  },
+  {
+    "query": "把 acme/dashboard 发到 GHCR，顺带给 Compose",
+    "should_trigger": true
+  },
+  {
+    "query": "上次 Actions 的 tar 导入极空间失败，修一下打包链路",
+    "should_trigger": true
+  },
+  {
+    "query": "我明确要用本地 Docker 给当前项目打 compose",
+    "should_trigger": true
+  },
+  {
+    "query": "GitLab 上的 Go 服务能不能云端打包给 ARM NAS",
+    "should_trigger": true
+  },
+  {
+    "query": "Node worker 只要定时跑，帮我做 Docker Compose 交付",
+    "should_trigger": true
+  },
+  {
+    "query": "没有 Actions 权限也别停，准备云端打镜像替代办法",
+    "should_trigger": true
+  },
+  {
+    "query": "这次要镜像仓库和离线包两种，都配好 Compose",
+    "should_trigger": true
+  },
+  {
+    "query": "Docker Compose 的 depends_on 是什么意思",
+    "should_trigger": false
+  },
+  {
+    "query": "帮我改 GitHub Actions 的 ESLint 检查",
+    "should_trigger": false
+  },
+  {
+    "query": "运行现有 compose.yaml，别改镜像或构建配置",
+    "should_trigger": false
+  },
+  {
+    "query": "SwiftUI 应用打个原生 dmg",
+    "should_trigger": false
+  },
+  {
+    "query": "查看 NAS 现有容器 CPU 使用率",
+    "should_trigger": false
+  },
+  {
+    "query": "解释一下 docker save 和 export 的区别",
+    "should_trigger": false
+  },
+  {
+    "query": "给 README 加一段已有镜像的使用说明",
+    "should_trigger": false
+  },
+  {
+    "query": "我想在 AWS 部署已发布的网站，不改打包流程",
+    "should_trigger": false
+  },
+  {
+    "query": "优化数据库慢查询，这个项目碰巧用了 Docker",
+    "should_trigger": false
+  },
+  {
+    "query": "清理本机不用的 Docker 镜像，不构建",
+    "should_trigger": false
+  }
+]
