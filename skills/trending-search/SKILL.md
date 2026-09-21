@@ -61,7 +61,6 @@ python scripts/search_tweets.py --max-results 10
 NanoBanana Pro
 Nano Banana Pro
 NanoBanana Pro 2
-ナノバナナプ口       ← 原始拼写（用户提示词中出现的表记）
 ナノバナナプロ       ← 正确日语拼写
 Gemini Nano Banana
 ```

@@ -27,7 +27,6 @@ DEFAULT_KEYWORDS = [
     "NanoBanana Pro",
     "Nano Banana Pro",
     "NanoBanana Pro 2",
-    "ナノバナナプ口",
     "ナノバナナプロ",
     "Gemini Nano Banana",
 ]
