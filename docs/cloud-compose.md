@@ -51,6 +51,6 @@
 
 ## 参考与回归用例
 
-- 原方案可复用点与失效假设：[`references/whatsnew-origin.md`](../skills/cloud-compose/references/whatsnew-origin.md)
+- 原方案可复用点与失效假设：[`references/origin-project-notes.md`](../skills/cloud-compose/references/origin-project-notes.md)
 - 不同工具环境下的执行方式：[`ENVIRONMENTS.md`](../skills/cloud-compose/ENVIRONMENTS.md)
 - 行为评测（不代表实际镜像已构建）：[`evals/evals.json`](../skills/cloud-compose/evals/evals.json)

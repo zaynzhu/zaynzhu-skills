@@ -25,7 +25,7 @@ description: |
 | 必须识别 | 证据和决策 |
 |---|---|
 | 构建与运行 | 清单、锁文件、运行版本、入口、端口、编译产物、健康接口；区分 Web、worker、一次性 CLI、纯库、桌面客户端 |
-| 服务边界 | 应用服务、数据库/缓存、外部依赖、迁移任务；不照抄 WhatsNew 的两个容器结构 |
+| 服务边界 | 应用服务、数据库/缓存、外部依赖、迁移任务；不照抄来源项目的两个容器结构 |
 | 状态与配置 | 数据目录、UID/GID、运行时变量、前端构建时变量、密钥、首次初始化与升级步骤 |
 | 目标环境 | 目标 OS/CPU、NAS/服务器的 Compose 能力、网络和资源；构建机架构不是目标架构 |
 | 云端能力 | 现有远端及 CI、已登录工具、读取/提交/运行/下载权限、源代码所在 ref 与 commit；不打印 token |
@@ -96,6 +96,6 @@ README 给出在**目标部署机**执行的校验、导入、准备配置、初
 
 ## 参考与回归用例
 
-- [`references/whatsnew-origin.md`](references/whatsnew-origin.md)：原方案的可复用点与不能照搬的假设。
+- [`references/origin-project-notes.md`](references/origin-project-notes.md)：原方案的可复用点与不能照搬的假设。
 - [`ENVIRONMENTS.md`](ENVIRONMENTS.md)：工具能力不同的执行方式。
 - [`evals/evals.json`](evals/evals.json)：正常、边界和对抗用例；这是技能行为评测，不代表实际镜像已构建。
