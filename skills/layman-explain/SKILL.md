@@ -251,7 +251,7 @@ description: |
 >
 > 这个没问题。
 >
-> 但你不能直接跟远程 Agent 说"帮我修改 Mac 上 `/Users/zaynzhu/a.xlsx`"，因为那个路径只存在你 Mac 上，远程 Docker 根本看不到。
+> 但你不能直接跟远程 Agent 说"帮我修改 Mac 上 `/Users/<name>/a.xlsx`"，因为那个路径只存在你 Mac 上，远程 Docker 根本看不到。
 
 ## 多方案比较
 
