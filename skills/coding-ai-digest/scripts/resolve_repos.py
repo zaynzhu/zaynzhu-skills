@@ -17,7 +17,8 @@ import sys
 import time
 
 
-# 已知映射表（从历史榜单积累，减少 API 调用）
+# 已知映射表（从历史榜单积累的加速缓存，非权威数据：榜单换血后条目会过期，
+# 前缀匹配也可能把新项目错解析到旧仓库；可整段清理，清理后仍走 GitHub 搜索兜底）
 KNOWN_REPOS = {
     "mempalace": "milla-jovovich/mempalace",
     "hermes-agent": "NousResearch/hermes-agent",
