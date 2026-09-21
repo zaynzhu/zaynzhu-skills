@@ -42,7 +42,7 @@
 | `talent-mining` | talent-mining | 挖掘隐藏天赋（多轮苏格拉底对话最多10主问+4主线:童年/无意识胜任/能量/嫉妒+出个人天赋说明书6部分+反宿命论能量审计阴影即宝藏+长度自适应不编造） | 无 |
 | `life-odyssey` | life-odyssey | 人生设计斯坦福法（多轮对话6-9主问4阶段+分清重力问题/可设计问题+三个完全不同五年奥德赛计划+原型行动+出个人人生设计蓝图8部分+看未来与talent-mining互补+长度自适应） | 无 |
 | `source-first` | source-first | 搜索可信度决策层（官方域名三层发现+递归溯源主干+GEO/SEO垃圾快筛五级源分级+独立交叉验证破循环印证+正常搜索预警层，backend-agnostic） | 无脚本（复用 enhanced-tavily-search/WebSearch/WebFetch，可选 TAVILY_API_KEY、浏览器 MCP） |
-| `lesson-vault` | lesson-vault | 经验落盘与检索（已验证成功方案/失败路径/待验证三层入 docs/lessons/ 主题文件+INDEX 索引；读写双端；交叉验证可信度标注；结论速览/条目/索引同步义务；信任边界防报错原文注入） | 无（读写项目内 Markdown；可选 git） |
+| `lesson-vault` | lesson-vault | 经验落盘与检索（已验证成功方案/失败路径/待验证三层入 docs/lessons/ 主题文件+INDEX 索引；读写双端；交叉验证可信度标注；结论速览/条目/索引同步义务；信任边界防报错原文注入；与项目 runbook 分工单一权威源；本地 vault 模式带备份义务） | 无（读写项目内 Markdown；可选 git） |
 
 ## 强制规则
 
