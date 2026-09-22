@@ -1,0 +1,82 @@
+[
+  {
+    "query": "使用 problem-solving，帮我把这个需求想清楚",
+    "should_trigger": true
+  },
+  {
+    "query": "请调用 problem-solving 判断这个方案能否落地",
+    "should_trigger": true
+  },
+  {
+    "query": "用 problem-solving 分析这次执行偏差",
+    "should_trigger": true
+  },
+  {
+    "query": "按 problem-solving 的方式攻坚，必要时写核心验证",
+    "should_trigger": true
+  },
+  {
+    "query": "读取 problem-solving/SKILL.md 并处理业务卡点",
+    "should_trigger": true
+  },
+  {
+    "query": "我明确要用攻坚与执行设计这个技能",
+    "should_trigger": true
+  },
+  {
+    "query": "使用本技能攻坚，再把首段路线交给执行者",
+    "should_trigger": true
+  },
+  {
+    "query": "调用 problem-solving，但这轮先只讨论",
+    "should_trigger": true
+  },
+  {
+    "query": "用 problem-solving 研究方案，工程变大先告诉我",
+    "should_trigger": true
+  },
+  {
+    "query": "problem-solving：这是原路线和失败证据，请重新判断",
+    "should_trigger": true
+  },
+  {
+    "query": "帮我修复这个空指针",
+    "should_trigger": false
+  },
+  {
+    "query": "给这段代码写单元测试",
+    "should_trigger": false
+  },
+  {
+    "query": "把聊天整理成交接文档",
+    "should_trigger": false
+  },
+  {
+    "query": "这个需求怎么做",
+    "should_trigger": false
+  },
+  {
+    "query": "项目卡住了，帮我看看",
+    "should_trigger": false
+  },
+  {
+    "query": "解释一下第一性原理",
+    "should_trigger": false
+  },
+  {
+    "query": "problem-solving 这个名字是什么意思",
+    "should_trigger": false
+  },
+  {
+    "query": "比较几个技能的用途",
+    "should_trigger": false
+  },
+  {
+    "query": "运行现有测试，不做其他事",
+    "should_trigger": false
+  },
+  {
+    "query": "把这份文档翻译成中文",
+    "should_trigger": false
+  }
+]

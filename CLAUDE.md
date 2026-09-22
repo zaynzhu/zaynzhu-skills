@@ -17,6 +17,7 @@
 | `cloud-compose` | cloud-compose | 云端 Docker/Compose 交付（默认离线 tar，云端验收，受阻替代方案，本地须明确授权） | 云端 CI + Git/CLI/API（无本地 Docker 依赖） |
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
 | `enhanced-neat-freak` | enhanced-neat-freak | 知识库同步/交接清理 | 无（可选 shell、git、rg） |
+| `problem-solving` | problem-solving | 明确调用的攻坚与执行设计（自主研究/核心实现与验证/分阶段路线/投入边界/偏差交回） | 无（项目读取、联网、执行工具按需） |
 | `enhanced-handoff` | enhanced-handoff | 双端任务交接（发送/接收/交回，决策依据、状态核对、角色边界与验收，无技能接收端可用） | 无（项目读取/Git 可选） |
 | `pet` | pet | CLI 编程宠物（7种宠物/进化/成就/装扮） | Bash + jq / Node.js |
 | `model-debate` | model-debate | 多模型辩论 | Python ≥ 3.8, curl, 模型 API Key |
