@@ -34,10 +34,10 @@
 
 ## 文件与安装
 
-- `skills/problem-solving/SKILL.md`：主指令。
-- `references/execution-route.md`：可裁剪的执行路线模板。
-- `ENVIRONMENTS.md`：能力适配与验证边界。
-- `evals/evals.json`：维护用情境评测，日常无需加载。
+- [主指令](../skills/problem-solving/SKILL.md)。
+- [执行路线模板](../skills/problem-solving/references/execution-route.md)：可按任务裁剪。
+- [环境说明](../skills/problem-solving/ENVIRONMENTS.md)：能力适配与验证边界。
+- [评测说明](../skills/problem-solving/evals/README.md)与[情境用例](../skills/problem-solving/evals/evals.json)：维护使用，日常无需加载。
 
 安装时将整个 `skills/problem-solving/` 复制到目标平台的技能目录，例如目标项目的 `.codex/skills/` 或 `.claude/skills/`。也可明确要求模型读取 SKILL.md；是否自动发现由平台决定。
 

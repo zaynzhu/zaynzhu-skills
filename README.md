@@ -27,7 +27,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | &nbsp; | 技能 | 简介 | 状态 |
 |:------:|------|------|:----:|
 | 🐳 | [**cloud-compose**](./skills/cloud-compose/) | 为不同项目生成 Dockerfile、Compose 与云端构建链路，默认交付离线镜像 tar、校验文件和部署说明；严格云端执行，受阻时给出替代方案，本地须明确授权 | `experimental` |
-| 🛠️ | [**enhanced-skill-creator**](./skills/enhanced-skill-creator/) | Skill 全生命周期管理工具。支持需求收集、草稿自审、分层测试（L1/L2/L3）、量化评测、描述优化和打包交付，内置 5 类技能模板库 | `stable` |
+| 🛠️ | [**enhanced-skill-creator**](./skills/enhanced-skill-creator/) | Skill 全生命周期工作流。覆盖需求、自审、正常/边界/对抗评测及交付，内置 5 类模板；自动化辅助脚本未随仓库提供，见[使用说明](./docs/enhanced-skill-creator.md) | `stable` |
 | 🧹 | [**enhanced-neat-freak**](./skills/enhanced-neat-freak/) | 知识库收尾、文档同步和交接清理工具。强制尺寸体检与记忆全量逐条时效审查，结合证据账本和反膨胀规则同步项目知识，并保持同作用域 CLAUDE/AGENTS 内容一致 | `stable` |
 | 🧠 | [**problem-solving**](./skills/problem-solving/) | 明确调用的攻坚与执行设计。自主研究与核心验证，给出有依据的分阶段路线、投入边界和偏差交回条件，不绑定模型 | `experimental` |
 | 🤝 | [**enhanced-handoff**](./skills/enhanced-handoff/) | 双端任务交接。发送、接收与交回时保留决策依据、核对状态和验收，明确执行/审查角色；接收端无需安装技能 | `experimental` |
@@ -154,7 +154,7 @@ git clone https://github.com/zaynzhu/zaynzhu-skills.git
 
 | Skill | 运行环境 | 必需工具 | 可选 |
 |-------|---------|---------|------|
-| `enhanced-skill-creator` | 通用 | 无 | Python（描述优化脚本） |
+| `enhanced-skill-creator` | 通用 | 无 | Python（另行核实并取得辅助脚本后使用） |
 | `enhanced-neat-freak` | 通用 | 无 | shell、git、rg（用于文档审计和验证） |
 | `problem-solving` | 通用 | 无 | 项目读取、联网、代码执行（按任务使用，缺失时标注验证边界） |
 | `enhanced-handoff` | 通用 | 无 | 项目文件读取、git（用于接手时核对状态） |
