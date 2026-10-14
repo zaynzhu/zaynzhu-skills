@@ -84,6 +84,7 @@ Skill 是封装了特定专业知识和工作流程的指令集，让 AI 在垂�
 | ideastorming | [使用文档](./docs/ideastorming.md) |
 | enhanced-tavily-search | [使用文档](./docs/enhanced-tavily-search.md) |
 | m3u8-downloader | [使用文档](./docs/m3u8-downloader.md) |
+| bt-search | [使用文档](./docs/bt-search.md) |
 | mmy | [使用文档](./docs/mmy.md) |
 | pet | [使用文档](./docs/pet.md) |
 | trending-search | [使用文档](./docs/trending-search.md) |
