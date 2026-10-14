@@ -13,6 +13,7 @@
 | `enhanced-tavily-search` | enhanced-tavily-search | 联网搜索 | Python >= 3.8, TAVILY_API_KEY |
 | `ideastorming` | ideastorming | AI 热点转项目选题 | Python >= 3.8, AIHOT 公开 API |
 | `m3u8-downloader` | m3u8-downloader | m3u8 流下载 | ffmpeg |
+| `bt-search` | bt-search | BT 资源搜索（多源融合磁力/种子，可选推 qBittorrent） | Node.js, 可选 Python venv + curl_cffi |
 | `coding-ai-digest` | coding-ai-digest | 排行榜分析 | Python >= 3.8, 可选 GitHub Token |
 | `cloud-compose` | cloud-compose | 云端 Docker/Compose 交付（默认离线 tar，云端验收，受阻替代方案，本地须明确授权） | 云端 CI + Git/CLI/API（无本地 Docker 依赖） |
 | `enhanced-skill-creator` | enhanced-skill-creator | 技能开发 | 无（可选 Python） |
